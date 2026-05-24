@@ -179,6 +179,40 @@ export function generatePDF(data: PDFData) {
   doc.save(fileName)
 }
 
+export function exportAnalysisPDF(
+  analysisType: string,
+  result: {
+    score: number
+    metrics: { label: string; value: string; status?: string }[]
+    issues: { type: string; message: string }[]
+    recommendations: string[]
+  },
+  language: "ar" | "en"
+) {
+  const titles: Record<string, { ar: string; en: string }> = {
+    website: { ar: "Website Analysis Report", en: "Website Analysis Report" },
+    instagram: { ar: "Instagram Analysis Report", en: "Instagram Analysis Report" },
+    facebook: { ar: "Facebook Analysis Report", en: "Facebook Analysis Report" },
+    tiktok: { ar: "TikTok Analysis Report", en: "TikTok Analysis Report" },
+  }
+
+  const data: PDFData = {
+    title: titles[analysisType]?.[language] || "Analysis Report",
+    date: new Date().toLocaleDateString(language === "ar" ? "ar-EG" : "en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }),
+    score: result.score,
+    metrics: result.metrics.map((m) => ({ label: m.label, value: m.value })),
+    issues: result.issues,
+    recommendations: result.recommendations,
+    language,
+  }
+
+  generatePDF(data)
+}
+
 export function exportDashboardPDF(language: "ar" | "en") {
   const data: PDFData = {
     title: language === "ar" ? "Dashboard Analytics Report" : "Dashboard Analytics Report",

@@ -23,7 +23,9 @@ import {
   Users,
   Eye,
   Link2,
+  FileDown,
 } from "lucide-react"
+import { exportAnalysisPDF } from "@/lib/pdf-export"
 
 interface AnalysisResult {
   score: number
@@ -129,11 +131,15 @@ function generateSocialAnalysis(platform: string, username: string): AnalysisRes
 }
 
 function AnalysisResultCard({ result, type }: { result: AnalysisResult; type: string }) {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+
+  const handleExportPDF = () => {
+    exportAnalysisPDF(type, result, language)
+  }
 
   return (
     <div className="mt-6 space-y-6">
-      {/* Score Card */}
+      {/* Score Card with Export Button */}
       <Card className="border-border bg-card">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
@@ -146,22 +152,33 @@ function AnalysisResultCard({ result, type }: { result: AnalysisResult; type: st
                 <span className="text-lg text-muted-foreground">/100</span>
               </p>
             </div>
-            <div
-              className={`flex h-20 w-20 items-center justify-center rounded-full ${
-                result.score >= 80
-                  ? "bg-green-500/20 text-green-500"
-                  : result.score >= 60
-                    ? "bg-yellow-500/20 text-yellow-500"
-                    : "bg-red-500/20 text-red-500"
-              }`}
-            >
-              {result.score >= 80 ? (
-                <CheckCircle2 className="h-10 w-10" />
-              ) : result.score >= 60 ? (
-                <AlertTriangle className="h-10 w-10" />
-              ) : (
-                <XCircle className="h-10 w-10" />
-              )}
+            <div className="flex items-center gap-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportPDF}
+                className="gap-2"
+              >
+                <FileDown className="h-4 w-4" />
+                {t("تصدير PDF", "Export PDF")}
+              </Button>
+              <div
+                className={`flex h-20 w-20 items-center justify-center rounded-full ${
+                  result.score >= 80
+                    ? "bg-green-500/20 text-green-500"
+                    : result.score >= 60
+                      ? "bg-yellow-500/20 text-yellow-500"
+                      : "bg-red-500/20 text-red-500"
+                }`}
+              >
+                {result.score >= 80 ? (
+                  <CheckCircle2 className="h-10 w-10" />
+                ) : result.score >= 60 ? (
+                  <AlertTriangle className="h-10 w-10" />
+                ) : (
+                  <XCircle className="h-10 w-10" />
+                )}
+              </div>
             </div>
           </div>
         </CardContent>

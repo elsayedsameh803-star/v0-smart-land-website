@@ -11,6 +11,12 @@ import {
   StatsSection,
   CTASection,
 } from "@/components/landing-sections"
+import {
+  TestimonialsSection,
+  DashboardPreviewSection,
+  BlogSection,
+  VisitorCounter,
+} from "@/components/additional-sections"
 
 export default function HomePage() {
   return (
@@ -22,8 +28,12 @@ export default function HomePage() {
             <HeroSection />
             <StatsSection />
             <FeaturesSection />
+            <DashboardPreviewSection />
+            <TestimonialsSection />
+            <BlogSection />
             <CTASection />
           </main>
+          <VisitorCounter />
           <Footer />
           <WhatsAppButton />
         </div>
