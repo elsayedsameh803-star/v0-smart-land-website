@@ -24,6 +24,8 @@ import {
   Eye,
   Link2,
   FileDown,
+  Brain,
+  Sparkles,
 } from "lucide-react"
 import { exportAnalysisPDF } from "@/lib/pdf-export"
 
@@ -32,6 +34,7 @@ interface AnalysisResult {
   issues: { type: "error" | "warning" | "success"; message: string }[]
   metrics: { label: string; value: string; status: "good" | "medium" | "bad" }[]
   recommendations: string[]
+  aiInsights?: string
 }
 
 function generateWebsiteAnalysis(url: string): AnalysisResult {
@@ -243,6 +246,28 @@ function AnalysisResultCard({ result, type }: { result: AnalysisResult; type: st
           </ul>
         </CardContent>
       </Card>
+
+      {/* AI Insights */}
+      {result.aiInsights && (
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20">
+                <Brain className="h-4 w-4 text-primary" />
+              </div>
+              <span className="flex items-center gap-2">
+                {t("تحليل الذكاء الاصطناعي", "AI Analysis")}
+                <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm leading-relaxed text-foreground">
+              {result.aiInsights}
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
@@ -261,23 +286,48 @@ export function AnalysisTools() {
     tiktok?: AnalysisResult
   }>({})
 
-  const analyzeWebsite = async () => {
-    if (!websiteUrl) return
+  const analyzeWithAI = async (type: string, url: string) => {
+    if (!url) return
     setAnalyzing(true)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setResults((prev) => ({ ...prev, website: generateWebsiteAnalysis(websiteUrl) }))
+    
+    try {
+      // Try AI-powered analysis first
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url, type }),
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        if (data.success && data.analysis) {
+          setResults((prev) => ({ ...prev, [type]: data.analysis }))
+          setAnalyzing(false)
+          return
+        }
+      }
+    } catch (error) {
+      console.log('[v0] AI analysis failed, using fallback:', error)
+    }
+    
+    // Fallback to local analysis
+    if (type === 'website') {
+      setResults((prev) => ({ ...prev, website: generateWebsiteAnalysis(url) }))
+    } else {
+      setResults((prev) => ({
+        ...prev,
+        [type]: generateSocialAnalysis(type, url),
+      }))
+    }
     setAnalyzing(false)
   }
 
+  const analyzeWebsite = async () => {
+    await analyzeWithAI('website', websiteUrl)
+  }
+
   const analyzeSocial = async (platform: string, username: string) => {
-    if (!username) return
-    setAnalyzing(true)
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setResults((prev) => ({
-      ...prev,
-      [platform]: generateSocialAnalysis(platform, username),
-    }))
-    setAnalyzing(false)
+    await analyzeWithAI(platform, username)
   }
 
   return (

@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { BarChart3, Globe, User, LogOut, Menu, X } from "lucide-react"
+import { BarChart3, Globe, User, LogOut, Menu, X, Sparkles } from "lucide-react"
 import { useState } from "react"
 
 export function Navbar() {
