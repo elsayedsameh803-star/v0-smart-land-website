@@ -114,6 +114,8 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className="bg-background">
       <head>
+      <meta name="google-site-verification" content="8zE2kL8YSJk8c9X7OhOFUi2SDK8zQen369jqwhG-pYc" />
+
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
