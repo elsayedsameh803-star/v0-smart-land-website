@@ -4,14 +4,14 @@ import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
 
-const cairo = Cairo({ 
+const cairo = Cairo({
   subsets: ["arabic", "latin"],
   variable: '--font-cairo',
   display: 'swap',
   preload: true,
 })
 
-const geistMono = Geist_Mono({ 
+const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: '--font-mono',
   display: 'swap',
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     'تحليل بيانات',
     'تحليل مواقع',
     'تحليل انستجرام',
-    'تحليل فيسبوك', 
+    'تحليل فيسبوك',
     'تحليل تيك توك',
     'سوشيال ميديا',
     'SEO',
@@ -117,7 +117,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-        <meta name="google-site-verification" content="your-verification-code" />
+        <meta name="google-site-verification" content="JMwP_nJ4KRNImPNKdVqfgJb3yze-zjBbkEEmnlrkfso" />
       </head>
       <body className={`${cairo.variable} ${geistMono.variable} font-sans antialiased`}>
         {children}
