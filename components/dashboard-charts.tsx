@@ -25,6 +25,14 @@ import {
   MousePointerClick,
   Clock,
 } from "lucide-react"
+const socialPlatforms = [
+  { name: "YouTube", key: "youtube" },
+  { name: "LinkedIn", key: "linkedin" },
+  { name: "Telegram", key: "telegram" },
+  { name: "Pinterest", key: "pinterest" },
+  { name: "Reddit", key: "reddit" },
+  { name: "BIGO LIVE", key: "bigo" },
+];
 
 // Candlestick data simulation
 const candlestickData = [
