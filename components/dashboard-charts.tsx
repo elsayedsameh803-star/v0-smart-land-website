@@ -296,43 +296,43 @@ function ConversionChart() {
 export function DashboardCharts() {
   const { t } = useLanguage()
 
-  return (
-    <div className="space-y-6">
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard
-          title={t("إجمالي الزيارات", "Total Visits")}
-          value="124,520"
-          change={12.5}
-          icon={Eye}
-        />
-        <StatCard
-          title={t("المتابعون", "Followers")}
-          value="155,000"
-          change={8.2}
-          icon={Users}
-        />
-        <StatCard
-          title={t("معدل التحويل", "Conversion Rate")}
-          value="3.42%"
-          change={-2.1}
-          icon={MousePointerClick}
-        />
-        <StatCard
-          title={t("متوسط وقت الجلسة", "Avg. Session")}
-          value="4:32"
-          change={5.8}
-          icon={Clock}
-        />
-      </div>
-
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <CandlestickChart />
-        <PerformanceChart />
-        <SocialMediaChart />
-        <ConversionChart />
-      </div>
+return (
+  <div className="space-y-6">
+    {/* Stats Grid */}
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <StatCard
+        title="إجمالي الزيارات"
+        value="124,520"
+        change={12.5}
+        icon={Eye}
+      />
+      <StatCard
+        title="المتابعون"
+        value="155,000"
+        change={8.2}
+        icon={Users}
+      />
+      <StatCard
+        title="معدل التحويل"
+        value="3.42%"
+        change={-2.1}
+        icon={Percent}
+      />
+      <StatCard
+        title="متوسط وقت الجلسة"
+        value="4:32"
+        change={5.8}
+        icon={Clock}
+      />
     </div>
-  )
+
+    {/* Charts Grid */}
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <CandlestickChart />
+      <PerformanceChart />
+      <SocialMediaChart />
+      <ConversionChart />
+    </div>
+  </div>
+)
 }
