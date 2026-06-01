@@ -70,4 +70,15 @@ export async function exportDashboardPDF(language: "ar" | "en") {
   )
 
   doc.save(`smartland-report-${Date.now()}.pdf`)
+}export function exportAnalysisPDF(
+  analysisType: string,
+  result: {
+    score: number
+    metrics: { label: string; value: string }[]
+    issues: { type: string; message: string }[]
+    recommendations: string[]
+  },
+  language: "ar" | "en"
+) {
+  exportDashboardPDF(language)
 }
