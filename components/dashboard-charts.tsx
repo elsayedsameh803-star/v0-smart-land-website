@@ -26,7 +26,7 @@ import {
   Clock,
 } from "lucide-react"
 
-// ===================== DATA =====================
+// Candlestick data simulation
 const candlestickData = [
   { date: "01/01", open: 100, high: 120, low: 95, close: 115 },
   { date: "02/01", open: 115, high: 130, low: 110, close: 125 },
@@ -40,11 +40,7 @@ const candlestickData = [
   { date: "10/01", open: 172, high: 180, low: 168, close: 175 },
   { date: "11/01", open: 175, high: 190, low: 170, close: 185 },
   { date: "12/01", open: 185, high: 200, low: 180, close: 195 },
-].map((item) => ({
-  ...item,
-  range: item.high - item.low,
-  body: Math.abs(item.close - item.open),
-}))
+]
 
 const performanceData = [
   { name: "يناير", visits: 4000, engagement: 2400, conversions: 400 },
@@ -62,28 +58,34 @@ const socialData = [
   { platform: "TikTok", followers: 78000, engagement: 8.2, growth: 25 },
 ]
 
-// ===================== STAT CARD =====================
-function StatCard({ title, value, change, icon: Icon }: any) {
+interface StatCardProps {
+  title: string
+  value: string
+  change: number
+  icon: React.ElementType
+}
+
+function StatCard({ title, value, change, icon: Icon }: StatCardProps) {
   const isPositive = change > 0
 
   return (
-    <Card>
+    <Card className="border-border bg-card">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-muted-foreground">{title}</p>
-            <p className="text-2xl font-bold">{value}</p>
+            <p className="mt-1 text-2xl font-bold text-foreground">{value}</p>
           </div>
-          <Icon className="h-6 w-6 text-primary" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+            <Icon className="h-6 w-6 text-primary" />
+          </div>
         </div>
-
         <div className="mt-4 flex items-center gap-1 text-sm">
           {isPositive ? (
             <TrendingUp className="h-4 w-4 text-green-500" />
           ) : (
             <TrendingDown className="h-4 w-4 text-red-500" />
           )}
-
           <span className={isPositive ? "text-green-500" : "text-red-500"}>
             {Math.abs(change)}%
           </span>
@@ -94,37 +96,53 @@ function StatCard({ title, value, change, icon: Icon }: any) {
   )
 }
 
-// ===================== CHARTS =====================
-
-// Candlestick (Safe version)
+// Custom Candlestick component
 function CandlestickChart() {
   const { t } = useLanguage()
 
   return (
-    <Card>
+    <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle>{t("شموع الأداء البياني", "Performance Chart")}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-primary" />
+          {t("شموع الأداء البياني", "Performance Candlestick Chart")}
+        </CardTitle>
       </CardHeader>
-
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <ComposedChart data={candlestickData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="date" />
-            <YAxis />
-            <Tooltip />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
+            <YAxis stroke="hsl(var(--muted-foreground))" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
+              }}
+              labelStyle={{ color: "hsl(var(--foreground))" }}
+            />
             <Legend />
-
-            {/* High-Low Range */}
-            <Bar dataKey="range" fill="#8884d8" name="Range" />
-
-            {/* Close trend */}
+            <Bar
+              dataKey="low"
+              fill="transparent"
+              stackId="candle"
+              name={t("أدنى", "Low")}
+            />
+            <Bar
+              dataKey={(data) => data.close - data.low}
+              fill="hsl(var(--chart-2))"
+              stackId="candle"
+              name={t("إغلاق", "Close")}
+              radius={[4, 4, 0, 0]}
+            />
             <Line
               type="monotone"
-              dataKey="close"
-              stroke="#82ca9d"
+              dataKey="high"
+              stroke="hsl(var(--chart-1))"
               strokeWidth={2}
-              name="Close"
+              dot={{ fill: "hsl(var(--chart-1))", strokeWidth: 2 }}
+              name={t("أعلى", "High")}
             />
           </ComposedChart>
         </ResponsiveContainer>
@@ -133,27 +151,57 @@ function CandlestickChart() {
   )
 }
 
-// Performance
 function PerformanceChart() {
   const { t } = useLanguage()
 
   return (
-    <Card>
+    <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle>{t("تحليل الأداء الشهري", "Performance")}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Eye className="h-5 w-5 text-primary" />
+          {t("تحليل الأداء الشهري", "Monthly Performance Analysis")}
+        </CardTitle>
       </CardHeader>
-
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={performanceData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
+            <defs>
+              <linearGradient id="colorVisits" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(var(--chart-1))" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="hsl(var(--chart-1))" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="colorEngagement" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(var(--chart-2))" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="hsl(var(--chart-2))" stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+            <YAxis stroke="hsl(var(--muted-foreground))" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
+              }}
+            />
             <Legend />
-
-            <Area type="monotone" dataKey="visits" stroke="#8884d8" fill="#8884d8" />
-            <Area type="monotone" dataKey="engagement" stroke="#82ca9d" fill="#82ca9d" />
+            <Area
+              type="monotone"
+              dataKey="visits"
+              stroke="hsl(var(--chart-1))"
+              fillOpacity={1}
+              fill="url(#colorVisits)"
+              name={t("الزيارات", "Visits")}
+            />
+            <Area
+              type="monotone"
+              dataKey="engagement"
+              stroke="hsl(var(--chart-2))"
+              fillOpacity={1}
+              fill="url(#colorEngagement)"
+              name={t("التفاعل", "Engagement")}
+            />
           </AreaChart>
         </ResponsiveContainer>
       </CardContent>
@@ -161,27 +209,43 @@ function PerformanceChart() {
   )
 }
 
-// Social
 function SocialMediaChart() {
   const { t } = useLanguage()
 
   return (
-    <Card>
+    <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle>{t("السوشيال ميديا", "Social Media")}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Users className="h-5 w-5 text-primary" />
+          {t("تحليل السوشيال ميديا", "Social Media Analysis")}
+        </CardTitle>
       </CardHeader>
-
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={socialData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="platform" />
-            <YAxis />
-            <Tooltip />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="platform" stroke="hsl(var(--muted-foreground))" />
+            <YAxis stroke="hsl(var(--muted-foreground))" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
+              }}
+            />
             <Legend />
-
-            <Bar dataKey="followers" fill="#8884d8" />
-            <Bar dataKey="growth" fill="#82ca9d" />
+            <Bar
+              dataKey="followers"
+              fill="hsl(var(--chart-1))"
+              name={t("المتابعون", "Followers")}
+              radius={[4, 4, 0, 0]}
+            />
+            <Bar
+              dataKey="growth"
+              fill="hsl(var(--chart-2))"
+              name={t("النمو %", "Growth %")}
+              radius={[4, 4, 0, 0]}
+            />
           </BarChart>
         </ResponsiveContainer>
       </CardContent>
@@ -189,26 +253,39 @@ function SocialMediaChart() {
   )
 }
 
-// Conversion
 function ConversionChart() {
   const { t } = useLanguage()
 
   return (
-    <Card>
+    <Card className="border-border bg-card">
       <CardHeader>
-        <CardTitle>{t("التحويلات", "Conversions")}</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <MousePointerClick className="h-5 w-5 text-primary" />
+          {t("معدل التحويلات", "Conversion Rate")}
+        </CardTitle>
       </CardHeader>
-
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={performanceData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" />
+            <YAxis stroke="hsl(var(--muted-foreground))" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px",
+              }}
+            />
             <Legend />
-
-            <Line type="monotone" dataKey="conversions" stroke="#ff7300" />
+            <Line
+              type="monotone"
+              dataKey="conversions"
+              stroke="hsl(var(--chart-3))"
+              strokeWidth={3}
+              dot={{ fill: "hsl(var(--chart-3))", strokeWidth: 2, r: 4 }}
+              name={t("التحويلات", "Conversions")}
+            />
           </LineChart>
         </ResponsiveContainer>
       </CardContent>
@@ -216,21 +293,40 @@ function ConversionChart() {
   )
 }
 
-// ===================== MAIN =====================
 export function DashboardCharts() {
   const { t } = useLanguage()
 
   return (
     <div className="space-y-6">
-      {/* Stats */}
+      {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title={t("الزيارات", "Visits")} value="124,520" change={12.5} icon={Eye} />
-        <StatCard title={t("المتابعون", "Followers")} value="155,000" change={8.2} icon={Users} />
-        <StatCard title={t("التحويل", "Conversion")} value="3.42%" change={-2.1} icon={MousePointerClick} />
-        <StatCard title={t("الوقت", "Session Time")} value="4:32" change={5.8} icon={Clock} />
+        <StatCard
+          title={t("إجمالي الزيارات", "Total Visits")}
+          value="124,520"
+          change={12.5}
+          icon={Eye}
+        />
+        <StatCard
+          title={t("المتابعون", "Followers")}
+          value="155,000"
+          change={8.2}
+          icon={Users}
+        />
+        <StatCard
+          title={t("معدل التحويل", "Conversion Rate")}
+          value="3.42%"
+          change={-2.1}
+          icon={MousePointerClick}
+        />
+        <StatCard
+          title={t("متوسط وقت الجلسة", "Avg. Session")}
+          value="4:32"
+          change={5.8}
+          icon={Clock}
+        />
       </div>
 
-      {/* Charts */}
+      {/* Charts Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <CandlestickChart />
         <PerformanceChart />
