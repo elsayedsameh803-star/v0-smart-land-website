@@ -14,6 +14,7 @@ interface PDFData {
 
 export function generatePDF(data: PDFData) {
   const doc = new jsPDF({
+    doc.setFont("helvetica");
     orientation: "portrait",
     unit: "mm",
     format: "a4",
