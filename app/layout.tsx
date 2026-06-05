@@ -117,7 +117,6 @@ export default function RootLayout({
     <html lang="ar" dir="rtl" className="bg-background">
       <head>
       <Script
-  async
   src="https://www.googletagmanager.com/gtag/js?id=G-Y5YYWM9QGT"
   strategy="afterInteractive"
 />
@@ -127,6 +126,7 @@ export default function RootLayout({
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
+
     gtag('config', 'G-Y5YYWM9QGT');
   `}
 </Script>
