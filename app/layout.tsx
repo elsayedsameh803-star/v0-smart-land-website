@@ -3,6 +3,8 @@ import { Cairo, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import './globals.css'
+import Script from 'next/script';
+
 
 const cairo = Cairo({ 
   subsets: ["arabic", "latin"],
@@ -114,6 +116,20 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className="bg-background">
       <head>
+      <Script
+  async
+  src="https://www.googletagmanager.com/gtag/js?id=G-Y5YYWM9QGT"
+  strategy="afterInteractive"
+/>
+
+<Script id="google-analytics" strategy="afterInteractive">
+  {`
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-Y5YYWM9QGT');
+  `}
+</Script>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
