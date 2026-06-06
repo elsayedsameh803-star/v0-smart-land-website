@@ -120,6 +120,7 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         
       </head>
+      <meta name="google-site-verification" content="JMwP_nJ4KRNImPNKdVqfgJb3yze-zjBbkEEmnlrkfso" />
       <body className={`${cairo.variable} ${geistMono.variable} font-sans antialiased`}>
         {children}
         {process.env.NODE_ENV === 'production' && (
