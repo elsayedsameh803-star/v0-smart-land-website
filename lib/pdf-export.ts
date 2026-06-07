@@ -2,6 +2,10 @@
 
 import { jsPDF } from "jspdf"
 
+import "jspdf-autotable"; 
+
+
+
 interface PDFData {
   title: string
   date: string
@@ -14,12 +18,14 @@ interface PDFData {
 
 export function generatePDF(data: PDFData) {
   const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
-  })
+  orientation: "portrait",
+  unit: "mm",
+  format: "a4"
+});
 
-  const isArabic = data.language === "ar"
+doc.addFont("https://raw.githubusercontent.com/googlefonts/amiri/master/fonts/amiri-regular.ttf", "Amiri", "normal");
+doc.setFont("Amiri");
+
 
   // Colors
   const primaryColor = [200, 160, 50] as [number, number, number]
