@@ -60,7 +60,8 @@ export function generatePDF(data: PDFData) {
 
   doc.setTextColor(...textColor)
   doc.setFontSize(14)
-  doc.text(isArabic ? "Analysis Score" : "Analysis Score", 30, 82)
+  doc.text(isArabic ? data.title.split('').reverse().join('').replace(/[\u064B-\u065F]/g, '') : data.title, 105, 55, { align: "center" });
+
 
   doc.setFontSize(24)
   doc.setTextColor(...primaryColor)
