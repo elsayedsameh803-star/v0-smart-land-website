@@ -19,9 +19,7 @@ export function generatePDF(data: PDFData) {
     unit: "mm",
     format: "a4",
   })
-  doc.addFileToVFS('NotoNaskh.ttf', fontBase64);
-doc.addFont('NotoNaskh.ttf', 'NotoNaskh', 'normal');
-doc.setFont('NotoNaskh');
+  
 
 
   const isArabic = data.language === "ar"
