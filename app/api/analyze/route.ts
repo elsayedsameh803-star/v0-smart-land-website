@@ -3,18 +3,13 @@ import { z } from 'zod'
 
 const analysisSchema = z.object({
   url: z.string().url(),
-   type: z.enum(['website', 'instagram', 'facebook', 'tiktok', 'youtube'])
-})
-
+  type: z.enum(['website', 'instagram', 'facebook', 'tiktok', 'youtube']),
 })
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
     const { url, type } = analysisSchema.parse(body)
-    if (type === 'youtube') {
-  console.log('YouTube URL:', url)
-}
 
     // Generate AI-powered analysis
     const { text } = await generateText({
