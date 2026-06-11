@@ -12,6 +12,9 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
     const { url, type } = analysisSchema.parse(body)
+    if (type === 'youtube') {
+  console.log('YouTube URL:', url)
+}
 
     // Generate AI-powered analysis
     const { text } = await generateText({
