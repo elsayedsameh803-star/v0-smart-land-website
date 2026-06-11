@@ -3,7 +3,9 @@ import { z } from 'zod'
 
 const analysisSchema = z.object({
   url: z.string().url(),
-  type: z.enum(['website', 'instagram', 'facebook', 'tiktok', 'youtube']),
+   type: z.enum(['website', 'instagram', 'facebook', 'tiktok', 'youtube'])
+})
+
 })
 
 export async function POST(req: Request) {
