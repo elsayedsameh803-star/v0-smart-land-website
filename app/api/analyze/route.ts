@@ -10,6 +10,28 @@ export async function POST(req: Request) {
   try {
     const body = await req.json()
     const { url, type } = analysisSchema.parse(body)
+    if (type === 'youtube') {
+  const apiKey = process.env.YOUTUBE_API_KEY
+
+  // استخراج ID من الرابط
+  const videoId = new URL(url).searchParams.get('v')
+
+  const res = await fetch(
+    `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${videoId}&key=${apiKey}`
+  )
+
+  const data = await res.json()
+
+  return Response.json({
+    success: true,
+    analysis: {
+      title: data.items?.[0]?.snippet?.title,
+      views: data.items?.[0]?.statistics?.viewCount,
+      likes: data.items?.[0]?.statistics?.likeCount,
+      channel: data.items?.[0]?.snippet?.channelTitle,
+    },
+  })
+}
 
     // Generate AI-powered analysis
     const { text } = await generateText({
