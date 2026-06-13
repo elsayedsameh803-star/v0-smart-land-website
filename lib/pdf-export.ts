@@ -1,38 +1,31 @@
-"use client"
+import { jsPDF } from "jspdf";
 
-import { jsPDF } from "jspdf"
+export function exportAnalysisPDF(type: string, result: any, language: "ar" | "en") {
+  const doc = new jsPDF();
 
-export function exportAnalysisPDF(
-  type: string,
-  result: any,
-  language: "ar" | "en"
-) {
-  const doc = new jsPDF()
+  // Load the font you installed
+  doc.addFont('NotoNaskhArabic-VariableFont.ttf', 'ArabicFont', 'normal');
+  doc.setFont('ArabicFont');
 
-  const title =
-    type === "website"
-      ? "Website Analysis Report"
-      : type === "instagram"
-        ? "Instagram Analysis Report"
-        : type === "facebook"
-          ? "Facebook Analysis Report"
-          : "TikTok Analysis Report"
+  // Define titles based on type
+  const titles = {
+    website: language === "ar" ? "تقرير تحليل الموقع" : "Website Analysis Report",
+    instagram: language === "ar" ? "تقرير تحليل إنستجرام" : "Instagram Analysis Report",
+    facebook: language === "ar" ? "تقرير تحليل فيسبوك" : "Facebook Analysis Report",
+    youtube: language === "ar" ? "تقرير تحليل يوتيوب" : "YouTube Analysis Report",
+    tiktok: language === "ar" ? "تقرير تحليل تيك توك" : "TikTok Analysis Report"
+  };
 
-  doc.setFontSize(16)
-  doc.text(title, 20, 20)
+  // Determine current title
+  const reportTitle = titles[type as keyof typeof titles] || "Analysis Report";
+  const scoreLabel = language === "ar" ? "النتيجة" : "Score";
 
-  doc.setFontSize(12)
-  doc.text(`Score: ${result.score}`, 20, 35)
+  // PDF generation
+  doc.setFontSize(16);
+  doc.text(reportTitle, 20, 20);
 
-  let y = 50
-
-  doc.text(language === "ar" ? "Recommendations:" : "Recommendations:", 20, y)
-  y += 10
-
-  result.recommendations?.forEach((r: string, i: number) => {
-    doc.text(`${i + 1}. ${r}`, 20, y)
-    y += 10
-  })
-
-  doc.save(`${type}-report.pdf`)
+  doc.setFontSize(12);
+  doc.text(`${scoreLabel}: ${result.score}`, 20, 35);
+  
+  doc.save("report.pdf");
 }
