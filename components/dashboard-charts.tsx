@@ -40,12 +40,6 @@ const candlestickData = [
   { date: "10/01", open: 172, high: 180, low: 168, close: 175 },
   { date: "11/01", open: 175, high: 190, low: 170, close: 185 },
   { date: "12/01", open: 185, high: 200, low: 180, close: 195 },
-  
-  { date: "01/01", open: 100, high: 120, low: 95, close: 115, diff: 20 },
-  { date: "02/01", open: 115, high: 130, low: 110, close: 125, diff: 15 },
-  { date: "03/01", open: 125, high: 135, low: 118, close: 120, diff: 2 },
-  { date: "04/01", open: 120, high: 140, low: 115, close: 138, diff: 23 },
-]
 ]
 
 const performanceData = [
@@ -130,12 +124,11 @@ function CandlestickChart() {
             />
             <Legend />
             <Bar
-              
-  dataKey="diff"
-  fill="hsl(var(--chart-2))"
-  stackId="candle"
-  name={t("إغلاق", "Close")}
-/>
+              dataKey="low"
+              fill="transparent"
+              stackId="candle"
+              name={t("أدنى", "Low")}
+            />
             <Bar
               dataKey={(data) => data.close - data.low}
               fill="hsl(var(--chart-2))"

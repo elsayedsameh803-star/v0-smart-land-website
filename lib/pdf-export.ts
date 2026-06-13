@@ -1,16 +1,22 @@
-export async function exportAnalysisPDF(type: string, result: any, language: "ar" | "en") {
-  const { jsPDF } = await import("jspdf")
+"use client"
 
+import { jsPDF } from "jspdf"
+
+export function exportAnalysisPDF(
+  type: string,
+  result: any,
+  language: "ar" | "en"
+) {
   const doc = new jsPDF()
 
   const title =
     type === "website"
       ? "Website Analysis Report"
       : type === "instagram"
-      ? "Instagram Analysis Report"
-      : type === "facebook"
-      ? "Facebook Analysis Report"
-      : "TikTok Analysis Report"
+        ? "Instagram Analysis Report"
+        : type === "facebook"
+          ? "Facebook Analysis Report"
+          : "TikTok Analysis Report"
 
   doc.setFontSize(16)
   doc.text(title, 20, 20)
@@ -20,7 +26,7 @@ export async function exportAnalysisPDF(type: string, result: any, language: "ar
 
   let y = 50
 
-  doc.text("Recommendations:", 20, y)
+  doc.text(language === "ar" ? "Recommendations:" : "Recommendations:", 20, y)
   y += 10
 
   result.recommendations?.forEach((r: string, i: number) => {
