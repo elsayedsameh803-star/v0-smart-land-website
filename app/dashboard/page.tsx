@@ -9,13 +9,14 @@ import { DashboardCharts } from "@/components/dashboard-charts"
 import { useLanguage } from "@/lib/language-context"
 import { Button } from "@/components/ui/button"
 import { Download, RefreshCw } from "lucide-react"
-import { exportDashboardPDF } from "@/lib/pdf-export"
+import { generatePDF } from "@/lib/pdf-export"
 
 function DashboardContent() {
   const { language, t } = useLanguage()
 
   const handleExportPDF = () => {
-    exportDashboardPDF(language)
+    generatePDF({ title: "Report", date: new Date().toLocaleDateString(), language: language, score: 0, metrics: [], issues: [] });
+
   }
 
   return (

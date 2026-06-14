@@ -12,7 +12,7 @@ interface PDFData {
   language: "ar" | "en"
 }
 
-export function generatePDF(data: PDFData) {
+export function generatePDF(data: any) {
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
