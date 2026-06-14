@@ -12,27 +12,14 @@ interface PDFData {
   language: "ar" | "en"
 }
 
-export function generatePDF(data: PDFData) {
-    try {
-        const doc = new jsPDF({
-            orientation: "portrait",
-            unit: "mm",
-            format: "a4",
-        });
+export function generatePDF(data: any) {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  })
 
-        doc.setFontSize(18);
-        doc.text("Report: " + data.title, 10, 10);
-        doc.text("Date: " + data.date, 10, 20);
-
-        const isArabic = data.language === "ar";
-        
-        doc.save("report.pdf");
-    } catch (error) {
-        console.error("PDF Export Error:", error);
-    }
-}
-
-
+  const isArabic = data.language === "ar"
 
   // Colors
   const primaryColor = [200, 160, 50] as [number, number, number]
