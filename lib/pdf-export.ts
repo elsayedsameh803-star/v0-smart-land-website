@@ -19,10 +19,7 @@ export function generatePDF(data: any) {
         format: "a4",
     });
 
-    const fontData = "YOUR_BASE64_STRING_HERE"; 
-    (doc as any).addFileToVFS("font.ttf", fontData);
-    (doc as any).addFont("font.ttf", "font", "normal");
-    doc.setFont("font");
+    
 
     doc.text("Report", 10, 10);
     doc.save("report.pdf");
