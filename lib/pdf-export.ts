@@ -24,6 +24,11 @@ export function generatePDF(data: any) {
     (doc as any).addFont("font.ttf", "font", "normal");
     doc.setFont("font");
 
+    doc.text("Report", 10, 10);
+    doc.save("report.pdf");
+
+
+
     const isArabic = data.language === "ar";
 
 
