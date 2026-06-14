@@ -13,13 +13,19 @@ interface PDFData {
 }
 
 export function generatePDF(data: any) {
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
-  })
+    const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+    });
 
-  const isArabic = data.language === "ar"
+    const fontData = "YOUR_BASE64_STRING_HERE"; 
+    (doc as any).addFileToVFS("font.ttf", fontData);
+    (doc as any).addFont("font.ttf", "font", "normal");
+    doc.setFont("font");
+
+    const isArabic = data.language === "ar";
+
 
   // Colors
   const primaryColor = [200, 160, 50] as [number, number, number]
