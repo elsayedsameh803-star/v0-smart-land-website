@@ -24,14 +24,14 @@ export function generatePDF(data: PDFData) {
         doc.text("Report: " + data.title, 10, 10);
         doc.text("Date: " + data.date, 10, 20);
 
+        const isArabic = data.language === "ar";
+        
         doc.save("report.pdf");
     } catch (error) {
         console.error("PDF Export Error:", error);
+    }
+}
 
-
-
-
-    const isArabic = data.language === "ar";
 
 
   // Colors
