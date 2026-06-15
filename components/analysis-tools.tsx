@@ -249,7 +249,7 @@ function AnalysisResultCard({ result, type }: { result: AnalysisResult; type: st
 
       {/* AI Insights */}
       {result.aiInsights && (
-        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-primary/10">
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/10 to-primary/10">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20">
