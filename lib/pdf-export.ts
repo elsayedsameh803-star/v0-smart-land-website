@@ -19,7 +19,7 @@ export function generatePDF(data: PDFData) {
     format: "a4",
   })
 
-  const isArabic = data.language === "ar"
+const isArabic = false
 
   // Colors
   const primaryColor = [200, 160, 50] as [number, number, number]
