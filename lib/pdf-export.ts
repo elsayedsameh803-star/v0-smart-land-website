@@ -15,12 +15,19 @@ interface PDFData {
 export function generatePDF(data: PDFData, language: "ar" | "en") {
 
   const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
-  })
+  orientation: "portrait",
+  unit: "mm",
+  format: "a4",
+});
 
 const isArabic = language === "ar";
+
+if (isArabic) {
+  doc.setFont("NotoNaskhArabic");
+}
+
+
+
 
 
   // Colors
