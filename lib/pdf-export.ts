@@ -23,8 +23,9 @@ export function generatePDF(data: PDFData, language: "ar" | "en") {
 const isArabic = language === "ar";
 
 if (isArabic) {
-  doc.setFont("NotoNaskhArabic");
+  doc.setFont("helvetica");
 }
+
 
 
 
