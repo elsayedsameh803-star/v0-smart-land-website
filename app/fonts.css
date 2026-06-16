@@ -1,0 +1,9 @@
+@font-face {
+  font-family: 'NotoNaskhArabic';
+  src: url('/NotoNaskhArabic-VariableFont_wght.ttf') format('truetype');
+  font-display: swap;
+}
+
+body {
+  font-family: 'NotoNaskhArabic', sans-serif;
+}
