@@ -12,14 +12,16 @@ interface PDFData {
   language: "ar" | "en"
 }
 
-export function generatePDF(data: PDFData) {
+export function generatePDF(data: PDFData, language: "ar" | "en") {
+
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
     format: "a4",
   })
 
-const isArabic = false
+const isArabic = language === "ar";
+
 
   // Colors
   const primaryColor = [200, 160, 50] as [number, number, number]
@@ -210,7 +212,8 @@ export function exportAnalysisPDF(
     language,
   }
 
-  generatePDF(data)
+  generatePDF(data, language);
+
 }
 
 export function exportDashboardPDF(language: "ar" | "en") {
@@ -247,5 +250,6 @@ export function exportDashboardPDF(language: "ar" | "en") {
     language,
   }
 
-  generatePDF(data)
+  generatePDF(data, language);
+
 }
