@@ -1,131 +1,147 @@
 "use client"
+import { jsPDF } from "jspdf"
+// استيراد المكتبة المسؤولة عن تشكيل وشبك الحروف العربية تلقائياً
+import { reshape } from "arabic-persian-reshaper"
 
-import dynamic from "next/dynamic"
-import { Suspense } from "react"
-import { LanguageProvider } from "@/lib/language-context"
-import { AuthProvider } from "@/lib/auth-context"
-import { Navbar } from "@/components/navbar"
-import { WhatsAppButton } from "@/components/whatsapp-button"
-import { HeroSection, StatsSection } from "@/components/landing-sections"
-
-// Lazy load heavy components for faster initial load
-const FeaturesSection = dynamic(
-  () => import("@/components/landing-sections").then((mod) => ({ default: mod.FeaturesSection })),
-  { 
-    loading: () => <SectionSkeleton />,
-    ssr: true 
-  }
-)
-
-const CTASection = dynamic(
-  () => import("@/components/landing-sections").then((mod) => ({ default: mod.CTASection })),
-  { 
-    loading: () => <SectionSkeleton height="h-64" />,
-    ssr: true 
-  }
-)
-
-const DashboardPreviewSection = dynamic(
-  () => import("@/components/additional-sections").then((mod) => ({ default: mod.DashboardPreviewSection })),
-  { 
-    loading: () => <SectionSkeleton height="h-96" />,
-    ssr: true 
-  }
-)
-
-const TestimonialsSection = dynamic(
-  () => import("@/components/additional-sections").then((mod) => ({ default: mod.TestimonialsSection })),
-  { 
-    loading: () => <SectionSkeleton />,
-    ssr: true 
-  }
-)
-
-const BlogSection = dynamic(
-  () => import("@/components/additional-sections").then((mod) => ({ default: mod.BlogSection })),
-  { 
-    loading: () => <SectionSkeleton />,
-    ssr: true 
-  }
-)
-
-const VisitorCounter = dynamic(
-  () => import("@/components/additional-sections").then((mod) => ({ default: mod.VisitorCounter })),
-  { 
-    loading: () => null,
-    ssr: false 
-  }
-)
-
-const Footer = dynamic(
-  () => import("@/components/footer").then((mod) => ({ default: mod.Footer })),
-  { 
-    loading: () => <div className="h-64 bg-card animate-pulse" />,
-    ssr: true 
-  }
-)
-
-// Loading skeleton component
-function SectionSkeleton({ height = "h-80" }: { height?: string }) {
-  return (
-    <div className={`${height} w-full bg-card/50 animate-pulse flex items-center justify-center`}>
-      <div className="flex flex-col items-center gap-4">
-        <div className="h-8 w-48 bg-muted rounded-lg" />
-        <div className="h-4 w-64 bg-muted/50 rounded" />
-        <div className="flex gap-4 mt-4">
-          <div className="h-32 w-32 bg-muted/30 rounded-lg" />
-          <div className="h-32 w-32 bg-muted/30 rounded-lg" />
-          <div className="h-32 w-32 bg-muted/30 rounded-lg" />
-        </div>
-      </div>
-    </div>
-  )
+interface PDFData {
+  title: string
+  date: string
+  score: number
+  metrics: { label: string; value: string }[]
+  issues: { type: string; message: string }[]
+  recommendations: string[]
+  language: "ar" | "en"
 }
 
-export default function HomePage() {
-  return (
-    <LanguageProvider>
-      <AuthProvider>
-        <div className="flex min-h-screen flex-col">
-          <Navbar />
-          <main className="flex-1">
-            {/* Critical above-the-fold content - loads immediately */}
-            <HeroSection />
-            <StatsSection />
-            
-            {/* Lazy loaded sections */}
-            <Suspense fallback={<SectionSkeleton />}>
-              <FeaturesSection />
-            </Suspense>
-            
-            <Suspense fallback={<SectionSkeleton height="h-96" />}>
-              <DashboardPreviewSection />
-            </Suspense>
-            
-            <Suspense fallback={<SectionSkeleton />}>
-              <TestimonialsSection />
-            </Suspense>
-            
-            <Suspense fallback={<SectionSkeleton />}>
-              <BlogSection />
-            </Suspense>
-            
-            <Suspense fallback={<SectionSkeleton height="h-64" />}>
-              <CTASection />
-            </Suspense>
-          </main>
-          
-          <Suspense fallback={null}>
-            <VisitorCounter />
-          </Suspense>
-          
-          <Suspense fallback={<div className="h-64 bg-card animate-pulse" />}>
-            <Footer />
-          </Suspense>
-          
-          <WhatsAppButton />
-        </div>
-      </AuthProvider>
-    </LanguageProvider>
-  )
+// دالة إصلاح النص العربي ليكون مشبوكاً ومقروءاً بشكل صحيح من اليمين لليسار
+function fixArabicText(text: string): string {
+  if (!text) return ""
+  const arabicRegex = /[\u0600-\u06FF]/
+  if (arabicRegex.test(text)) {
+    // تشكيل الحروف وشبكها ثم عكسها لتتوافق مع نظام مكتبة jsPDF
+    return reshape(text).split(" ").map(word => word.split("").reverse().join("")).reverse().join(" ")
+  }
+  return text
+}
+
+export function generatePDF(data: PDFData) {
+  const doc = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  })
+
+  const isArabic = data.language === "ar"
+
+  if (isArabic) {
+    doc.addFont("https://fonts.gstatic.com/s/amiri/v28/定.ttf", "Amiri", "normal")
+    doc.setFont("Amiri")
+  } else {
+    doc.setFont("helvetica")
+  }
+
+  // الألوان الأساسية والتنسيقات
+  const primaryColor: [number, number, number] = [31, 41, 55]
+  const accentColor: [number, number, number] = [212, 163, 89]
+  const textColor: [number, number, number] = [55, 65, 81]
+  const mutedColor: [number, number, number] = [156, 163, 175]
+  const dangerColor: [number, number, number] = [239, 68, 68]
+  const successColor: [number, number, number] = [34, 197, 94]
+
+  // تصميم الهيدر الخلفي
+  doc.setFillColor(249, 250, 251)
+  doc.rect(0, 0, 210, 45, "F")
+
+  // 1. العنوان
+  doc.setTextColor(...accentColor)
+  doc.setFontSize(24)
+  const displayTitle = isArabic ? fixArabicText(data.title) : data.title
+  doc.text(displayTitle, isArabic ? 190 : 20, 25, { align: isArabic ? "right" : "left" })
+
+  // 2. التاريخ
+  doc.setTextColor(...mutedColor)
+  doc.setFontSize(10)
+  const dateText = isArabic ? `${fixArabicText("التاريخ:")} ${data.date}` : `Date: ${data.date}`
+  doc.text(dateText, isArabic ? 190 : 20, 35, { align: isArabic ? "right" : "left" })
+
+  doc.setDrawColor(...accentColor)
+  doc.setLineWidth(0.8)
+  doc.line(20, 45, 190, 45)
+
+  // 3. النتيجة الإجمالية
+  doc.setFillColor(243, 244, 246)
+  doc.rect(20, 55, 170, 20, "F")
+  
+  doc.setTextColor(...primaryColor)
+  doc.setFontSize(16)
+  const scoreText = isArabic ? `${fixArabicText("النتيجة الإجمالية:")} ${data.score}%` : `Total Score: ${data.score}%`
+  doc.text(scoreText, isArabic ? 190 : 30, 68, { align: isArabic ? "right" : "left" })
+
+  // 4. المقاييس والتحليلات
+  let currentY = 90
+  doc.setFontSize(14)
+  doc.setTextColor(...primaryColor)
+  doc.text(isArabic ? fixArabicText("المقاييس والتحليلات:") : "Metrics & Analysis:", isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+  
+  currentY += 10
+  doc.setFontSize(12)
+  doc.setTextColor(...textColor)
+  
+  data.metrics.forEach((metric) => {
+    const label = isArabic ? fixArabicText(metric.label) : metric.label
+    const value = isArabic ? fixArabicText(metric.value) : metric.value
+    doc.text(`${label}: ${value}`, isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+    currentY += 8
+  })
+
+  // 5. المشاكل المكتشفة
+  if (data.issues && data.issues.length > 0) {
+    currentY += 10
+    doc.setFontSize(14)
+    doc.setTextColor(...dangerColor)
+    doc.text(isArabic ? fixArabicText("المشاكل المكتشفة:") : "Detected Issues:", isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+    
+    currentY += 10
+    doc.setFontSize(11)
+    doc.setTextColor(...textColor)
+    
+    data.issues.forEach((issue) => {
+      const type = isArabic ? fixArabicText(issue.type) : issue.type
+      const msg = isArabic ? fixArabicText(issue.message) : issue.message
+      doc.text(isArabic ? `${msg} [${type}] •` : `• [${type}] ${msg}`, isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+      currentY += 8
+    })
+  }
+
+  // 6. التوصيات والحلول
+  if (data.recommendations && data.recommendations.length > 0) {
+    currentY += 10
+    doc.setFontSize(14)
+    doc.setTextColor(...successColor)
+    doc.text(isArabic ? fixArabicText("التوصيات والحلول المقترحة:") : "Recommendations:", isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+    
+    currentY += 10
+    doc.setFontSize(11)
+    doc.setTextColor(...textColor)
+    
+    data.recommendations.forEach((rec) => {
+      const textRec = isArabic ? fixArabicText(rec) : rec
+      doc.text(isArabic ? `${textRec} -` : `- ${textRec}`, isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+      currentY += 8
+    })
+  }
+
+  // الفوتر السفلي
+  doc.setFillColor(31, 41, 55)
+  doc.rect(0, 285, 210, 12, "F")
+
+  doc.save(`${data.title.replace(/\s+/g, "_")}.pdf`)
+}
+
+export function exportAnalysisPDF(data: PDFData) {
+  generatePDF(data)
+}
+
+export function exportDashboardPDF(data: PDFData) {
+  generatePDF(data)
 }
