@@ -1,11 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
-
 @import "tailwindcss";
 @import "tw-animate-css";
-
 @theme {
   --font-amiri: "Amiri", serif;
-
   --background: oklch(0.08 0.01 260);
   --foreground: oklch(0.98 0 0);
   --card: oklch(0.12 0.01 260);
@@ -18,7 +15,6 @@
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.18 0.01 260);
 }
-
 body {
   font-family: var(--font-amiri);
 }
