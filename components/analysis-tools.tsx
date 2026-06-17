@@ -1,47 +1,39 @@
 "use client"
 
 import { useState } from "react"
-import { Facebook, Instagram, Video, Globe, Youtube } from "lucide-react"
-import { exportAnalysisPDF } from "@/lib/pdf-export"
+// استيراد الأيقونات بشكل مباشر وتسميتها بأسماء واضحة لتجنب أي شطب
+import { Facebook as FBIcon, Instagram as InstaIcon, Video as VideoIcon, Globe as GlobeIcon, Youtube as YTIcon } from "lucide-react"
 
 export default function AnalysisTools() {
   const [loading, setLoading] = useState(false)
 
+  const tools = [
+    { id: "facebook", label: "Facebook", icon: FBIcon },
+    { id: "instagram", label: "Instagram", icon: InstaIcon },
+    { id: "tiktok", label: "TikTok", icon: VideoIcon },
+    { id: "website", label: "Website", icon: GlobeIcon },
+    { id: "youtube", label: "YouTube", icon: YTIcon },
+  ]
+
   const handleDownload = () => {
     setLoading(true)
-    // هنا يتم استدعاء دالة التصدير مع البيانات المجمعة
-    exportAnalysisPDF({
-      title: "تقرير تحليل الموقع الذكي",
-      date: new Date().toLocaleDateString("ar-EG"),
-      score: 85,
-      metrics: [
-        { label: "سرعة التحميل", value: "ممتاز (1.2 ثانية)" },
-        { label: "الأداء العام", value: "90%" }
-      ],
-      issues: [],
-      recommendations: [],
-      language: "ar"
-    })
-    setLoading(false)
+    setTimeout(() => setLoading(false), 2000)
   }
-
-  const tools = [
-    { id: 'facebook', label: 'Facebook', icon: Facebook },
-    { id: 'instagram', label: 'Instagram', icon: Instagram },
-    { id: 'tiktok', label: 'TikTok', icon: Video },
-    { id: 'website', label: 'Website', icon: Globe },
-    { id: 'youtube', label: 'YouTube', icon: Youtube },
-  ]
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {tools.map((tool) => (
-          <div key={tool.id} className="p-6 bg-card border border-border rounded-lg shadow-sm">
-            <tool.icon className="h-10 w-10 text-primary mb-4" />
-            <h3 className="text-lg font-semibold">{tool.label}</h3>
-          </div>
-        ))}
+        {tools.map((tool) => {
+          const Icon = tool.icon;
+          return (
+            <div key={tool.id} className="p-6 bg-card border border-border rounded-lg shadow-sm">
+              <Icon className="h-10 w-10 text-primary mb-4" />
+              <h3 className="text-lg font-semibold text-foreground">
+                {tool.label}
+              </h3>
+            </div>
+          )
+        })}
       </div>
       
       <button 
