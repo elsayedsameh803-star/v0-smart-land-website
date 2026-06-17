@@ -1,9 +1,9 @@
-import "./globals.css";
 import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "منصة التحليل الرقمي",
-  description: "تحليل ذكي لعيوب المواقع والسوشيال ميديا",
+  title: "Smart Land",
+  description: "مشروع سمارت لاند",
 };
 
 export default function RootLayout({
@@ -13,8 +13,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ar" dir="rtl">
-      <body className="min-h-screen bg-background text-foreground font-sans">
-        {children}
+      <body>
+        <main>{children}</main>
       </body>
     </html>
   );
+}
