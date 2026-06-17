@@ -1,46 +1,39 @@
 "use client"
 
 import { useState } from "react"
-import { Facebook, Instagram, Video, Globe, Youtube } from "lucide-react"
+import { exportAnalysisPDF } from "@/lib/pdf-export"
 
 export default function AnalysisTools() {
   const [loading, setLoading] = useState(false)
 
-  const tools = [
-    { id: "facebook", label: "Facebook", icon: Facebook },
-    { id: "instagram", label: "Instagram", icon: Instagram },
-    { id: "tiktok", label: "TikTok", icon: Video },
-    { id: "website", label: "Website", icon: Globe },
-    { id: "youtube", label: "YouTube", icon: Youtube },
-  ]
-
   const handleDownload = () => {
     setLoading(true)
-    // هنا منطق التصدير الخاص بك
-    setTimeout(() => setLoading(false), 2000)
+    // بيانات تجريبية للتقرير
+    exportAnalysisPDF({
+      title: "تقرير تحليل الموقع الذكي",
+      date: new Date().toLocaleDateString("ar-EG"),
+      score: 85,
+      metrics: [
+        { label: "سرعة التحميل", value: "ممتاز (1.2 ثانية)" },
+        { label: "الأداء العام", value: "90%" }
+      ],
+      issues: [],
+      recommendations: [],
+      language: "ar"
+    })
+    setLoading(false)
   }
 
   return (
-    <div className="space-y-6">
-      {/* شبكة الأدوات - الأسود في أصفر */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {tools.map((tool) => (
-          <div key={tool.id} className="p-6 bg-black border-2 border-yellow-400 rounded-lg shadow-lg hover:border-yellow-500 transition-all">
-            <tool.icon className="h-10 w-10 text-yellow-400 mb-4" />
-            <h3 className="text-lg font-bold text-yellow-400">
-              {tool.label}
-            </h3>
-          </div>
-        ))}
-      </div>
-      
-      {/* زر التصدير - أخضر */}
+    <div className="p-6 bg-card rounded-xl border shadow-sm space-y-4">
+      <h2 className="text-xl font-bold">أدوات التحليل والتقارير</h2>
+      <p className="text-muted-foreground text-sm">يمكنك تحميل تقرير الأداء الشامل بصيغة PDF فوراً.</p>
       <button 
         onClick={handleDownload}
         disabled={loading}
-        className="w-full py-4 bg-green-600 hover:bg-green-700 text-white rounded-md font-bold text-lg shadow-md transition-all disabled:bg-gray-600"
+        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
       >
-        {loading ? "جاري تصدير الملف... Exporting PDF..." : "تصدير التقرير (AR/EN) - Export Report"}
+        {loading ? "جاري التحضير..." : "تحميل التقرير (PDF)"}
       </button>
     </div>
   )
