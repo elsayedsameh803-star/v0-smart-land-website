@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { Facebook, Instagram, Video, Globe, Youtube } from "lucide-react"
 import { exportAnalysisPDF } from "@/lib/pdf-export"
 
 export default function AnalysisTools() {
@@ -8,7 +9,7 @@ export default function AnalysisTools() {
 
   const handleDownload = () => {
     setLoading(true)
-    // بيانات تجريبية للتقرير
+    // هنا يتم استدعاء دالة التصدير مع البيانات المجمعة
     exportAnalysisPDF({
       title: "تقرير تحليل الموقع الذكي",
       date: new Date().toLocaleDateString("ar-EG"),
@@ -24,16 +25,31 @@ export default function AnalysisTools() {
     setLoading(false)
   }
 
+  const tools = [
+    { id: 'facebook', label: 'Facebook', icon: Facebook },
+    { id: 'instagram', label: 'Instagram', icon: Instagram },
+    { id: 'tiktok', label: 'TikTok', icon: Video },
+    { id: 'website', label: 'Website', icon: Globe },
+    { id: 'youtube', label: 'YouTube', icon: Youtube },
+  ]
+
   return (
-    <div className="p-6 bg-card rounded-xl border shadow-sm space-y-4">
-      <h2 className="text-xl font-bold">أدوات التحليل والتقارير</h2>
-      <p className="text-muted-foreground text-sm">يمكنك تحميل تقرير الأداء الشامل بصيغة PDF فوراً.</p>
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {tools.map((tool) => (
+          <div key={tool.id} className="p-6 bg-card border border-border rounded-lg shadow-sm">
+            <tool.icon className="h-10 w-10 text-primary mb-4" />
+            <h3 className="text-lg font-semibold">{tool.label}</h3>
+          </div>
+        ))}
+      </div>
+      
       <button 
         onClick={handleDownload}
         disabled={loading}
-        className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
+        className="w-full py-3 bg-primary text-primary-foreground rounded-md font-bold"
       >
-        {loading ? "جاري التحضير..." : "تحميل التقرير (PDF)"}
+        {loading ? "جاري التصدير..." : "تصدير التقرير (AR/EN)"}
       </button>
     </div>
   )
