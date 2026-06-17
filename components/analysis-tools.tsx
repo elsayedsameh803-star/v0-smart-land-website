@@ -1,48 +1,47 @@
 "use client"
 
 import { useState } from "react"
-import { Facebook, Instagram, Video, Globe, Youtube, FileText } from "lucide-react"
+// استيراد الأيقونات بشكل مباشر وتسميتها بأسماء واضحة لتجنب أي شطب
+import { Facebook as FBIcon, Instagram as InstaIcon, Video as VideoIcon, Globe as GlobeIcon, Youtube as YTIcon } from "lucide-react"
 
 export default function AnalysisTools() {
   const [loading, setLoading] = useState(false)
 
   const tools = [
-    { id: "facebook", name: "Facebook", icon: Facebook },
-    { id: "instagram", name: "Instagram", icon: Instagram },
-    { id: "tiktok", name: "TikTok", icon: Video },
-    { id: "website", name: "Website", icon: Globe },
-    { id: "youtube", name: "YouTube", icon: Youtube },
+    { id: "facebook", label: "Facebook", icon: FBIcon },
+    { id: "instagram", label: "Instagram", icon: InstaIcon },
+    { id: "tiktok", label: "TikTok", icon: VideoIcon },
+    { id: "website", label: "Website", icon: GlobeIcon },
+    { id: "youtube", label: "YouTube", icon: YTIcon },
   ]
 
-  const handleToolClick = (id: string) => {
-    alert("جاري تحليل: " + id)
-    // هنا سيتم ربط منطق التحليل لاحقاً
+  const handleDownload = () => {
+    setLoading(true)
+    setTimeout(() => setLoading(false), 2000)
   }
 
   return (
-    <div className="w-full space-y-8 p-6 bg-black min-h-screen">
+    <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {tools.map((tool) => {
-          const Icon = tool.icon
+          const Icon = tool.icon;
           return (
-            <button
-              key={tool.id}
-              onClick={() => handleToolClick(tool.id)}
-              className="flex flex-col items-center justify-center p-8 bg-black border-2 border-yellow-400 rounded-xl shadow-[0_0_15px_rgba(250,204,21,0.2)] hover:bg-yellow-400/10 transition-all"
-            >
-              <Icon className="h-12 w-12 text-yellow-400 mb-4" />
-              <h3 className="text-xl font-bold text-yellow-400 uppercase tracking-wider">{tool.name}</h3>
-            </button>
+            <div key={tool.id} className="p-6 bg-card border border-border rounded-lg shadow-sm">
+              <Icon className="h-10 w-10 text-primary mb-4" />
+              <h3 className="text-lg font-semibold text-foreground">
+                {tool.label}
+              </h3>
+            </div>
           )
         })}
       </div>
-
+      
       <button 
-        onClick={() => setLoading(true)}
+        onClick={handleDownload}
         disabled={loading}
-        className="w-full py-6 bg-green-600 hover:bg-green-700 text-white rounded-xl font-bold text-2xl shadow-lg transition-all"
+        className="w-full py-3 bg-primary text-primary-foreground rounded-md font-bold"
       >
-        {loading ? "جاري التصدير... Exporting..." : "تصدير التقرير (AR/EN) - Download Report"}
+        {loading ? "جاري التصدير..." : "تصدير التقرير (AR/EN)"}
       </button>
     </div>
   )
