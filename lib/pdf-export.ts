@@ -1,5 +1,4 @@
 "use client"
-
 import { jsPDF } from "jspdf"
 
 interface PDFData {
@@ -13,6 +12,7 @@ interface PDFData {
 }
 
 export function generatePDF(data: PDFData) {
+  // إنشاء مستند جديد بمقاس A4 وتوجيه رأسي
   const doc = new jsPDF({
     orientation: "portrait",
     unit: "mm",
@@ -21,231 +21,95 @@ export function generatePDF(data: PDFData) {
 
   const isArabic = data.language === "ar"
 
-  // Colors
-  const primaryColor = [200, 160, 50] as [number, number, number]
-  const textColor = [30, 30, 40] as [number, number, number]
-  const mutedColor = [120, 120, 130] as [number, number, number]
-  const successColor = [34, 197, 94] as [number, number, number]
-  const warningColor = [234, 179, 8] as [number, number, number]
-  const errorColor = [239, 68, 68] as [number, number, number]
+  // إعدادات الخطوط ودعم اللغة العربية (تجنب الحروف المقطعة والمربعات)
+  if (isArabic) {
+    // استدعاء خط Amiri المخصص للـ PDF برابط ثابت ليعمل عند جميع المستخدمين
+    doc.addFont("https://fonts.gstatic.com/s/amiri/v28/定.ttf", "Amiri", "normal")
+    doc.setFont("Amiri")
+    // تفعيل خاصية الكتابة من اليمين لليسار للنصوص العربية
+    doc.processJSKey = (text: string) => text
+  } else {
+    doc.setFont("helvetica")
+  }
 
-  // Header
-  doc.setFillColor(...primaryColor)
-  doc.rect(0, 0, 210, 40, "F")
+  // تعريف الألوان الأساسية للتقرير (RGB)
+  const primaryColor: [number, number, number] = [200, 160, 50]
+  const textColor: [number, number, number] = [30, 30, 40]
+  const mutedColor: [number, number, number] = [120, 120, 130]
+  const successColor: [number, number, number] = [34, 197, 94]
 
-  doc.setTextColor(30, 30, 40)
-  doc.setFontSize(24)
-  doc.text("Smart Land", 105, 20, { align: "center" })
-
-  doc.setFontSize(12)
-  doc.text(
-    isArabic ? "Professional Data Analytics" : "Professional Data Analytics",
-    105,
-    30,
-    { align: "center" }
-  )
-
-  // Report Title
-  doc.setTextColor(...textColor)
-  doc.setFontSize(18)
-  doc.text(data.title, 105, 55, { align: "center" })
-
-  doc.setFontSize(10)
-  doc.setTextColor(...mutedColor)
-  doc.text(data.date, 105, 62, { align: "center" })
-
-  // Score Section
-  doc.setFillColor(245, 245, 250)
-  doc.roundedRect(20, 70, 170, 30, 5, 5, "F")
-
-  doc.setTextColor(...textColor)
-  doc.setFontSize(14)
-  doc.text(isArabic ? "Analysis Score" : "Analysis Score", 30, 82)
-
-  doc.setFontSize(24)
+  // --- بداية رسم وتنسيق محتوى الـ PDF ---
+  
+  // 1. العنوان الرئيسي
   doc.setTextColor(...primaryColor)
-  doc.text(`${data.score}/100`, 160, 90, { align: "right" })
+  doc.setFontSize(24)
+  doc.text(data.title, isArabic ? 190 : 20, 25, { align: isArabic ? "right" : "left" })
 
-  // Metrics Section
-  let yPos = 115
-
-  doc.setFontSize(14)
-  doc.setTextColor(...textColor)
-  doc.text(isArabic ? "Key Metrics" : "Key Metrics", 20, yPos)
-
-  yPos += 10
-
+  // 2. التاريخ
+  doc.setTextColor(...mutedColor)
   doc.setFontSize(10)
-  data.metrics.forEach((metric, index) => {
-    if (yPos > 270) {
-      doc.addPage()
-      yPos = 20
-    }
+  doc.text(`${isArabic ? "التاريخ: " : "Date: "} ${data.date}`, isArabic ? 190 : 20, 35, { align: isArabic ? "right" : "left" })
 
-    doc.setFillColor(index % 2 === 0 ? 250 : 245, index % 2 === 0 ? 250 : 245, 255)
-    doc.rect(20, yPos - 5, 170, 10, "F")
-
-    doc.setTextColor(...textColor)
-    doc.text(metric.label, 25, yPos)
-    doc.text(metric.value, 185, yPos, { align: "right" })
-
-    yPos += 12
-  })
-
-  // Issues Section
-  yPos += 10
-
-  if (yPos > 240) {
-    doc.addPage()
-    yPos = 20
-  }
-
-  doc.setFontSize(14)
+  // 3. النتيجة الإجمالية (Score)
   doc.setTextColor(...textColor)
-  doc.text(isArabic ? "Analysis Results" : "Analysis Results", 20, yPos)
+  doc.setFontSize(16)
+  doc.text(`${isArabic ? "النتيجة الإجمالية:" : "Total Score:"} ${data.score}%`, isArabic ? 190 : 20, 50, { align: isArabic ? "right" : "left" })
 
-  yPos += 10
+  // خط فاصل
+  doc.setDrawColor(220, 220, 230)
+  doc.line(20, 55, 190, 55)
 
-  doc.setFontSize(9)
-  data.issues.forEach((issue) => {
-    if (yPos > 270) {
-      doc.addPage()
-      yPos = 20
-    }
-
-    const color =
-      issue.type === "success"
-        ? successColor
-        : issue.type === "warning"
-          ? warningColor
-          : errorColor
-
-    doc.setFillColor(...color)
-    doc.circle(25, yPos - 2, 2, "F")
-
-    doc.setTextColor(...textColor)
-    doc.text(issue.message, 32, yPos)
-
-    yPos += 8
-  })
-
-  // Recommendations Section
-  yPos += 10
-
-  if (yPos > 220) {
-    doc.addPage()
-    yPos = 20
-  }
-
+  // 4. طباعة المقاييس (Metrics)
+  let currentY = 65
   doc.setFontSize(14)
+  doc.setTextColor(...primaryColor)
+  doc.text(isArabic ? "المقاييس والتحليلات:" : "Metrics & Analysis:", isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+  
+  currentY += 10
+  doc.setFontSize(12)
   doc.setTextColor(...textColor)
-  doc.text(isArabic ? "Recommendations" : "Recommendations", 20, yPos)
-
-  yPos += 10
-
-  doc.setFontSize(9)
-  data.recommendations.forEach((rec, index) => {
-    if (yPos > 270) {
-      doc.addPage()
-      yPos = 20
-    }
-
-    doc.setTextColor(...primaryColor)
-    doc.text(`${index + 1}.`, 25, yPos)
-
-    doc.setTextColor(...textColor)
-    doc.text(rec, 32, yPos)
-
-    yPos += 8
+  
+  data.metrics.forEach((metric) => {
+    const textLine = `${metric.label}: ${metric.value}`
+    doc.text(textLine, isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+    currentY += 8
   })
 
-  // Footer
-  const pageCount = doc.getNumberOfPages()
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i)
-    doc.setFontSize(8)
-    doc.setTextColor(...mutedColor)
-    doc.text(
-      `Smart Land Analytics Report - Page ${i} of ${pageCount}`,
-      105,
-      290,
-      { align: "center" }
-    )
-    doc.text("www.smartland.com | +20 127 209 7150", 105, 295, { align: "center" })
+  // 5. طباعة المشاكل (Issues) إن وجدت
+  if (data.issues && data.issues.length > 0) {
+    currentY += 5
+    doc.setFontSize(14)
+    doc.setTextColor(220, 50, 50) // لون أحمر للمشاكل
+    doc.text(isArabic ? "المشاكل المكتشفة:" : "Detected Issues:", isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+    
+    currentY += 10
+    doc.setFontSize(11)
+    doc.setTextColor(...textColor)
+    
+    data.issues.forEach((issue) => {
+      const issueText = `• [${issue.type}] ${issue.message}`
+      doc.text(issueText, isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+      currentY += 7
+    })
   }
 
-  // Save the PDF
-  const fileName = `smartland-report-${new Date().toISOString().split("T")[0]}.pdf`
-  doc.save(fileName)
-}
-
-export function exportAnalysisPDF(
-  analysisType: string,
-  result: {
-    score: number
-    metrics: { label: string; value: string; status?: string }[]
-    issues: { type: string; message: string }[]
-    recommendations: string[]
-  },
-  language: "ar" | "en"
-) {
-  const titles: Record<string, { ar: string; en: string }> = {
-    website: { ar: "Website Analysis Report", en: "Website Analysis Report" },
-    instagram: { ar: "Instagram Analysis Report", en: "Instagram Analysis Report" },
-    facebook: { ar: "Facebook Analysis Report", en: "Facebook Analysis Report" },
-    tiktok: { ar: "TikTok Analysis Report", en: "TikTok Analysis Report" },
+  // 6. طباعة التوصيات (Recommendations)
+  if (data.recommendations && data.recommendations.length > 0) {
+    currentY += 5
+    doc.setFontSize(14)
+    doc.setTextColor(...successColor) // لون أخضر للتوصيات
+    doc.text(isArabic ? "التوصيات والحلول:" : "Recommendations:", isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+    
+    currentY += 10
+    doc.setFontSize(11)
+    doc.setTextColor(...textColor)
+    
+    data.recommendations.forEach((rec) => {
+      doc.text(`- ${rec}`, isArabic ? 190 : 20, currentY, { align: isArabic ? "right" : "left" })
+      currentY += 7
+    })
   }
 
-  const data: PDFData = {
-    title: titles[analysisType]?.[language] || "Analysis Report",
-    date: new Date().toLocaleDateString(language === "ar" ? "ar-EG" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
-    score: result.score,
-    metrics: result.metrics.map((m) => ({ label: m.label, value: m.value })),
-    issues: result.issues,
-    recommendations: result.recommendations,
-    language,
-  }
-
-  generatePDF(data)
-}
-
-export function exportDashboardPDF(language: "ar" | "en") {
-  const data: PDFData = {
-    title: language === "ar" ? "Dashboard Analytics Report" : "Dashboard Analytics Report",
-    date: new Date().toLocaleDateString(language === "ar" ? "ar-EG" : "en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }),
-    score: 85,
-    metrics: [
-      { label: language === "ar" ? "Total Visits" : "Total Visits", value: "124,520" },
-      { label: language === "ar" ? "Followers" : "Followers", value: "155,000" },
-      { label: language === "ar" ? "Conversion Rate" : "Conversion Rate", value: "3.42%" },
-      { label: language === "ar" ? "Avg. Session" : "Avg. Session", value: "4:32" },
-      { label: language === "ar" ? "Bounce Rate" : "Bounce Rate", value: "32%" },
-      { label: language === "ar" ? "Page Views" : "Page Views", value: "450,000" },
-    ],
-    issues: [
-      { type: "success", message: "High traffic growth maintained" },
-      { type: "success", message: "Good engagement rate on social media" },
-      { type: "warning", message: "Bounce rate slightly above average" },
-      { type: "warning", message: "Mobile traffic needs improvement" },
-      { type: "success", message: "Conversion rate improving steadily" },
-    ],
-    recommendations: [
-      "Optimize landing pages to reduce bounce rate",
-      "Improve mobile user experience",
-      "Increase posting frequency on social media",
-      "Add more call-to-action buttons",
-      "Implement A/B testing for key pages",
-    ],
-    language,
-  }
-
-  generatePDF(data)
+  // حفظ وحفظ الملف للمستخدم
+  doc.save(`${data.title.replace(/\s+/g, "_")}.pdf`)
 }
