@@ -1,7 +1,9 @@
-import DashboardCharts from "@/components/dashboard-charts";
-import AnalysisTools from "@/components/analysis-tools";
-import AdditionalSections from "@/components/additional-sections";
-import LandingSections from "@/components/landing-sections";
+"use client"
+
+import DashboardCharts from "@/components/dashboard-charts"
+import AnalysisTools from "@/components/analysis-tools"
+import AdditionalSections from "@/components/additional-sections"
+import LandingSections from "@/components/landing-sections"
 
 export default function Home() {
   return (
@@ -13,5 +15,5 @@ export default function Home() {
         <AdditionalSections />
       </main>
     </div>
-  );
+  )
 }
