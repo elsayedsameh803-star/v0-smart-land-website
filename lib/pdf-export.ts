@@ -1,64 +1,54 @@
-"use client"
-import { jsPDF } from "jspdf"
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
-interface PDFData {
-  title: string
-  date: string
-  score: number
-  metrics: { label: string; value: string }[]
-  issues: { type: string; message: string }[]
-  recommendations: string[]
-  language: "ar" | "en"
-}
-
-export function generatePDF(data: PDFData) {
-  const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
-  })
-
-  const isArabic = data.language === "ar"
-  doc.setFont(isArabic ? "Helvetica" : "helvetica")
-
-  // خلفية الهيدر العلوي
-  doc.setFillColor(31, 41, 55)
-  doc.rect(0, 0, 210, 40, "F")
-
-  // عنوان التقرير والتاريخ
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(20)
-  doc.text(isArabic ? "Report / تقرير" : "Analysis Report", 20, 25)
-
-  // النتيجة الإجمالية
-  doc.setFillColor(243, 244, 246)
-  doc.rect(20, 50, 170, 20, "F")
-  doc.setTextColor(31, 41, 55)
-  doc.setFontSize(16)
-  doc.text(`Score / النتيجة: ${data.score}%`, 30, 63)
-
-  // محتوى المقاييس والتحليلات
-  let currentY = 85
-  doc.setFontSize(14)
-  doc.text(isArabic ? "Metrics / المقاييس:" : "Metrics:", 20, currentY)
-  
-  currentY += 10
-  doc.setFontSize(12)
-  if (data.metrics && data.metrics.length > 0) {
-    data.metrics.forEach((metric) => {
-      doc.text(`${metric.label}: ${metric.value}`, 25, currentY)
-      currentY += 8
-    })
-  }
-
-  // حفظ واستخراج ملف الـ PDF
-  doc.save(`${data.title.replace(/\s+/g, "_")}.pdf`)
+export interface PDFData {
+  title: string;
+  date: string;
+  score: number;
+  metrics: { label: string; value: string }[];
+  issues: { type: string; message: string }[];
+  recommendations: string[];
 }
 
 export function exportAnalysisPDF(data: PDFData) {
-  generatePDF(data)
-}
+  const doc = new jsPDF();
 
-export function exportDashboardPDF(data: PDFData) {
-  generatePDF(data)
+  // إعدادات الألوان (نفس الألوان المستخدمة في الموقع)
+  const primaryColor = [31, 41, 55]; // الرمادي الغامق الذي تفضله
+  const accentColor = [59, 130, 246]; // الأزرق للمسات التفاعلية
+
+  // 1. رأس الصفحة (Header)
+  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.rect(0, 0, 210, 30, "F");
+  
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.text(data.title, 105, 20, { align: "center" });
+
+  // 2. التاريخ والنتيجة
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(12);
+  doc.text(`التاريخ: ${data.date}`, 10, 40);
+  doc.text(`الدرجة الكلية: ${data.score}%`, 10, 50);
+
+  // 3. جدول المقاييس (باستخدام autotable للحفاظ على التنسيق)
+  (doc as any).autoTable({
+    startY: 60,
+    head: [['المقياس', 'النتيجة']],
+    body: data.metrics.map(m => [m.label, m.value]),
+    theme: 'grid',
+    headStyles: { fillColor: primaryColor },
+  });
+
+  // 4. التوصيات (نص عربي واقعي)
+  const finalY = (doc as any).lastAutoTable.finalY + 10;
+  doc.setFontSize(14);
+  doc.text("التوصيات المقترحة:", 10, finalY);
+  
+  doc.setFontSize(10);
+  data.recommendations.forEach((rec, index) => {
+    doc.text(`- ${rec}`, 10, finalY + 10 + (index * 7));
+  });
+
+  doc.save("تقرير-تحليل-الموقع.pdf");
 }
