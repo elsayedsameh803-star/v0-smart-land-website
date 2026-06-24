@@ -29,12 +29,12 @@ export function Navbar() {
               <BarChart3 className="h-6 w-6 text-primary-foreground" />
             </div>
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-foreground">
-                {t("سمارت لاند", "Smart Land")}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {t("لاستشارات وزيادة الأرباح", "Consulting & Growth")}
-              </span>
+            <span className="text-lg font-bold text-foreground">
+              Smart Land
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {language === "ar" ? "لاستشارات وزيادة الأرباح" : "Consulting & Growth"}
+            </span>
             </div>
           </Link>
 
@@ -44,37 +44,37 @@ export function Navbar() {
               href="/"
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {t("الرئيسية", "Home")}
+              {language === "ar" ? "الرئيسية" : "Home"}
             </Link>
             <Link
               href="/dashboard"
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {t("لوحة التحكم", "Dashboard")}
+              {language === "ar" ? "لوحة التحكم" : "Dashboard"}
             </Link>
             <Link
               href="/analyze"
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {t("تحليل", "Analyze")}
+              {language === "ar" ? "تحليل" : "Analyze"}
             </Link>
             <Link
               href="/privacy"
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {t("الخصوصية", "Privacy")}
+              {language === "ar" ? "الخصوصية" : "Privacy"}
             </Link>
             <Link
               href="/terms"
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {t("الشروط", "Terms")}
+              {language === "ar" ? "الشروط" : "Terms"}
             </Link>
             <Link
               href="/contact"
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {t("اتصل بنا", "Contact")}
+              {language === "ar" ? "اتصل بنا" : "Contact"}
             </Link>
           </div>
 
@@ -102,18 +102,18 @@ export function Navbar() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard">{t("لوحة التحكم", "Dashboard")}</Link>
+                    <Link href="/dashboard">{language === "ar" ? "لوحة التحكم" : "Dashboard"}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={logout}>
                     <LogOut className="mr-2 h-4 w-4" />
-                    {t("تسجيل الخروج", "Logout")}
+                    {language === "ar" ? "تسجيل الخروج" : "Logout"}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               <Button asChild size="sm">
-                <Link href="/login">{t("تسجيل الدخول", "Login")}</Link>
+                <Link href="/login">{language === "ar" ? "تسجيل الدخول" : "Login"}</Link>
               </Button>
             )}
 
@@ -142,42 +142,42 @@ export function Navbar() {
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("الرئيسية", "Home")}
+                {language === "ar" ? "الرئيسية" : "Home"}
               </Link>
               <Link
                 href="/dashboard"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("لوحة التحكم", "Dashboard")}
+                {language === "ar" ? "لوحة التحكم" : "Dashboard"}
               </Link>
               <Link
                 href="/analyze"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("تحليل", "Analyze")}
+                {language === "ar" ? "تحليل" : "Analyze"}
               </Link>
               <Link
                 href="/privacy"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("الخصوصية", "Privacy")}
+                {language === "ar" ? "الخصوصية" : "Privacy"}
               </Link>
               <Link
                 href="/terms"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("الشروط", "Terms")}
+                {language === "ar" ? "الشروط" : "Terms"}
               </Link>
               <Link
                 href="/contact"
                 className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {t("اتصل بنا", "Contact")}
+                {language === "ar" ? "اتصل بنا" : "Contact"}
               </Link>
               <Button
                 variant="outline"

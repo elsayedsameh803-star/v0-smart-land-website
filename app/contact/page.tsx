@@ -21,7 +21,7 @@ import {
 } from "lucide-react"
 
 function ContactContent() {
-  const { t } = useLanguage()
+  const { language } = useLanguage()
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [formData, setFormData] = useState({
@@ -43,10 +43,9 @@ function ContactContent() {
 
   const handleWhatsApp = () => {
     const message = encodeURIComponent(
-      t(
-        "مرحباً، أريد الاستفسار عن خدمات سمارت لاند",
-        "Hello, I would like to inquire about Smart Land services"
-      )
+      language === "ar"
+        ? "مرحباً، أريد الاستفسار عن خدمات سمارت لاند"
+        : "Hello, I would like to inquire about Smart Land services"
     )
     window.open(`https://wa.me/201272097150?text=${message}`, "_blank")
   }
@@ -57,13 +56,12 @@ function ContactContent() {
         {/* Header */}
         <div className="mb-12 text-center">
           <h1 className="text-3xl font-bold text-foreground">
-            {t("اتصل بنا", "Contact Us")}
+            {language === "ar" ? "اتصل بنا" : "Contact Us"}
           </h1>
           <p className="mx-auto mt-2 max-w-2xl text-muted-foreground">
-            {t(
-              "نحن هنا لمساعدتك. تواصل معنا لأي استفسارات أو اقتراحات",
-              "We're here to help. Contact us for any inquiries or suggestions"
-            )}
+            {language === "ar"
+              ? "نحن هنا لمساعدتك. تواصل معنا لأي استفسارات أو اقتراحات"
+              : "We're here to help. Contact us for any inquiries or suggestions"}
           </p>
         </div>
 
@@ -78,7 +76,7 @@ function ContactContent() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">
-                      {t("الهاتف", "Phone")}
+                      {language === "ar" ? "الهاتف" : "Phone"}
                     </h3>
                     <p className="text-sm text-muted-foreground" dir="ltr">
                       +20 127 209 7150
@@ -96,7 +94,7 @@ function ContactContent() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">
-                      {t("البريد الإلكتروني", "Email")}
+                      {language === "ar" ? "البريد الإلكتروني" : "Email"}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       info@smartland.com
@@ -114,10 +112,10 @@ function ContactContent() {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground">
-                      {t("الموقع", "Location")}
+                      {language === "ar" ? "الموقع" : "Location"}
                     </h3>
                     <p className="text-sm text-muted-foreground">
-                      {t("مصر", "Egypt")}
+                      {language === "ar" ? "مصر" : "Egypt"}
                     </p>
                   </div>
                 </div>
@@ -130,7 +128,7 @@ function ContactContent() {
               className="w-full bg-[#25D366] text-white hover:bg-[#20BD5A]"
             >
               <MessageCircle className="ml-2 h-5 w-5" />
-              {t("تواصل عبر واتساب", "Chat on WhatsApp")}
+              {language === "ar" ? "تواصل عبر واتساب" : "Chat on WhatsApp"}
             </Button>
           </div>
 
@@ -143,20 +141,19 @@ function ContactContent() {
                     <CheckCircle2 className="h-8 w-8 text-green-500" />
                   </div>
                   <h3 className="text-xl font-semibold text-foreground">
-                    {t("تم إرسال رسالتك بنجاح!", "Message Sent Successfully!")}
+                    {language === "ar" ? "تم إرسال رسالتك بنجاح!" : "Message Sent Successfully!"}
                   </h3>
                   <p className="mt-2 text-muted-foreground">
-                    {t(
-                      "سنتواصل معك في أقرب وقت ممكن",
-                      "We will get back to you as soon as possible"
-                    )}
+                    {language === "ar"
+                      ? "سنتواصل معك في أقرب وقت ممكن"
+                      : "We will get back to you as soon as possible"}
                   </p>
                   <Button
                     variant="outline"
                     className="mt-6"
                     onClick={() => setSuccess(false)}
                   >
-                    {t("إرسال رسالة أخرى", "Send Another Message")}
+                    {language === "ar" ? "إرسال رسالة أخرى" : "Send Another Message"}
                   </Button>
                 </div>
               ) : (
@@ -164,10 +161,10 @@ function ContactContent() {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-foreground">
-                        {t("الاسم", "Name")}
+                        {language === "ar" ? "الاسم" : "Name"}
                       </label>
                       <Input
-                        placeholder={t("أدخل اسمك", "Enter your name")}
+                        placeholder={language === "ar" ? "أدخل اسمك" : "Enter your name"}
                         value={formData.name}
                         onChange={(e) =>
                           setFormData({ ...formData, name: e.target.value })
@@ -177,7 +174,7 @@ function ContactContent() {
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium text-foreground">
-                        {t("البريد الإلكتروني", "Email")}
+                        {language === "ar" ? "البريد الإلكتروني" : "Email"}
                       </label>
                       <Input
                         type="email"
@@ -194,10 +191,10 @@ function ContactContent() {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">
-                      {t("الموضوع", "Subject")}
+                      {language === "ar" ? "الموضوع" : "Subject"}
                     </label>
                     <Input
-                      placeholder={t("موضوع الرسالة", "Message subject")}
+                      placeholder={language === "ar" ? "موضوع الرسالة" : "Message subject"}
                       value={formData.subject}
                       onChange={(e) =>
                         setFormData({ ...formData, subject: e.target.value })
@@ -208,10 +205,10 @@ function ContactContent() {
 
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-foreground">
-                      {t("الرسالة", "Message")}
+                      {language === "ar" ? "الرسالة" : "Message"}
                     </label>
                     <Textarea
-                      placeholder={t("اكتب رسالتك هنا...", "Write your message here...")}
+                      placeholder={language === "ar" ? "اكتب رسالتك هنا..." : "Write your message here..."}
                       value={formData.message}
                       onChange={(e) =>
                         setFormData({ ...formData, message: e.target.value })
@@ -227,7 +224,7 @@ function ContactContent() {
                     ) : (
                       <Send className="ml-2 h-4 w-4" />
                     )}
-                    {t("إرسال الرسالة", "Send Message")}
+                    {language === "ar" ? "إرسال الرسالة" : "Send Message"}
                   </Button>
                 </form>
               )}

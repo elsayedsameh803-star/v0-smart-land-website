@@ -8,15 +8,10 @@ import { WhatsAppButton } from "@/components/whatsapp-button"
 import { DashboardCharts } from "@/components/dashboard-charts"
 import { useLanguage } from "@/lib/language-context"
 import { Button } from "@/components/ui/button"
-import { Download, RefreshCw } from "lucide-react"
-import { exportDashboardPDF } from "@/lib/pdf-export"
+import { RefreshCw } from "lucide-react"
 
 function DashboardContent() {
   const { language, t } = useLanguage()
-
-  const handleExportPDF = () => {
-    exportDashboardPDF(language)
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -25,23 +20,18 @@ function DashboardContent() {
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              {t("لوحة التحكم", "Dashboard")}
+              {t("dashboard")}
             </h1>
             <p className="mt-1 text-muted-foreground">
-              {t(
-                "تحليل شامل لأداء موقعك وحساباتك",
-                "Comprehensive analysis of your website and accounts performance"
-              )}
+              {language === "ar"
+                ? "تحليل شامل لأداء موقعك وحساباتك"
+                : "Comprehensive analysis of your website and accounts performance"}
             </p>
           </div>
           <div className="flex gap-3">
             <Button variant="outline" size="sm" onClick={() => window.location.reload()}>
               <RefreshCw className="ml-2 h-4 w-4" />
-              {t("تحديث", "Refresh")}
-            </Button>
-            <Button size="sm" onClick={handleExportPDF}>
-              <Download className="ml-2 h-4 w-4" />
-              {t("تصدير PDF", "Export PDF")}
+              {language === "ar" ? "تحديث" : "Refresh"}
             </Button>
           </div>
         </div>

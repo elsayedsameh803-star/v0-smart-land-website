@@ -9,25 +9,24 @@ import AnalysisTools from "@/components/analysis-tools"
 import { useLanguage } from "@/lib/language-context"
 
 function AnalyzeContent() {
-  const { t } = useLanguage()
+  const { language } = useLanguage()
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-foreground">
-            {t("أدوات التحليل الاحترافية", "Professional Analysis Tools")}
+        <div className="mb-12 text-center">
+          <h1 className="text-4xl font-bold text-foreground text-balance">
+            {language === "ar" ? "تحليل الموقع" : "Analyze Website"}
           </h1>
-          <p className="mx-auto mt-2 max-w-2xl text-muted-foreground">
-            {t(
-              "حلل موقعك وحساباتك على السوشيال ميديا واحصل على تقارير مفصلة وتوصيات لتحسين الأداء",
-              "Analyze your website and social media accounts and get detailed reports and recommendations to improve performance"
-            )}
+          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground text-balance">
+            {language === "ar"
+              ? "قم بتحليل موقعك الإلكتروني واحصل على تقرير شامل عن الأداء والأمان وتحسين محركات البحث"
+              : "Analyze your website and get comprehensive reports on performance, security, and SEO optimization"}
           </p>
         </div>
 
-        {/* Tools Grid */}
+        {/* Tools */}
         <AnalysisTools />
       </div>
     </div>
