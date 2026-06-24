@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useLanguage } from "@/lib/language-context"
 import { Language, LANGUAGES, translations } from "@/lib/translations"
 import { WebsiteAnalysisResult } from "@/lib/website-analyzer"
-import { generateAnalysisPDF } from "@/lib/pdf-export-enhanced"
+import { generateArabicPDF } from "@/lib/pdf-export-arabic"
 import SimpleResults from "./simple-results"
 
 export default function AnalysisTools() {
@@ -61,12 +61,58 @@ export default function AnalysisTools() {
 
     setGeneratingPDF(true)
     try {
-      await generateAnalysisPDF({
-        language,
-        analysisResult: results,
+      // Create a temporary container with results data
+      const container = document.createElement("div")
+      container.id = "pdf-export-container"
+      container.style.position = "absolute"
+      container.style.left = "-9999px"
+      container.style.width = "1200px"
+      container.style.padding = "40px"
+      container.style.backgroundColor = "white"
+      container.style.color = "black"
+      container.style.direction = language === "ar" ? "rtl" : "ltr"
+      container.innerHTML = `
+        <h1 style="font-size: 32px; margin-bottom: 20px; text-align: center;">
+          ${language === "ar" ? "تقرير التحليل الشامل" : "Comprehensive Analysis Report"}
+        </h1>
+        <div style="margin: 30px 0; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
+          <p><strong>${language === "ar" ? "النقاط الإجمالية" : "Overall Score"}:</strong> ${results.score || 0}/100</p>
+          <p><strong>${language === "ar" ? "الموقع" : "Website"}:</strong> ${url || results.url || "N/A"}</p>
+          <p><strong>${language === "ar" ? "تاريخ التحليل" : "Analysis Date"}:</strong> ${new Date().toLocaleDateString()}</p>
+        </div>
+        <h2 style="font-size: 24px; margin: 20px 0 10px 0;">${language === "ar" ? "المقاييس" : "Metrics"}</h2>
+        <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+          ${(results.metrics || []).map((m: any) => `
+            <tr style="border: 1px solid #ddd;">
+              <td style="padding: 10px; border: 1px solid #ddd;">${m.label}</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${m.value}</td>
+              <td style="padding: 10px; border: 1px solid #ddd;">${m.status}</td>
+            </tr>
+          `).join("")}
+        </table>
+        <h2 style="font-size: 24px; margin: 20px 0 10px 0;">${language === "ar" ? "المشاكل والنجاحات" : "Issues"}</h2>
+        <ul>
+          ${(results.issues || []).map((i: any) => `<li>${i.message}</li>`).join("")}
+        </ul>
+        <h2 style="font-size: 24px; margin: 20px 0 10px 0;">${language === "ar" ? "التوصيات" : "Recommendations"}</h2>
+        <ul>
+          ${(results.recommendations || []).map((r: any) => `<li>${r}</li>`).join("")}
+        </ul>
+      `
+      document.body.appendChild(container)
+
+      // Generate PDF
+      await generateArabicPDF("pdf-export-container", `analysis-report-${new Date().getTime()}.pdf`, language, {
+        title: language === "ar" ? "تقرير التحليل" : "Analysis Report",
+        description: language === "ar" ? "تقرير تحليل شامل للموقع الإلكتروني" : "Comprehensive website analysis report",
+        url: url || results.url,
+        score: results.score || 0,
       })
+
+      // Cleanup
+      document.body.removeChild(container)
     } catch (err) {
-      console.error("PDF generation error:", err)
+      console.error("[v0] PDF generation error:", err)
       setError("Failed to generate PDF")
     } finally {
       setGeneratingPDF(false)

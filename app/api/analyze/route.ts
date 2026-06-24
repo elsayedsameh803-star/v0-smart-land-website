@@ -1,33 +1,55 @@
 import { generateText } from 'ai'
 import { z } from 'zod'
-import { analyzeWebsite, WebsiteAnalysisResult } from '@/lib/website-analyzer'
+import { fetchRealWebsiteMetrics, fetchSocialMetrics } from '@/lib/real-data-fetcher'
 import { Language } from '@/lib/translations'
 
 const analysisSchema = z.object({
   url: z.string(),
-  type: z.enum(['website', 'instagram', 'facebook', 'tiktok']).optional(),
+  type: z.enum(['website', 'youtube', 'instagram', 'facebook', 'tiktok', 'linkedin', 'snapchat']).optional(),
   language: z.string().optional().default('en'),
+  handle: z.string().optional(),
 })
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { url, type = 'website', language } = analysisSchema.parse(body)
+    const { url, type = 'website', language, handle } = analysisSchema.parse(body)
 
-    // For website analysis, use real website analyzer
+    // For website analysis, use real API data
     if (type === 'website') {
       try {
-        const analysisResult = await analyzeWebsite(url)
+        const metrics = await fetchRealWebsiteMetrics(url)
+        const analysis = transformMetricsToAnalysis(metrics, language)
         return Response.json({
           success: true,
-          analysis: analysisResult,
+          analysis,
           type: 'website',
           language,
+          realData: true,
           analyzedAt: new Date().toISOString(),
         })
       } catch (analyzerError) {
-        console.error('Website analyzer error:', analyzerError)
-        // Fall through to AI analysis fallback
+        console.error('[v0] Website metrics error:', analyzerError)
+        // Fall through to AI analysis
+      }
+    }
+
+    // For social media analysis, use real social metrics
+    if (['youtube', 'instagram', 'facebook', 'tiktok', 'linkedin', 'snapchat'].includes(type)) {
+      try {
+        const socialMetrics = await fetchSocialMetrics(type as any, handle || url)
+        const analysis = transformSocialMetricsToAnalysis(socialMetrics, language)
+        return Response.json({
+          success: true,
+          analysis,
+          type,
+          language,
+          realData: true,
+          analyzedAt: new Date().toISOString(),
+        })
+      } catch (socialError) {
+        console.error(`[v0] Social metrics error for ${type}:`, socialError)
+        // Fall through to AI analysis
       }
     }
 
@@ -98,6 +120,124 @@ export async function POST(req: Request) {
       { success: false, error: 'Failed to analyze' },
       { status: 500 }
     )
+  }
+}
+
+function transformMetricsToAnalysis(metrics: any, language: string) {
+  const isArabic = language === 'ar'
+  
+  return {
+    score: Math.round((metrics.performance.score + metrics.seo.score + metrics.security.score + metrics.accessibility.score) / 4),
+    metrics: [
+      {
+        label: isArabic ? 'سرعة الأداء' : 'Performance Score',
+        value: `${metrics.performance.score}/100`,
+        status: metrics.performance.score > 75 ? 'good' : metrics.performance.score > 50 ? 'medium' : 'bad'
+      },
+      {
+        label: isArabic ? 'وقت التحميل' : 'Load Time',
+        value: `${Math.round(metrics.performance.pageLoadTime)}ms`,
+        status: metrics.performance.pageLoadTime < 3000 ? 'good' : 'medium'
+      },
+      {
+        label: isArabic ? 'SEO' : 'SEO Score',
+        value: `${metrics.seo.score}/100`,
+        status: metrics.seo.score > 75 ? 'good' : 'medium'
+      },
+      {
+        label: isArabic ? 'الأمان' : 'Security',
+        value: `${metrics.security.sslGrade}`,
+        status: metrics.security.hasSSL ? 'good' : 'bad'
+      },
+      {
+        label: isArabic ? 'إمكانية الوصول' : 'Accessibility',
+        value: `${metrics.accessibility.score}/100`,
+        status: metrics.accessibility.score > 75 ? 'good' : 'medium'
+      }
+    ],
+    issues: [
+      ...(metrics.security.hasSSL ? [{ type: 'success', message: isArabic ? 'شهادة SSL صالحة' : 'SSL certificate valid' }] : []),
+      ...(metrics.performance.score > 75 ? [{ type: 'success', message: isArabic ? 'أداء ممتازة' : 'Excellent performance' }] : []),
+      ...(metrics.seo.hasMobileViewport ? [{ type: 'success', message: isArabic ? 'متوافق مع الجوال' : 'Mobile responsive' }] : []),
+      ...(metrics.performance.score < 50 ? [{ type: 'warning', message: isArabic ? 'أداء الموقع بطيئة' : 'Website performance is slow' }] : []),
+      ...(metrics.security.mixedContent ? [{ type: 'error', message: isArabic ? 'محتوى غير آمن مكتشف' : 'Mixed content detected' }] : []),
+    ],
+    recommendations: isArabic ? [
+      'تحسين سرعة التحميل والأداء',
+      'تحديث محتوى SEO والكلمات الرئيسية',
+      'تفعيل رؤوس الأمان الإضافية',
+      'تحسين توافق الجوال والإمكانية',
+      'مراقبة أداء الموقع باستمرار'
+    ] : [
+      'Improve page load speed and performance',
+      'Update SEO content and keywords',
+      'Enable additional security headers',
+      'Enhance mobile compatibility',
+      'Monitor website performance regularly'
+    ],
+    aiInsights: isArabic ? 'تحليل شامل للموقع يوضح نقاط القوة والضعف والفرص للتحسين' : 'Comprehensive website analysis showing strengths, weaknesses, and improvement opportunities'
+  }
+}
+
+function transformSocialMetricsToAnalysis(metrics: any, language: string) {
+  const isArabic = language === 'ar'
+  const platformName = {
+    youtube: isArabic ? 'يوتيوب' : 'YouTube',
+    instagram: isArabic ? 'إنستجرام' : 'Instagram',
+    facebook: isArabic ? 'فيسبوك' : 'Facebook',
+    tiktok: isArabic ? 'تيك توك' : 'TikTok',
+    linkedin: isArabic ? 'لينكد إن' : 'LinkedIn',
+    snapchat: isArabic ? 'سناب شات' : 'Snapchat',
+  }
+
+  return {
+    score: Math.min(Math.round((metrics.followers / 100000) * 100), 100),
+    metrics: [
+      {
+        label: isArabic ? 'عدد المتابعين' : 'Followers',
+        value: `${(metrics.followers / 1000).toFixed(1)}K`,
+        status: metrics.followers > 100000 ? 'good' : 'medium'
+      },
+      {
+        label: isArabic ? 'معدل التفاعل' : 'Engagement Rate',
+        value: `${metrics.engagement_rate.toFixed(1)}%`,
+        status: metrics.engagement_rate > 3 ? 'good' : 'medium'
+      },
+      {
+        label: isArabic ? 'متوسط المشاهدات' : 'Average Views',
+        value: `${(metrics.avg_views / 1000).toFixed(1)}K`,
+        status: metrics.avg_views > 50000 ? 'good' : 'medium'
+      },
+      {
+        label: isArabic ? 'معدل النمو' : 'Growth Rate',
+        value: `${metrics.growth_rate.toFixed(1)}%`,
+        status: metrics.growth_rate > 2 ? 'good' : 'medium'
+      },
+      {
+        label: isArabic ? 'إجمالي المنشورات' : 'Total Posts',
+        value: `${metrics.total_posts}`,
+        status: 'good'
+      }
+    ],
+    issues: [
+      { type: 'success', message: isArabic ? `حساب ${platformName[metrics.platform as keyof typeof platformName]} نشط` : `Active ${platformName[metrics.platform as keyof typeof platformName]} account` },
+      ...(metrics.engagement_rate > 3 ? [{ type: 'success', message: isArabic ? 'معدل تفاعل جيد' : 'Good engagement rate' }] : []),
+      ...(metrics.followers < 50000 ? [{ type: 'warning', message: isArabic ? 'المزيد من التركيز على النمو' : 'Focus on growing audience' }] : []),
+    ],
+    recommendations: isArabic ? [
+      'نشر محتوى منتظم وعالي الجودة',
+      'التفاعل مع التعليقات والرسائل',
+      'استخدام الهاشتاقات ذات الصلة',
+      'التعاون مع حسابات مشابهة',
+      'تحليل أفضل أوقات النشر'
+    ] : [
+      'Post regular high-quality content',
+      'Engage with comments and messages',
+      'Use relevant hashtags',
+      'Collaborate with similar accounts',
+      'Analyze best posting times'
+    ],
+    aiInsights: isArabic ? `تحليل شامل لحسابك على ${platformName[metrics.platform as keyof typeof platformName]} يظهر الأداء والفرص` : `Comprehensive analysis of your ${platformName[metrics.platform as keyof typeof platformName]} account showing performance and opportunities`
   }
 }
 
