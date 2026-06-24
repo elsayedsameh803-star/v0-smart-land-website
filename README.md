@@ -8,6 +8,20 @@ This repository is linked to a [v0](https://v0.app) project. You can continue de
 
 [Continue working on v0 →](https://v0.app/chat/projects/prj_TP5q7ENYnJpJi74XFDl99hQIdslY)
 
+## 🌍 Features
+
+### Multi-Language PDF Reports (8 Languages)
+- **Full Language Support**: Arabic (العربية), English, Spanish, French, German, Chinese, Japanese, Portuguese
+- **RTL Support**: Perfect Arabic text rendering with proper layout direction
+- **Real Website Analysis**: Performance, SEO, Security, UX/Accessibility metrics
+- **Professional PDF Generation**: Multi-page reports in any supported language
+- **Instant Language Switching**: All content updates instantly
+
+Visit `/analyze` to try the website analyzer and generate PDF reports!
+
+### See Also
+- [Multi-Language PDF Reports Documentation](docs/FEATURES.md)
+
 ## Getting Started
 
 First, run the development server:
@@ -20,7 +34,7 @@ yarn dev
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. Visit [http://localhost:3000/analyze](http://localhost:3000/analyze) to test the multi-language website analyzer.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
