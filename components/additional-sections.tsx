@@ -116,7 +116,7 @@ export function TestimonialsSection() {
                 {/* Rating */}
                 <div className="flex gap-1 mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                    <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
 
@@ -127,7 +127,7 @@ export function TestimonialsSection() {
 
                 {/* Author */}
                 <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">
+                  <div className="h-12 w-12 rounded-full bg-yellow-400/20 flex items-center justify-center text-yellow-400 font-bold text-lg">
                     {testimonial.avatar}
                   </div>
                   <div>

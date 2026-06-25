@@ -33,7 +33,7 @@ export function HeroSection() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           {/* Badge */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-sm text-primary">
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-yellow-400/50 bg-yellow-400/10 px-4 py-2 text-sm text-yellow-400">
             <Zap className="h-4 w-4" />
             {t("منصة تحليل البيانات الاحترافية", "Professional Data Analytics Platform")}
           </div>
@@ -41,7 +41,7 @@ export function HeroSection() {
           {/* Main heading */}
           <h1 className="text-balance text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl">
             {t("سمارت لاند", "Smart Land")}
-            <span className="mt-2 block text-primary">
+            <span className="mt-2 block text-yellow-400">
               {t("لاستشارات وزيادة أرباح المواقع", "Website Consulting & Profit Growth")}
             </span>
           </h1>
@@ -56,13 +56,13 @@ export function HeroSection() {
 
           {/* CTA Buttons */}
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Button asChild size="lg" className="min-w-[180px]">
+            <Button asChild size="lg" className="min-w-[180px] bg-yellow-400 text-black hover:bg-yellow-500">
               <Link href="/analyze">
                 {t("ابدأ التحليل الآن", "Start Analysis Now")}
                 <ArrowRight className="mr-2 h-5 w-5 rotate-180" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="min-w-[180px]">
+            <Button asChild variant="outline" size="lg" className="min-w-[180px] border-yellow-400 text-yellow-400 hover:bg-yellow-400/10">
               <Link href="/dashboard">
                 {t("استكشف لوحة التحكم", "Explore Dashboard")}
               </Link>
@@ -163,10 +163,10 @@ export function FeaturesSection() {
           {features.map((feature, index) => (
             <Card
               key={index}
-              className="group relative overflow-hidden border-border bg-card transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5"
+              className="group relative overflow-hidden border-border bg-card transition-all hover:border-yellow-400/50 hover:shadow-lg hover:shadow-yellow-400/5"
             >
               <CardContent className="p-6">
-                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-lg bg-yellow-400/10 text-yellow-400 transition-colors group-hover:bg-yellow-400 group-hover:text-black">
                   <feature.icon className="h-6 w-6" />
                 </div>
                 <h3 className="mb-2 text-lg font-semibold text-foreground">
@@ -198,7 +198,7 @@ export function StatsSection() {
         <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
           {stats.map((stat, index) => (
             <div key={index} className="text-center">
-              <div className="text-4xl font-bold text-primary">{stat.value}</div>
+              <div className="text-4xl font-bold text-yellow-400">{stat.value}</div>
               <div className="mt-2 text-sm text-muted-foreground">{stat.label}</div>
             </div>
           ))}
@@ -214,13 +214,13 @@ export function CTASection() {
   return (
     <section className="py-20 lg:py-32">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/20 via-background to-accent/20 p-8 sm:p-16">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-yellow-400/20 via-background to-yellow-400/20 p-8 sm:p-16">
           <div className="absolute inset-0 -z-10">
-            <div className="absolute top-0 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+            <div className="absolute top-0 left-1/2 h-64 w-64 -translate-x-1/2 rounded-full bg-yellow-400/20 blur-3xl" />
           </div>
 
           <div className="text-center">
-            <BarChart3 className="mx-auto h-16 w-16 text-primary" />
+            <BarChart3 className="mx-auto h-16 w-16 text-yellow-400" />
             <h2 className="mt-6 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               {t("ابدأ رحلة النجاح الآن", "Start Your Success Journey Now")}
             </h2>
@@ -231,12 +231,12 @@ export function CTASection() {
               )}
             </p>
             <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-              <Button asChild size="lg">
+              <Button asChild size="lg" className="bg-yellow-400 text-black hover:bg-yellow-500">
                 <Link href="/register">
                   {t("إنشاء حساب مجاني", "Create Free Account")}
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg">
+              <Button asChild variant="outline" size="lg" className="border-yellow-400 text-yellow-400 hover:bg-yellow-400/10">
                 <Link href="/contact">{t("تواصل معنا", "Contact Us")}</Link>
               </Button>
             </div>
