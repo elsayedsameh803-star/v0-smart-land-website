@@ -1,42 +1,42 @@
-// ===== Theme Colors for CSS Variables =====
-@use "../variables" as *;
+/* ===== Theme Colors for CSS Variables ===== */
+@use "../variables/index" as *;
 
 :root {
-  // Background & Foreground
+  /* Background & Foreground */
   --background: #{$color-background};
   --foreground: #{$color-foreground};
   
-  // Card & Surface
+  /* Card & Surface */
   --card: #{$color-card};
   --card-foreground: #{$color-card-foreground};
   
-  // Popover
+  /* Popover */
   --popover: #{$color-card};
   --popover-foreground: #{$color-foreground};
   
-  // Primary
+  /* Primary */
   --primary: #{$primary};
   --primary-foreground: #{$primary-foreground};
   
-  // Secondary
+  /* Secondary */
   --secondary: #{$secondary};
   --secondary-foreground: #{$secondary-foreground};
   
-  // Muted
+  /* Muted */
   --muted: #{$muted};
   --muted-foreground: #{$muted-foreground};
   
-  // Border
+  /* Border */
   --border: #{$border};
   --border-light: #{$border-light};
   
-  // Semantic Colors
+  /* Semantic Colors */
   --success: #{$success};
   --warning: #{$warning};
   --error: #{$error};
   --info: #{$info};
   
-  // Chart Colors
+  /* Chart Colors */
   --chart-blue: #{$color-blue};
   --chart-green: #{$color-green};
   --chart-red: #{$color-red};
@@ -45,7 +45,7 @@
   --chart-yellow: #{$color-yellow};
   --chart-cyan: #{$color-cyan};
   
-  // Additional Grays
+  /* Additional Grays */
   --gray-50: #{$color-gray-50};
   --gray-100: #{$color-gray-100};
   --gray-200: #{$color-gray-200};
@@ -57,12 +57,12 @@
   --gray-800: #{$color-gray-800};
   --gray-900: #{$color-gray-900};
   
-  // Typography
+  /* Typography */
   --font-primary: #{$font-primary};
   --font-secondary: #{$font-secondary};
   --font-mono: #{$font-mono};
   
-  // Radius
+  /* Radius */
   --radius-sm: #{$radius-sm};
   --radius-md: #{$radius-md};
   --radius-lg: #{$radius-lg};

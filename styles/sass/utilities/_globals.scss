@@ -1,6 +1,6 @@
-// ===== Global Styles =====
-@use "../variables" as *;
-@use "../mixins" as *;
+/* ===== Global Styles ===== */
+@use "../variables/index" as *;
+@use "../mixins/index" as *;
 
 * {
   margin: 0;
@@ -24,7 +24,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-// ===== Headings =====
+/* ===== Headings ===== */
 h1, h2, h3, h4, h5, h6 {
   font-weight: $font-weight-bold;
   line-height: $line-height-tight;
@@ -54,7 +54,7 @@ h6 {
   font-size: $font-size-base;
 }
 
-// ===== Links =====
+/* ===== Links ===== */
 a {
   color: $primary;
   text-decoration: none;
@@ -69,7 +69,7 @@ a {
   }
 }
 
-// ===== Buttons =====
+/* ===== Buttons ===== */
 button {
   font-family: $font-primary;
   cursor: pointer;
@@ -81,7 +81,7 @@ button {
   }
 }
 
-// ===== Form Elements =====
+/* ===== Form Elements ===== */
 input, textarea, select {
   font-family: $font-primary;
   font-size: $font-size-base;
@@ -103,7 +103,7 @@ input, textarea, select {
   }
 }
 
-// ===== Lists =====
+/* ===== Lists ===== */
 ul, ol {
   padding-left: $spacing-4;
 }
@@ -112,7 +112,7 @@ li {
   margin-bottom: $spacing-2;
 }
 
-// ===== Code =====
+/* ===== Code ===== */
 code {
   font-family: $font-mono;
   font-size: 0.9em;
@@ -137,7 +137,7 @@ pre {
   }
 }
 
-// ===== Tables =====
+/* ===== Tables ===== */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -160,20 +160,20 @@ tr:hover {
   background-color: rgba($primary, 0.05);
 }
 
-// ===== Images =====
+/* ===== Images ===== */
 img {
   max-width: 100%;
   height: auto;
   display: block;
 }
 
-// ===== Selection =====
+/* ===== Selection ===== */
 ::selection {
   background-color: $primary;
   color: $primary-foreground;
 }
 
-// ===== Scrollbar =====
+/* ===== Scrollbar ===== */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -192,7 +192,7 @@ img {
   }
 }
 
-// ===== Focus Visible =====
+/* ===== Focus Visible ===== */
 *:focus-visible {
   outline: 2px solid $primary;
   outline-offset: 2px;

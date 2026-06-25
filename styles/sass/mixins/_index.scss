@@ -1,6 +1,6 @@
-// ===== All Mixins =====
+/* ===== All Mixins ===== */
 
-// ===== Flexbox Utilities =====
+/* ===== Flexbox Utilities ===== */
 @mixin flex-center {
   display: flex;
   align-items: center;
@@ -19,7 +19,7 @@
   justify-content: flex-start;
 }
 
-// ===== Responsive Design =====
+/* ===== Responsive Design =====
 @mixin respond($breakpoint) {
   @if $breakpoint == "sm" {
     @media (min-width: 640px) {
@@ -44,7 +44,7 @@
   }
 }
 
-// ===== Text Truncation =====
+/* ===== Text Truncation =====
 @mixin truncate {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -58,7 +58,7 @@
   overflow: hidden;
 }
 
-// ===== Button & Interactive States =====
+/* ===== Button & Interactive States =====
 @mixin interactive-state($bg-color: rgba(255, 255, 255, 0.1), $transition: 250ms) {
   transition: all $transition ease-in-out;
   
@@ -76,7 +76,7 @@
   }
 }
 
-// ===== Shadows =====
+/* ===== Shadows =====
 @mixin shadow-sm {
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 }
@@ -93,7 +93,7 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
-// ===== Gradients =====
+/* ===== Gradients =====
 @mixin gradient-text($from: #3b82f6, $to: #a855f7) {
   background: linear-gradient(to right, $from, $to);
   -webkit-background-clip: text;
@@ -101,7 +101,7 @@
   background-clip: text;
 }
 
-// ===== Animations =====
+/* ===== Animations =====
 @mixin fade-in($duration: 300ms, $delay: 0ms) {
   animation: fadeIn $duration ease-in-out $delay forwards;
   opacity: 0;
@@ -133,7 +133,7 @@
   }
 }
 
-// ===== Accessibility =====
+/* ===== Accessibility =====
 @mixin sr-only {
   position: absolute;
   width: 1px;
@@ -146,7 +146,7 @@
   border-width: 0;
 }
 
-// ===== Focus Ring =====
+/* ===== Focus Ring =====
 @mixin focus-ring($color: #3b82f6, $width: 2px, $offset: 2px) {
   outline: $width solid $color;
   outline-offset: $offset;

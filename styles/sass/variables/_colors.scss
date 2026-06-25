@@ -1,24 +1,24 @@
-// ===== Color System - نظام الألوان =====
-// Dark Mode Colors - ألوان الوضع الليلي
+/* ===== Color System - نظام الألوان ===== */
+/* Dark Mode Colors - ألوان الوضع الليلي */
 
-// Primary Colors - الألوان الأساسية
-$color-background: #0a0a0a;  // Black background
-$color-foreground: #ffffff;   // White text
+/* Primary Colors - الألوان الأساسية */
+$color-background: #0a0a0a;  /* Black background */
+$color-foreground: #ffffff;   /* White text */
 
-// Card & Surface
-$color-card: #1a1a1a;         // Dark card
+/* Card & Surface */
+$color-card: #1a1a1a;         /* Dark card */
 $color-card-foreground: #ffffff;
 
-// Chart Analysis Colors - ألوان تحليلات الرسوم البيانية
-$color-blue: #3b82f6;         // Blue - للبيانات العالية
-$color-green: #10b981;        // Green - للنمو الإيجابي
-$color-red: #ef4444;          // Red - للتنبيهات والأخطاء
-$color-orange: #f97316;       // Orange - للتحذيرات
-$color-purple: #a855f7;       // Purple - للإحصائيات الخاصة
-$color-yellow: #eab308;       // Yellow - للمعلومات
-$color-cyan: #06b6d4;         // Cyan - للمقاييس الثانوية
+/* Chart Analysis Colors - ألوان تحليلات الرسوم البيانية */
+$color-blue: #3b82f6;         /* Blue - للبيانات العالية */
+$color-green: #10b981;        /* Green - للنمو الإيجابي */
+$color-red: #ef4444;          /* Red - للتنبيهات والأخطاء */
+$color-orange: #f97316;       /* Orange - للتحذيرات */
+$color-purple: #a855f7;       /* Purple - للإحصائيات الخاصة */
+$color-yellow: #eab308;       /* Yellow - للمعلومات */
+$color-cyan: #06b6d4;         /* Cyan - للمقاييس الثانوية */
 
-// Neutral Colors - الألوان المحايدة
+/* Neutral Colors - الألوان المحايدة */
 $color-gray-50: #f9fafb;
 $color-gray-100: #f3f4f6;
 $color-gray-200: #e5e7eb;
@@ -30,28 +30,28 @@ $color-gray-700: #374151;
 $color-gray-800: #1f2937;
 $color-gray-900: #111827;
 
-// Primary Palette
+/* Primary Palette */
 $primary: $color-blue;
 $primary-foreground: #000000;
 
-// Secondary Palette
+/* Secondary Palette */
 $secondary: $color-purple;
 $secondary-foreground: #ffffff;
 
-// Semantic Colors
+/* Semantic Colors */
 $success: $color-green;
 $warning: $color-orange;
 $error: $color-red;
 $info: $color-cyan;
 
-// Muted Colors
+/* Muted Colors */
 $muted: $color-gray-600;
 $muted-foreground: $color-gray-400;
 
-// Border Color
+/* Border Color */
 $border: $color-gray-800;
 $border-light: $color-gray-700;
 
-// Hover & Focus States
+/* Hover & Focus States */
 $hover-opacity: 0.8;
 $focus-opacity: 0.9;

@@ -1,19 +1,19 @@
-// ===== Smart Land - Main SCSS File =====
-// Import all SASS modules in the correct order
+/* ===== Smart Land - Main SCSS File ===== */
+/* Import all SASS modules in the correct order */
 
-// 1. Variables
+/* 1. Variables */
 @import "sass/variables/index";
 
-// 2. Mixins
+/* 2. Mixins */
 @import "sass/mixins/index";
 
-// 3. Utilities & Theme
+/* 3. Utilities & Theme */
 @import "sass/utilities/theme";
 @import "sass/utilities/globals";
 
-// ===== Component Styles (Optional - Add specific component styles here) =====
+/* ===== Component Styles (Optional - Add specific component styles here) ===== */
 
-// 4. Chart Colors Utility Classes
+/* 4. Chart Colors Utility Classes */
 .chart-blue { color: var(--chart-blue); }
 .chart-green { color: var(--chart-green); }
 .chart-red { color: var(--chart-red); }
@@ -22,7 +22,7 @@
 .chart-yellow { color: var(--chart-yellow); }
 .chart-cyan { color: var(--chart-cyan); }
 
-// Background variants
+/* Background variants */
 .bg-chart-blue { background-color: var(--chart-blue); }
 .bg-chart-green { background-color: var(--chart-green); }
 .bg-chart-red { background-color: var(--chart-red); }
@@ -31,7 +31,7 @@
 .bg-chart-yellow { background-color: var(--chart-yellow); }
 .bg-chart-cyan { background-color: var(--chart-cyan); }
 
-// ===== Analysis Dashboard Specific Styles =====
+/* ===== Analysis Dashboard Specific Styles ===== */
 .analysis-card {
   background-color: var(--card);
   border: 1px solid var(--border);
@@ -68,7 +68,7 @@
   }
 }
 
-// ===== PDF Export Styles =====
+/* ===== PDF Export Styles ===== */
 @media print {
   body {
     background-color: white;

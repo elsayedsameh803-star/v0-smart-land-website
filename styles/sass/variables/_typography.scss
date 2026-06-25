@@ -1,22 +1,22 @@
-// ===== Typography - الطباعة =====
+/* ===== Typography - الطباعة ===== */
 
-// Font Families
+/* Font Families */
 $font-primary: "Cairo", sans-serif;
 $font-secondary: "Amiri", serif;
 $font-mono: "Geist Mono", monospace;
 
-// Font Sizes
-$font-size-xs: 0.75rem;     // 12px
-$font-size-sm: 0.875rem;    // 14px
-$font-size-base: 1rem;      // 16px
-$font-size-lg: 1.125rem;    // 18px
-$font-size-xl: 1.25rem;     // 20px
-$font-size-2xl: 1.5rem;     // 24px
-$font-size-3xl: 1.875rem;   // 30px
-$font-size-4xl: 2.25rem;    // 36px
-$font-size-5xl: 3rem;       // 48px
+/* Font Sizes */
+$font-size-xs: 0.75rem;     /* 12px */
+$font-size-sm: 0.875rem;    /* 14px */
+$font-size-base: 1rem;      /* 16px */
+$font-size-lg: 1.125rem;    /* 18px */
+$font-size-xl: 1.25rem;     /* 20px */
+$font-size-2xl: 1.5rem;     /* 24px */
+$font-size-3xl: 1.875rem;   /* 30px */
+$font-size-4xl: 2.25rem;    /* 36px */
+$font-size-5xl: 3rem;       /* 48px */
 
-// Font Weights
+/* Font Weights */
 $font-weight-light: 300;
 $font-weight-normal: 400;
 $font-weight-medium: 500;
@@ -24,13 +24,13 @@ $font-weight-semibold: 600;
 $font-weight-bold: 700;
 $font-weight-extrabold: 800;
 
-// Line Heights
+/* Line Heights */
 $line-height-tight: 1.2;
 $line-height-normal: 1.4;
 $line-height-relaxed: 1.6;
 $line-height-loose: 1.8;
 
-// Letter Spacing
+/* Letter Spacing */
 $letter-spacing-tight: -0.02em;
 $letter-spacing-normal: 0;
 $letter-spacing-wide: 0.04em;
