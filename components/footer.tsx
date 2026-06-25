@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
-import { BarChart3, Mail, Phone, MapPin } from "lucide-react"
+import { BarChart3, Mail, Phone, MapPin, Youtube, Instagram, Facebook } from "lucide-react"
 
 export function Footer() {
   const { t } = useLanguage()
@@ -97,7 +97,77 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Social Media Links */}
         <div className="mt-8 border-t border-border pt-8">
+          <div className="mb-6 flex justify-center gap-6">
+            <a
+              href="https://youtube.com/smartland"
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t("اتبعنا على يوتيوب", "Follow us on YouTube")}
+              className="text-muted-foreground transition-colors hover:text-primary"
+              aria-label="YouTube"
+            >
+              <Youtube className="h-6 w-6" />
+            </a>
+            <a
+              href="https://instagram.com/smartland"
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t("اتبعنا على انستجرام", "Follow us on Instagram")}
+              className="text-muted-foreground transition-colors hover:text-primary"
+              aria-label="Instagram"
+            >
+              <Instagram className="h-6 w-6" />
+            </a>
+            <a
+              href="https://facebook.com/smartland"
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t("اتبعنا على فيسبوك", "Follow us on Facebook")}
+              className="text-muted-foreground transition-colors hover:text-primary"
+              aria-label="Facebook"
+            >
+              <Facebook className="h-6 w-6" />
+            </a>
+            {/* Snapchat Icon - Using custom SVG */}
+            <a
+              href="https://snapchat.com/add/smartland"
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t("اتبعنا على سناب شات", "Follow us on Snapchat")}
+              className="text-muted-foreground transition-colors hover:text-primary"
+              aria-label="Snapchat"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M12.06.5c-.3 0-.58.04-.88.07C5.1.9.5 5.75.5 11.6c0 3.45 1.5 6.55 4.04 8.65.06 1.08.36 2.13.82 3.08.46.95 1.08 1.8 1.85 2.5.7.65 1.5 1.2 2.37 1.55 1.33.55 2.86.85 4.42.85s3.09-.3 4.42-.85c.87-.35 1.67-.9 2.37-1.55.77-.7 1.39-1.55 1.85-2.5.46-.95.76-2 .82-3.08 2.54-2.1 4.04-5.2 4.04-8.65 0-5.85-4.6-10.7-10.6-11.03-.3-.03-.58-.07-.88-.07z" />
+              </svg>
+            </a>
+            {/* TikTok Icon */}
+            <a
+              href="https://tiktok.com/@smartland"
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t("اتبعنا على تيك توك", "Follow us on TikTok")}
+              className="text-muted-foreground transition-colors hover:text-primary"
+              aria-label="TikTok"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.68v13.7a2.4 2.4 0 0 1-2.4 2.4 2.4 2.4 0 0 1-2.4-2.4 2.4 2.4 0 0 1 2.4-2.4c.18 0 .37.02.55.07V9.44a6.1 6.1 0 0 0-.55-.05A6.12 6.12 0 0 0 5.78 15.4a6.12 6.12 0 0 0 6.12 6.12 6.12 6.12 0 0 0 6.12-6.12v-3.15a8.15 8.15 0 0 0 3.77 1.04v-3.68a4.83 4.83 0 0 1-3.77 1.88Z" />
+              </svg>
+            </a>
+          </div>
+
           <p className="text-center text-sm text-muted-foreground">
             {t(
               `© ${new Date().getFullYear()} سمارت لاند. جميع الحقوق محفوظة.`,

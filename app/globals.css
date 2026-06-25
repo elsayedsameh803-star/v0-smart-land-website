@@ -1,20 +1,60 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "../styles/main.scss";
+
 @theme {
+  --font-cairo: "Cairo", sans-serif;
   --font-amiri: "Amiri", serif;
-  --background: oklch(0.08 0.01 260);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.12 0.01 260);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.12 0.01 260);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.75 0.18 85);
-  --primary-foreground: oklch(0.15 0.02 260);
-  --secondary: oklch(0.18 0.01 260);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.18 0.01 260);
+  --font-mono: "Geist Mono", monospace;
+  
+  /* Dark Mode Colors */
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --card: #1a1a1a;
+  --card-foreground: #ffffff;
+  --popover: #1a1a1a;
+  --popover-foreground: #ffffff;
+  
+  /* Primary & Secondary */
+  --primary: #3b82f6;
+  --primary-foreground: #000000;
+  --secondary: #a855f7;
+  --secondary-foreground: #ffffff;
+  
+  /* Muted */
+  --muted: #4b5563;
+  --muted-foreground: #9ca3af;
+  
+  /* Chart Colors */
+  --chart-blue: #3b82f6;
+  --chart-green: #10b981;
+  --chart-red: #ef4444;
+  --chart-orange: #f97316;
+  --chart-purple: #a855f7;
+  --chart-yellow: #eab308;
+  --chart-cyan: #06b6d4;
+  
+  /* Border */
+  --border: #1f2937;
+  --border-light: #374151;
+  
+  /* Semantic */
+  --success: #10b981;
+  --warning: #f97316;
+  --error: #ef4444;
+  --info: #06b6d4;
+  
+  /* Radius */
+  --radius-sm: 0.125rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-full: 9999px;
 }
+
 body {
-  font-family: var(--font-amiri);
+  font-family: var(--font-cairo);
 }

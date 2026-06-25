@@ -1,0 +1,199 @@
+// ===== Global Styles =====
+@use "../variables" as *;
+@use "../mixins" as *;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: $color-background;
+  color: $color-foreground;
+}
+
+body {
+  font-family: $font-primary;
+  font-size: $font-size-base;
+  line-height: $line-height-normal;
+  color: $color-foreground;
+  background-color: $color-background;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// ===== Headings =====
+h1, h2, h3, h4, h5, h6 {
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+}
+
+h1 {
+  font-size: $font-size-4xl;
+}
+
+h2 {
+  font-size: $font-size-3xl;
+}
+
+h3 {
+  font-size: $font-size-2xl;
+}
+
+h4 {
+  font-size: $font-size-xl;
+}
+
+h5 {
+  font-size: $font-size-lg;
+}
+
+h6 {
+  font-size: $font-size-base;
+}
+
+// ===== Links =====
+a {
+  color: $primary;
+  text-decoration: none;
+  transition: color $transition-base $easing-ease-out;
+
+  &:hover {
+    color: lighten($primary, 10%);
+  }
+
+  &:focus {
+    @include focus-ring($primary);
+  }
+}
+
+// ===== Buttons =====
+button {
+  font-family: $font-primary;
+  cursor: pointer;
+  transition: all $transition-base $easing-ease-out;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// ===== Form Elements =====
+input, textarea, select {
+  font-family: $font-primary;
+  font-size: $font-size-base;
+  color: $color-foreground;
+  background-color: $color-card;
+  border: 1px solid $border;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $radius-md;
+  transition: border-color $transition-base $easing-ease-out;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &::placeholder {
+    color: $muted;
+  }
+}
+
+// ===== Lists =====
+ul, ol {
+  padding-left: $spacing-4;
+}
+
+li {
+  margin-bottom: $spacing-2;
+}
+
+// ===== Code =====
+code {
+  font-family: $font-mono;
+  font-size: 0.9em;
+  background-color: $color-gray-800;
+  color: $color-cyan;
+  padding: 0.2em 0.4em;
+  border-radius: $radius-sm;
+}
+
+pre {
+  font-family: $font-mono;
+  background-color: $color-gray-900;
+  color: $color-cyan;
+  padding: $spacing-4;
+  border-radius: $radius-lg;
+  overflow-x: auto;
+
+  code {
+    background-color: transparent;
+    color: inherit;
+    padding: 0;
+  }
+}
+
+// ===== Tables =====
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+th, td {
+  padding: $spacing-3 $spacing-4;
+  text-align: left;
+  border-bottom: 1px solid $border;
+}
+
+th {
+  background-color: $color-card;
+  font-weight: $font-weight-semibold;
+  color: $color-foreground;
+}
+
+tr:hover {
+  background-color: rgba($primary, 0.05);
+}
+
+// ===== Images =====
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+// ===== Selection =====
+::selection {
+  background-color: $primary;
+  color: $primary-foreground;
+}
+
+// ===== Scrollbar =====
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: $color-background;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: $color-gray-600;
+  border-radius: $radius-full;
+
+  &:hover {
+    background-color: $color-gray-500;
+  }
+}
+
+// ===== Focus Visible =====
+*:focus-visible {
+  outline: 2px solid $primary;
+  outline-offset: 2px;
+}

@@ -1,0 +1,81 @@
+// ===== Smart Land - Main SCSS File =====
+// Import all SASS modules in the correct order
+
+// 1. Variables
+@import "sass/variables/index";
+
+// 2. Mixins
+@import "sass/mixins/index";
+
+// 3. Utilities & Theme
+@import "sass/utilities/theme";
+@import "sass/utilities/globals";
+
+// ===== Component Styles (Optional - Add specific component styles here) =====
+
+// 4. Chart Colors Utility Classes
+.chart-blue { color: var(--chart-blue); }
+.chart-green { color: var(--chart-green); }
+.chart-red { color: var(--chart-red); }
+.chart-orange { color: var(--chart-orange); }
+.chart-purple { color: var(--chart-purple); }
+.chart-yellow { color: var(--chart-yellow); }
+.chart-cyan { color: var(--chart-cyan); }
+
+// Background variants
+.bg-chart-blue { background-color: var(--chart-blue); }
+.bg-chart-green { background-color: var(--chart-green); }
+.bg-chart-red { background-color: var(--chart-red); }
+.bg-chart-orange { background-color: var(--chart-orange); }
+.bg-chart-purple { background-color: var(--chart-purple); }
+.bg-chart-yellow { background-color: var(--chart-yellow); }
+.bg-chart-cyan { background-color: var(--chart-cyan); }
+
+// ===== Analysis Dashboard Specific Styles =====
+.analysis-card {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  transition: all 250ms ease-out;
+
+  &:hover {
+    border-color: var(--primary);
+    box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.15);
+  }
+}
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-light);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.chart-container {
+  width: 100%;
+  height: auto;
+  padding: 1rem 0;
+  overflow-x: auto;
+  
+  @media (max-width: 768px) {
+    padding: 1rem -0.5rem;
+  }
+}
+
+// ===== PDF Export Styles =====
+@media print {
+  body {
+    background-color: white;
+    color: black;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}

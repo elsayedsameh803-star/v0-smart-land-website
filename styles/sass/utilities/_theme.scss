@@ -1,0 +1,73 @@
+// ===== Theme Colors for CSS Variables =====
+@use "../variables" as *;
+
+:root {
+  // Background & Foreground
+  --background: #{$color-background};
+  --foreground: #{$color-foreground};
+  
+  // Card & Surface
+  --card: #{$color-card};
+  --card-foreground: #{$color-card-foreground};
+  
+  // Popover
+  --popover: #{$color-card};
+  --popover-foreground: #{$color-foreground};
+  
+  // Primary
+  --primary: #{$primary};
+  --primary-foreground: #{$primary-foreground};
+  
+  // Secondary
+  --secondary: #{$secondary};
+  --secondary-foreground: #{$secondary-foreground};
+  
+  // Muted
+  --muted: #{$muted};
+  --muted-foreground: #{$muted-foreground};
+  
+  // Border
+  --border: #{$border};
+  --border-light: #{$border-light};
+  
+  // Semantic Colors
+  --success: #{$success};
+  --warning: #{$warning};
+  --error: #{$error};
+  --info: #{$info};
+  
+  // Chart Colors
+  --chart-blue: #{$color-blue};
+  --chart-green: #{$color-green};
+  --chart-red: #{$color-red};
+  --chart-orange: #{$color-orange};
+  --chart-purple: #{$color-purple};
+  --chart-yellow: #{$color-yellow};
+  --chart-cyan: #{$color-cyan};
+  
+  // Additional Grays
+  --gray-50: #{$color-gray-50};
+  --gray-100: #{$color-gray-100};
+  --gray-200: #{$color-gray-200};
+  --gray-300: #{$color-gray-300};
+  --gray-400: #{$color-gray-400};
+  --gray-500: #{$color-gray-500};
+  --gray-600: #{$color-gray-600};
+  --gray-700: #{$color-gray-700};
+  --gray-800: #{$color-gray-800};
+  --gray-900: #{$color-gray-900};
+  
+  // Typography
+  --font-primary: #{$font-primary};
+  --font-secondary: #{$font-secondary};
+  --font-mono: #{$font-mono};
+  
+  // Radius
+  --radius-sm: #{$radius-sm};
+  --radius-md: #{$radius-md};
+  --radius-lg: #{$radius-lg};
+  --radius-xl: #{$radius-xl};
+  --radius-2xl: #{$radius-2xl};
+  --radius-3xl: #{$radius-3xl};
+  --radius-full: #{$radius-full};
+}
