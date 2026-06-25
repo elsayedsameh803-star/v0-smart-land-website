@@ -118,6 +118,65 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         
+        {/* Google Search Console Verification */}
+        <meta name="google-site-verification" content="smartland-verification-code" />
+        
+        {/* Google Analytics */}
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
+                    page_path: window.location.pathname,
+                    send_page_view: true,
+                    linker: {
+                      domains: ['smartland.app', 'smartland.com']
+                    }
+                  });
+                `,
+              }}
+            />
+          </>
+        )}
+        
+        {/* Structured Data - JSON-LD */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "Smart Land",
+              "url": "https://smartland.app",
+              "logo": "https://smartland.app/logo.png",
+              "description": "منصة متكاملة لتحليل البيانات والسوشيال ميديا بالذكاء الاصطناعي",
+              "sameAs": [
+                "https://youtube.com/smartland",
+                "https://instagram.com/smartland",
+                "https://facebook.com/smartland",
+                "https://tiktok.com/@smartland",
+                "https://snapchat.com/add/smartland"
+              ],
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "Customer Service",
+                "telephone": "+20-127-209-7150",
+                "email": "info@smartland.com"
+              },
+              "foundingDate": "2024",
+              "areaServed": ["EG", "SA", "AE", "KW", "BH", "QA", "OM"],
+              "slogan": "منصة تحليل البيانات والسوشيال ميديا بالذكاء الاصطناعي"
+            }),
+          }}
+        />
       </head>
       <body className={`${cairo.variable} ${geistMono.variable} font-sans antialiased`}>
         {children}
