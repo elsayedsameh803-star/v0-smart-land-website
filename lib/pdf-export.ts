@@ -1,7 +1,7 @@
 "use client"
 
 import { jsPDF } from "jspdf"
-import html2canvas from 'html2canvas-pro'
+import html2canvas from "html2canvas"
 
 interface PDFData {
   title: string
