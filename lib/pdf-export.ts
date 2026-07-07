@@ -1,7 +1,6 @@
 "use client"
 
 import { jsPDF } from "jspdf"
-import html2canvas from "html2canvas-pro"
 
 interface PDFData {
   title: string
@@ -10,19 +9,10 @@ interface PDFData {
   metrics: { label: string; value: string }[]
   issues: { type: string; message: string }[]
   recommendations: string[]
-  language?: string
-}
-
-function detectBrowserLanguage(): string {
-  if (typeof window === "undefined") return "en"
-  const browserLang = navigator.language || (navigator as any).userLanguage || "en"
-  const lang = browserLang.split("-")[0]
-  const supportedLangs = ["ar", "en", "fr", "de", "es", "tr", "ur"]
-  return supportedLangs.includes(lang) ? lang : "en"
 }
 
 const labels = {
-  reportTitle: "Analysis Report",
+  reportTitle: "Smart Land - Analysis Report",
   score: "Score",
   metrics: "Metrics",
   issues: "Issues",
@@ -37,220 +27,172 @@ const labels = {
 }
 
 export async function generatePDF(data: PDFData): Promise<void> {
-  const container = document.createElement("div")
-  container.style.position = "absolute"
-  container.style.left = "-9999px"
-  container.style.top = "0"
-  container.style.width = "794px"
-  container.style.fontFamily = "Arial, sans-serif"
-  container.style.direction = "ltr"
-  container.style.textAlign = "left"
-  container.style.background = "#ffffff"
-  container.style.color = "#111827"
-  container.style.lineHeight = "1.6"
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4",
+  })
 
-  const scoreColor = data.score >= 80 ? "#22c55e" : data.score >= 50 ? "#f59e0b" : "#ef4444"
+  const pageWidth = 210
+  const margin = 20
+  const contentWidth = pageWidth - margin * 2
+  let y = 20
 
-  // Header
-  const header = document.createElement("div")
-  header.style.cssText = "background:linear-gradient(135deg,#1f2937,#374151);color:white;padding:30px;text-align:center;"
-  
-  const h1 = document.createElement("h1")
-  h1.style.cssText = "font-size:24px;font-weight:700;margin-bottom:8px;"
-  h1.innerText = labels.reportTitle
-  header.appendChild(h1)
+  // Header background
+  pdf.setFillColor(31, 41, 55)
+  pdf.rect(0, 0, pageWidth, 40, "F")
 
-  const dateDiv = document.createElement("div")
-  dateDiv.style.cssText = "font-size:13px;opacity:0.8;"
-  dateDiv.innerText = `${labels.date}: ${data.date}`
-  header.appendChild(dateDiv)
+  // Title
+  pdf.setTextColor(255, 255, 255)
+  pdf.setFontSize(20)
+  pdf.setFont("helvetica", "bold")
+  pdf.text(labels.reportTitle, pageWidth / 2, 20, { align: "center" })
 
-  container.appendChild(header)
+  // Date
+  pdf.setFontSize(10)
+  pdf.setFont("helvetica", "normal")
+  pdf.text(`${labels.date}: ${data.date}`, pageWidth / 2, 30, { align: "center" })
+
+  y = 50
 
   // Score Card
-  const scoreCard = document.createElement("div")
-  scoreCard.style.cssText = `background:#f9fafb;border:2px solid ${scoreColor};border-radius:12px;padding:24px;margin:24px;text-align:center;`
+  const scoreColor = data.score >= 80 ? [34, 197, 94] : data.score >= 50 ? [245, 158, 11] : [239, 68, 68]
+  
+  pdf.setDrawColor(scoreColor[0], scoreColor[1], scoreColor[2])
+  pdf.setLineWidth(1)
+  pdf.roundedRect(margin, y, contentWidth, 30, 3, 3, "S")
+  
+  pdf.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2])
+  pdf.setFontSize(36)
+  pdf.setFont("helvetica", "bold")
+  pdf.text(`${data.score}%`, pageWidth / 2, y + 20, { align: "center" })
+  
+  pdf.setTextColor(107, 114, 128)
+  pdf.setFontSize(10)
+  pdf.setFont("helvetica", "normal")
+  pdf.text(labels.score, pageWidth / 2, y + 28, { align: "center" })
 
-  const scoreValue = document.createElement("div")
-  scoreValue.style.cssText = `font-size:48px;font-weight:700;color:${scoreColor};`
-  scoreValue.innerText = `${data.score}%`
-  scoreCard.appendChild(scoreValue)
+  y += 45
 
-  const scoreLabel = document.createElement("div")
-  scoreLabel.style.cssText = "font-size:14px;color:#6b7280;margin-top:4px;"
-  scoreLabel.innerText = labels.score
-  scoreCard.appendChild(scoreLabel)
-
-  container.appendChild(scoreCard)
-
-  // Metrics Section
-  const metricsSection = document.createElement("div")
-  metricsSection.style.cssText = "margin:24px;padding:20px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;"
-
-  const metricsTitle = document.createElement("div")
-  metricsTitle.style.cssText = "font-size:16px;font-weight:600;color:#1f2937;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #f3f4f6;"
-  metricsTitle.innerText = labels.metrics
-  metricsSection.appendChild(metricsTitle)
-
-  if (data.metrics?.length) {
-    data.metrics.forEach(m => {
-      const row = document.createElement("div")
-      row.style.cssText = "display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #e5e7eb;"
-
-      const label = document.createElement("span")
-      label.style.color = "#6b7280"
-      label.innerText = m.label
-
-      const value = document.createElement("span")
-      value.style.cssText = "font-weight:600;color:#111827;"
-      value.innerText = m.value
-
-      row.appendChild(label)
-      row.appendChild(value)
-      metricsSection.appendChild(row)
-    })
-  } else {
-    const empty = document.createElement("p")
-    empty.style.color = "#9ca3af"
-    empty.innerText = labels.noIssues
-    metricsSection.appendChild(empty)
+  // Helper function for sections
+  const addSection = (title: string, content: () => void) => {
+    pdf.setTextColor(31, 41, 55)
+    pdf.setFontSize(12)
+    pdf.setFont("helvetica", "bold")
+    pdf.text(title, margin, y)
+    
+    pdf.setDrawColor(243, 244, 246)
+    pdf.setLineWidth(0.5)
+    pdf.line(margin, y + 2, pageWidth - margin, y + 2)
+    
+    y += 10
+    content()
+    y += 10
   }
-  container.appendChild(metricsSection)
 
-  // Issues Section
-  const issuesSection = document.createElement("div")
-  issuesSection.style.cssText = "margin:24px;padding:20px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;"
+  // Metrics
+  addSection(labels.metrics, () => {
+    if (data.metrics?.length) {
+      data.metrics.forEach(m => {
+        pdf.setTextColor(107, 114, 128)
+        pdf.setFontSize(10)
+        pdf.setFont("helvetica", "normal")
+        pdf.text(m.label, margin, y)
+        
+        pdf.setTextColor(17, 24, 39)
+        pdf.setFont("helvetica", "bold")
+        pdf.text(m.value, pageWidth - margin, y, { align: "right" })
+        
+        pdf.setDrawColor(229, 231, 235)
+        pdf.setLineWidth(0.3)
+        pdf.line(margin, y + 2, pageWidth - margin, y + 2)
+        
+        y += 8
+      })
+    } else {
+      pdf.setTextColor(156, 163, 175)
+      pdf.setFontSize(10)
+      pdf.text(labels.noIssues, margin, y)
+      y += 6
+    }
+  })
 
-  const issuesTitle = document.createElement("div")
-  issuesTitle.style.cssText = "font-size:16px;font-weight:600;color:#1f2937;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #f3f4f6;"
-  issuesTitle.innerText = labels.issues
-  issuesSection.appendChild(issuesTitle)
+  // Issues
+  addSection(labels.issues, () => {
+    if (data.issues?.length) {
+      data.issues.forEach(i => {
+        const typeColor = i.type === "critical" ? [239, 68, 68] : i.type === "warning" ? [245, 158, 11] : [59, 130, 246]
+        
+        pdf.setDrawColor(typeColor[0], typeColor[1], typeColor[2])
+        pdf.setLineWidth(1)
+        pdf.line(margin, y - 4, margin, y + 4)
+        
+        pdf.setTextColor(typeColor[0], typeColor[1], typeColor[2])
+        pdf.setFontSize(8)
+        pdf.setFont("helvetica", "bold")
+        pdf.text((labels as any)[i.type] || i.type, margin + 5, y)
+        
+        pdf.setTextColor(55, 65, 81)
+        pdf.setFontSize(9)
+        pdf.setFont("helvetica", "normal")
+        pdf.text(i.message, margin + 5, y + 5)
+        
+        y += 12
+      })
+    } else {
+      pdf.setTextColor(156, 163, 175)
+      pdf.setFontSize(10)
+      pdf.text(labels.noIssues, margin, y)
+      y += 6
+    }
+  })
 
-  if (data.issues?.length) {
-    data.issues.forEach(i => {
-      const typeColor = i.type === "critical" ? "#ef4444" : i.type === "warning" ? "#f59e0b" : "#3b82f6"
-
-      const row = document.createElement("div")
-      row.style.cssText = `display:flex;align-items:start;gap:8px;padding:8px;margin-bottom:6px;background:#f9fafb;border-radius:6px;border-left:3px solid ${typeColor};`
-
-      const typeSpan = document.createElement("span")
-      typeSpan.style.cssText = `color:${typeColor};font-weight:600;font-size:12px;text-transform:uppercase;`
-      typeSpan.innerText = (labels as any)[i.type] || i.type
-
-      const msgSpan = document.createElement("span")
-      msgSpan.style.cssText = "color:#374151;font-size:13px;"
-      msgSpan.innerText = i.message
-
-      row.appendChild(typeSpan)
-      row.appendChild(msgSpan)
-      issuesSection.appendChild(row)
-    })
-  } else {
-    const empty = document.createElement("p")
-    empty.style.color = "#9ca3af"
-    empty.innerText = labels.noIssues
-    issuesSection.appendChild(empty)
-  }
-  container.appendChild(issuesSection)
-
-  // Recommendations Section
-  const recSection = document.createElement("div")
-  recSection.style.cssText = "margin:24px;padding:20px;background:#ffffff;border:1px solid #e5e7eb;border-radius:8px;"
-
-  const recTitle = document.createElement("div")
-  recTitle.style.cssText = "font-size:16px;font-weight:600;color:#1f2937;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #f3f4f6;"
-  recTitle.innerText = labels.recommendations
-  recSection.appendChild(recTitle)
-
-  if (data.recommendations?.length) {
-    data.recommendations.forEach(r => {
-      const row = document.createElement("div")
-      row.style.cssText = "display:flex;align-items:start;gap:8px;padding:8px;margin-bottom:6px;background:#ecfdf5;border-radius:6px;"
-
-      const check = document.createElement("span")
-      check.style.cssText = "color:#22c55e;font-size:16px;"
-      check.innerText = "OK"
-
-      const text = document.createElement("span")
-      text.style.cssText = "color:#065f46;font-size:13px;"
-      text.innerText = r
-
-      row.appendChild(check)
-      row.appendChild(text)
-      recSection.appendChild(row)
-    })
-  } else {
-    const empty = document.createElement("p")
-    empty.style.color = "#9ca3af"
-    empty.innerText = labels.noRecommendations
-    recSection.appendChild(empty)
-  }
-  container.appendChild(recSection)
+  // Recommendations
+  addSection(labels.recommendations, () => {
+    if (data.recommendations?.length) {
+      data.recommendations.forEach(r => {
+        pdf.setTextColor(34, 197, 94)
+        pdf.setFontSize(10)
+        pdf.setFont("helvetica", "bold")
+        pdf.text("OK", margin, y)
+        
+        pdf.setTextColor(6, 95, 70)
+        pdf.setFont("helvetica", "normal")
+        pdf.text(r, margin + 12, y)
+        
+        y += 8
+      })
+    } else {
+      pdf.setTextColor(156, 163, 175)
+      pdf.setFontSize(10)
+      pdf.text(labels.noRecommendations, margin, y)
+      y += 6
+    }
+  })
 
   // Footer
-  const footer = document.createElement("div")
-  footer.style.cssText = "background:#f9fafb;padding:16px;text-align:center;font-size:12px;color:#9ca3af;margin-top:24px;"
-  footer.innerText = `${labels.generatedBy} | Smart Land © ${new Date().getFullYear()}`
-  container.appendChild(footer)
+  pdf.setFillColor(249, 250, 251)
+  pdf.rect(0, 280, pageWidth, 17, "F")
+  
+  pdf.setTextColor(156, 163, 175)
+  pdf.setFontSize(8)
+  pdf.setFont("helvetica", "normal")
+  pdf.text(`${labels.generatedBy} | Smart Land (c) ${new Date().getFullYear()}`, pageWidth / 2, 290, { align: "center" })
 
-  document.body.appendChild(container)
-
-  try {
-    await document.fonts.ready
-
-    const canvas = await html2canvas(container, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: "#ffffff",
-      logging: false,
-      width: 794,
-      windowWidth: 794,
-    })
-
-    const imgData = canvas.toDataURL("image/png")
-    const pdf = new jsPDF({
-      orientation: "portrait",
-      unit: "px",
-      format: [canvas.width, canvas.height],
-    })
-
-    pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height)
-
-    const pageHeight = 1123
-    let heightLeft = canvas.height
-    let position = 0
-
-    if (canvas.height > pageHeight) {
-      heightLeft -= pageHeight
-      position = -pageHeight
-
-      while (heightLeft > 0) {
-        pdf.addPage()
-        pdf.addImage(imgData, "PNG", 0, position, canvas.width, canvas.height)
-        heightLeft -= pageHeight
-        position -= pageHeight
-      }
-    }
-
-    pdf.save(`smart_land_report_${Date.now()}.pdf`)
-
-  } finally {
-    document.body.removeChild(container)
-  }
+  pdf.save(`smart_land_report_${Date.now()}.pdf`)
 }
 
 export function exportAnalysisPDF(data: Omit<PDFData, "language">): Promise<void> {
-  return generatePDF({ ...data, language: detectBrowserLanguage() })
+  return generatePDF(data)
 }
 
 export function exportDashboardPDF(data: Omit<PDFData, "language">): Promise<void> {
-  return generatePDF({ ...data, language: detectBrowserLanguage() })
+  return generatePDF(data)
 }
 
 export async function generatePDFWithLanguage(
   data: Omit<PDFData, "language">,
   language: string
 ): Promise<void> {
-  return generatePDF({ ...data, language })
+  return generatePDF(data)
 }
