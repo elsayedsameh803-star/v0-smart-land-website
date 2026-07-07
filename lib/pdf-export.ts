@@ -1,7 +1,7 @@
 "use client"
 
 import { jsPDF } from "jspdf"
-import html2canvas from "html2canvas"
+import html2canvas from "html2canvas-pro"
 
 interface PDFData {
   title: string
@@ -10,41 +10,18 @@ interface PDFData {
   metrics: { label: string; value: string }[]
   issues: { type: string; message: string }[]
   recommendations: string[]
-  language?: string // optional — هنكتشفها تلقائي
+  language?: string
 }
 
-// =====================
-// 1. اكتشاف لغة المتصفح
-// =====================
 function detectBrowserLanguage(): string {
   if (typeof window === "undefined") return "en"
-  
   const browserLang = navigator.language || (navigator as any).userLanguage || "en"
-  const lang = browserLang.split("-")[0] // "ar-SA" → "ar"
-  
-  // اللغات المدعومة
+  const lang = browserLang.split("-")[0]
   const supportedLangs = ["ar", "en", "fr", "de", "es", "tr", "ur"]
   return supportedLangs.includes(lang) ? lang : "en"
 }
 
-// =====================
-// 2. ترجمة النصوص
-// =====================
 const translations: Record<string, Record<string, string>> = {
-  ar: {
-    reportTitle: "تقرير التحليل",
-    score: "النتيجة",
-    metrics: "المقاييس",
-    issues: "المشاكل",
-    recommendations: "التوصيات",
-    date: "التاريخ",
-    critical: "حرج",
-    warning: "تحذير",
-    info: "معلومة",
-    noIssues: "لا توجد مشاكل",
-    noRecommendations: "لا توجد توصيات",
-    generatedBy: "تم إنشاء هذا التقرير بواسطة سمارت لاند",
-  },
   en: {
     reportTitle: "Analysis Report",
     score: "Score",
@@ -115,34 +92,15 @@ const translations: Record<string, Record<string, string>> = {
     noRecommendations: "Öneri bulunamadı",
     generatedBy: "Smart Land tarafından oluşturuldu",
   },
-  ur: {
-    reportTitle: "تجزیاتی رپورٹ",
-    score: "اسکور",
-    metrics: "میٹرکس",
-    issues: "مسائل",
-    recommendations: "سفارشات",
-    date: "تاریخ",
-    critical: "سنگین",
-    warning: "انتباہ",
-    info: "معلومات",
-    noIssues: "کوئی مسئلہ نہیں",
-    noRecommendations: "کوئی سفارش نہیں",
-    generatedBy: "اسمارٹ لینڈ کے ذریعے تیار کردہ",
-  },
 }
 
 function getTranslation(lang: string, key: string): string {
   return translations[lang]?.[key] || translations["en"][key]
 }
 
-// =====================
-// 3. توليد HTML للـ PDF
-// =====================
-function generateHTMLContent(data: PDFData, lang: string): string {
+function generateHTMLContent(data: PDFData): string {
+  const lang = "en" // دايماً إنجليزي في PDF
   const t = (key: string) => getTranslation(lang, key)
-  const isRTL = ["ar", "ur"].includes(lang)
-  const dir = isRTL ? "rtl" : "ltr"
-  const align = isRTL ? "right" : "left"
   const scoreColor = data.score >= 80 ? "#22c55e" : data.score >= 50 ? "#f59e0b" : "#ef4444"
 
   const metricsHTML = data.metrics?.length
@@ -158,7 +116,7 @@ function generateHTMLContent(data: PDFData, lang: string): string {
     ? data.issues.map(i => {
         const typeColor = i.type === "critical" ? "#ef4444" : i.type === "warning" ? "#f59e0b" : "#3b82f6"
         return `
-          <div style="display:flex; align-items:start; gap:8px; padding:8px; margin-bottom:6px; background:#f9fafb; border-radius:6px; border-${isRTL ? "right" : "left"}:3px solid ${typeColor};">
+          <div style="display:flex; align-items:start; gap:8px; padding:8px; margin-bottom:6px; background:#f9fafb; border-radius:6px; border-left:3px solid ${typeColor};">
             <span style="color:${typeColor}; font-weight:600; font-size:12px; text-transform:uppercase;">${t(i.type) || i.type}</span>
             <span style="color:#374151; font-size:13px;">${i.message}</span>
           </div>
@@ -177,21 +135,21 @@ function generateHTMLContent(data: PDFData, lang: string): string {
 
   return `
     <!DOCTYPE html>
-    <html dir="${dir}" lang="${lang}">
+    <html dir="ltr" lang="en">
     <head>
       <meta charset="UTF-8">
       <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-          font-family: ${lang === "ar" ? "'Noto Naskh Arabic', serif" : lang === "ur" ? "'Noto Nastaliq Urdu', serif" : "'Inter', sans-serif"};
+          font-family: 'Inter', sans-serif;
           background: #ffffff;
           color: #111827;
           line-height: 1.6;
-          direction: ${dir};
-          text-align: ${align};
+          direction: ltr;
+          text-align: left;
           padding: 0;
         }
         
@@ -295,29 +253,20 @@ function generateHTMLContent(data: PDFData, lang: string): string {
   `
 }
 
-// =====================
-// 4. توليد الـ PDF
-// =====================
 export async function generatePDF(data: PDFData): Promise<void> {
-  const lang = data.language || detectBrowserLanguage()
-  const isRTL = ["ar", "ur"].includes(lang)
-  
-  // إنشاء container مخفي
   const container = document.createElement("div")
   container.style.position = "absolute"
   container.style.left = "-9999px"
   container.style.top = "0"
-  container.style.width = "794px" // A4 width at 96 DPI
-  container.innerHTML = generateHTMLContent(data, lang)
+  container.style.width = "794px"
+  container.innerHTML = generateHTMLContent(data)
   document.body.appendChild(container)
 
   try {
-    // انتظار تحميل الخطوط
     await document.fonts.ready
 
-    // تحويل HTML لـ canvas
     const canvas = await html2canvas(container, {
-      scale: 2, // جودة عالية
+      scale: 2,
       useCORS: true,
       allowTaint: true,
       backgroundColor: "#ffffff",
@@ -326,7 +275,6 @@ export async function generatePDF(data: PDFData): Promise<void> {
       windowWidth: 794,
     })
 
-    // إنشاء PDF
     const imgData = canvas.toDataURL("image/png")
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -336,8 +284,7 @@ export async function generatePDF(data: PDFData): Promise<void> {
 
     pdf.addImage(imgData, "PNG", 0, 0, canvas.width, canvas.height)
 
-    // لو المحتوى طويل — نضيف صفحات
-    const pageHeight = 1123 // A4 height at 96 DPI
+    const pageHeight = 1123
     let heightLeft = canvas.height
     let position = 0
 
@@ -353,19 +300,14 @@ export async function generatePDF(data: PDFData): Promise<void> {
       }
     }
 
-    // حفظ الملف
-    const filename = `${data.title.replace(/[^a-zA-Z0-9\u0600-\u06FF]/g, "_")}_${lang}.pdf`
+    const filename = `smart_land_report_${Date.now()}.pdf`
     pdf.save(filename)
 
   } finally {
-    // تنظيف
     document.body.removeChild(container)
   }
 }
 
-// =====================
-// 5. دوال التصدير
-// =====================
 export function exportAnalysisPDF(data: Omit<PDFData, "language">): Promise<void> {
   return generatePDF({ ...data, language: detectBrowserLanguage() })
 }
@@ -374,9 +316,6 @@ export function exportDashboardPDF(data: Omit<PDFData, "language">): Promise<voi
   return generatePDF({ ...data, language: detectBrowserLanguage() })
 }
 
-// =====================
-// 6. تبديل اللغة يدوي
-// =====================
 export async function generatePDFWithLanguage(
   data: Omit<PDFData, "language">,
   language: string
