@@ -8,18 +8,17 @@ export default function AnalysisTools() {
 
   const handleDownload = () => {
     setLoading(true)
-    // بيانات تجريبية للتقرير
     exportAnalysisPDF({
-      title: "تقرير تحليل الموقع الذكي",
-      date: new Date().toLocaleDateString("ar-EG"),
+      title: "Smart Land Analysis Report",
+      date: new Date().toLocaleDateString("en-US"),
       score: 85,
       metrics: [
-        { label: "سرعة التحميل", value: "ممتاز (1.2 ثانية)" },
-        { label: "الأداء العام", value: "90%" }
+        { label: "Loading Speed", value: "Excellent (1.2s)" },
+        { label: "Overall Performance", value: "90%" }
       ],
       issues: [],
-      recommendations: [],
-      language: "ar"
+      recommendations: []
+      // شيلت language: "ar"
     })
     setLoading(false)
   }
