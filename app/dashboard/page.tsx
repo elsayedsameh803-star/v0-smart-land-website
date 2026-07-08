@@ -83,4 +83,6 @@ export default function DashboardPage() {
           <WhatsAppButton />
         </div>
       </AuthProvider>
-    </
+    </LanguageProvider>
+  )
+}
