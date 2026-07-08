@@ -1,20 +1,35 @@
 @import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
+
 @theme {
   --font-amiri: "Amiri", serif;
-  --background: oklch(0.08 0.01 260);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.12 0.01 260);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.12 0.01 260);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.75 0.18 85);
-  --primary-foreground: oklch(0.15 0.02 260);
-  --secondary: oklch(0.18 0.01 260);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.18 0.01 260);
+  
+  /* دارك مود - زي الصفحة السليمة */
+  --background: #0a0a0f;              /* أسود داكن */
+  --foreground: #f8f9fa;              /* أبيض مائل للرمادي */
+  --card: #1a1a2e;                    /* كحلي داكن */
+  --card-foreground: #f8f9fa;         /* أبيض */
+  --popover: #1a1a2e;                 /* كحلي داكن */
+  --popover-foreground: #f8f9fa;      /* أبيض */
+  --primary: #d4a843;                 /* ذهبي */
+  --primary-foreground: #0a0a0f;      /* أسود داكن */
+  --secondary: #16213e;               /* كحلي */
+  --secondary-foreground: #f8f9fa;    /* أبيض */
+  --muted: #16213e;                   /* كحلي */
+  --muted-foreground: #a0a0b0;        /* رمادي فاتح */
+  --accent: #16213e;                  /* كحلي */
+  --accent-foreground: #f8f9fa;       /* أبيض */
+  --destructive: #ef4444;             /* أحمر */
+  --destructive-foreground: #f8f9fa;  /* أبيض */
+  --border: #2a2a3e;                  /* رمادي داكن */
+  --input: #2a2a3e;                   /* رمادي داكن */
+  --ring: #d4a843;                    /* ذهبي */
+  --radius: 0.625rem;
 }
+
 body {
   font-family: var(--font-amiri);
+  background-color: var(--background);
+  color: var(--foreground);
 }
