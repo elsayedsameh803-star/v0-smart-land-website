@@ -6,6 +6,9 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { WhatsAppButton } from "@/components/whatsapp-button"
 import { DashboardCharts } from "@/components/dashboard-charts"
+import { FeaturesSection } from "@/components/landing-sections"
+import { TestimonialsSection } from "@/components/additional-sections"
+import AnalysisTools from "@/components/analysis-tools"
 import { useLanguage } from "@/lib/language-context"
 import { Button } from "@/components/ui/button"
 import { Download, RefreshCw } from "lucide-react"
@@ -15,13 +18,24 @@ function DashboardContent() {
   const { language, t } = useLanguage()
 
   const handleExportPDF = () => {
-    exportDashboardPDF(language)
+    exportDashboardPDF({
+      title: "Smart Land Dashboard Report",
+      date: new Date().toLocaleDateString("en-US"),
+      score: 85,
+      metrics: [
+        { label: "Overall Performance", value: "85%" },
+        { label: "SEO Score", value: "92%" },
+        { label: "Speed", value: "1.2s" }
+      ],
+      issues: [],
+      recommendations: []
+    })
   }
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Header */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
@@ -46,8 +60,11 @@ function DashboardContent() {
           </div>
         </div>
 
-        {/* Charts */}
+        {/* Landing Sections */}
+        <FeaturesSection />
+        <AnalysisTools />
         <DashboardCharts />
+        <TestimonialsSection />
       </div>
     </div>
   )
@@ -66,6 +83,4 @@ export default function DashboardPage() {
           <WhatsAppButton />
         </div>
       </AuthProvider>
-    </LanguageProvider>
-  )
-}
+    </
