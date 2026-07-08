@@ -6,6 +6,7 @@ import { Navbar } from "@/components/navbar"
 import { Footer } from "@/components/footer"
 import { WhatsAppButton } from "@/components/whatsapp-button"
 import { DashboardCharts } from "@/components/dashboard-charts"
+import Recommendations from "@/components/recommendations"
 import { useLanguage } from "@/lib/language-context"
 import { Button } from "@/components/ui/button"
 import { Download, RefreshCw } from "lucide-react"
@@ -44,6 +45,11 @@ function DashboardContent() {
               {t("تصدير PDF", "Export PDF")}
             </Button>
           </div>
+        </div>
+
+        {/* Recommendations */}
+        <div className="mb-6">
+          <Recommendations />
         </div>
 
         {/* Charts */}

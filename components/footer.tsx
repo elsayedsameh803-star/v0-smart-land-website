@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useLanguage } from "@/lib/language-context"
-import { BarChart3, Mail, Phone, MapPin } from "lucide-react"
+import { BarChart3, Mail, Phone, MapPin, Youtube, Linkedin } from "lucide-react"
 
 export function Footer() {
   const { t } = useLanguage()
@@ -94,6 +94,46 @@ export function Footer() {
                 <span>{t("مصر", "Egypt")}</span>
               </li>
             </ul>
+          </div>
+
+          {/* Social Icons */}
+          <div>
+            <h3 className="mb-4 text-sm font-semibold text-foreground">{t("تابعنا", "Follow Us")}</h3>
+            <div className="flex items-center gap-3">
+              <a
+                href="https://www.youtube.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="YouTube"
+              >
+                <Youtube className="h-5 w-5" />
+              </a>
+
+              <a
+                href="https://www.snapchat.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="Snapchat"
+              >
+                {/* simple Snapchat SVG */}
+                <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C9.243 2 7 4.243 7 7c0 1.657 1.343 3 3 3 .333 0 .652-.055.946-.155.45-.145.936-.145 1.386 0 .294.1.613.155.946.155 1.657 0 3-1.343 3-3 0-2.757-2.243-5-5-5z" />
+                  <path d="M4 9c-1 2 1 4 0 6s2 3 3 2 2 1 4 1 3-2 5-2 3-1 3-3-2-3-1-5-3-2-4-1c-1 1-3 0-4 0s-2-1-3-1-2 1-3 2z" opacity="0.9" />
+                </svg>
+              </a>
+
+              <a
+                href="https://www.linkedin.com/"
+                target="_blank"
+                rel="noreferrer"
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+            </div>
           </div>
         </div>
 
