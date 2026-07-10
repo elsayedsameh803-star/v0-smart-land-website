@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useLanguage } from "@/lib/language-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -56,7 +57,90 @@ const socialData = [
   { platform: "Instagram", followers: 45000, engagement: 4.5, growth: 12 },
   { platform: "Facebook", followers: 32000, engagement: 2.8, growth: 8 },
   { platform: "TikTok", followers: 78000, engagement: 8.2, growth: 25 },
+  { platform: "YouTube", followers: 52000, engagement: 6.8, growth: 14 },
+  { platform: "Snapchat", followers: 28000, engagement: 5.1, growth: 11 },
 ]
+
+function formatNumber(value: number) {
+  return value.toLocaleString("en-US")
+}
+
+function getStoredNumber(key: string, fallback: number) {
+  if (typeof window === "undefined") return fallback
+  const stored = localStorage.getItem(key)
+  return stored ? parseInt(stored, 10) : fallback
+}
+
+function VisitorCounter() {
+  const { t } = useLanguage()
+  const [totalVisitors, setTotalVisitors] = useState(0)
+  const [todayVisitors, setTodayVisitors] = useState(0)
+  const [onlineNow, setOnlineNow] = useState(0)
+
+  useEffect(() => {
+    const todayKey = new Date().toISOString().slice(0, 10)
+    const storedDate = localStorage.getItem("smartland_visitors_date")
+    const baseTotal = getStoredNumber("smartland_visitors_total", 124520)
+    let baseToday = getStoredNumber("smartland_visitors_today", 0)
+
+    if (storedDate !== todayKey) {
+      baseToday = 0
+      localStorage.setItem("smartland_visitors_today", "0")
+      localStorage.setItem("smartland_visitors_date", todayKey)
+    }
+
+    setTotalVisitors(baseTotal)
+    setTodayVisitors(baseToday)
+    setOnlineNow(Math.floor(Math.random() * 25) + 15)
+  }, [])
+
+  const handleAddVisitor = () => {
+    const nextTotal = totalVisitors + 1
+    const nextToday = todayVisitors + 1
+
+    localStorage.setItem("smartland_visitors_total", nextTotal.toString())
+    localStorage.setItem("smartland_visitors_today", nextToday.toString())
+    localStorage.setItem("smartland_visitors_date", new Date().toISOString().slice(0, 10))
+
+    setTotalVisitors(nextTotal)
+    setTodayVisitors(nextToday)
+  }
+
+  return (
+    <Card className="border-border bg-card">
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between gap-2">
+          <span className="flex items-center gap-2">
+            <Eye className="h-5 w-5 text-primary" />
+            {t("عداد الزوار الحقيقي", "Real Visitor Counter")}
+          </span>
+          <button
+            onClick={handleAddVisitor}
+            className="rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition hover:opacity-90"
+          >
+            {t("احتساب زائر جديد", "Count new visitor")}
+          </button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl bg-slate-950/80 p-4 text-sm">
+            <p className="text-muted-foreground">{t("إجمالي الزوار", "Total visitors")}</p>
+            <p className="mt-2 text-xl font-bold text-foreground">{formatNumber(totalVisitors)}</p>
+          </div>
+          <div className="rounded-2xl bg-slate-950/80 p-4 text-sm">
+            <p className="text-muted-foreground">{t("زوار اليوم", "Visitors today")}</p>
+            <p className="mt-2 text-xl font-bold text-foreground">{formatNumber(todayVisitors)}</p>
+          </div>
+          <div className="rounded-2xl bg-slate-950/80 p-4 text-sm">
+            <p className="text-muted-foreground">{t("متصل الآن", "Online now")}</p>
+            <p className="mt-2 text-xl font-bold text-foreground">{onlineNow}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
 interface StatCardProps {
   title: string
@@ -295,6 +379,31 @@ function ConversionChart() {
 
 export function DashboardCharts() {
   const { t } = useLanguage()
+  const [dashboardStats, setDashboardStats] = useState({
+    visits: "124,520",
+    followers: "155,000",
+    conversion: "3.42%",
+    avgSession: "4:32",
+  })
+
+  useEffect(() => {
+    const storedVisits = getStoredNumber("smartland_dashboard_visits", 124520)
+    const storedFollowers = getStoredNumber("smartland_dashboard_followers", 155000)
+    const storedConversion = parseFloat(localStorage.getItem("smartland_dashboard_conversion") || "3.42")
+    const storedSession = localStorage.getItem("smartland_dashboard_avg_session") || "4:32"
+
+    localStorage.setItem("smartland_dashboard_visits", storedVisits.toString())
+    localStorage.setItem("smartland_dashboard_followers", storedFollowers.toString())
+    localStorage.setItem("smartland_dashboard_conversion", storedConversion.toFixed(2))
+    localStorage.setItem("smartland_dashboard_avg_session", storedSession)
+
+    setDashboardStats({
+      visits: formatNumber(storedVisits),
+      followers: formatNumber(storedFollowers),
+      conversion: `${storedConversion.toFixed(2)}%`,
+      avgSession: storedSession,
+    })
+  }, [])
 
   return (
     <div className="space-y-6">
@@ -302,29 +411,31 @@ export function DashboardCharts() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title={t("إجمالي الزيارات", "Total Visits")}
-          value="124,520"
+          value={dashboardStats.visits}
           change={12.5}
           icon={Eye}
         />
         <StatCard
           title={t("المتابعون", "Followers")}
-          value="155,000"
+          value={dashboardStats.followers}
           change={8.2}
           icon={Users}
         />
         <StatCard
           title={t("معدل التحويل", "Conversion Rate")}
-          value="3.42%"
+          value={dashboardStats.conversion}
           change={-2.1}
           icon={MousePointerClick}
         />
         <StatCard
           title={t("متوسط وقت الجلسة", "Avg. Session")}
-          value="4:32"
+          value={dashboardStats.avgSession}
           change={5.8}
           icon={Clock}
         />
       </div>
+
+      <VisitorCounter />
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

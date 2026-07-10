@@ -16,7 +16,22 @@ function DashboardContent() {
   const { language, t } = useLanguage()
 
   const handleExportPDF = () => {
-    exportDashboardPDF(language)
+    exportDashboardPDF({
+      title: t("تقرير لوحة التحكم", "Dashboard Report"),
+      date: new Date().toLocaleDateString(language === "ar" ? "ar-EG" : "en-US"),
+      score: 88,
+      metrics: [
+        { label: t("إجمالي الزيارات", "Total Visits"), value: "124,520" },
+        { label: t("المتابعون", "Followers"), value: "155,000" },
+        { label: t("معدل التحويل", "Conversion Rate"), value: "3.42%" },
+      ],
+      issues: [
+        { type: "success", message: t("اللوحة تعمل بشكل طبيعي", "Dashboard is working normally") },
+      ],
+      recommendations: [
+        t("راجع تحليلات الأداء لتحديد فرص النمو.", "Review performance analytics to identify growth opportunities."),
+      ],
+    })
   }
 
   return (
