@@ -117,6 +117,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <meta name="google-site-verification" content="JMwP_nJ4KRNImPNKdVqfgJb3yze-zjBbkEEmnlrkfso" />
         
       </head>
       <body className={`${cairo.variable} ${geistMono.variable} font-sans antialiased`}>
