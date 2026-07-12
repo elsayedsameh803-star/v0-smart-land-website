@@ -1,20 +1,144 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri&display=swap');
-@import "tailwindcss";
-@import "tw-animate-css";
-@theme {
-  --font-amiri: "Amiri", serif;
-  --background: oklch(0.08 0.01 260);
-  --foreground: oklch(0.98 0 0);
-  --card: oklch(0.12 0.01 260);
-  --card-foreground: oklch(0.98 0 0);
-  --popover: oklch(0.12 0.01 260);
-  --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.75 0.18 85);
-  --primary-foreground: oklch(0.15 0.02 260);
-  --secondary: oklch(0.18 0.01 260);
-  --secondary-foreground: oklch(0.98 0 0);
-  --muted: oklch(0.18 0.01 260);
+/* ============================================
+   Smart Land - Dark Mode + Gold UI
+   ============================================ */
+
+:root {
+  --gold: #d4af37;
+  --gold-light: #f0d878;
+  --gold-dark: #b8960f;
+  --bg-dark: #0a0a0f;
+  --bg-card: #111118;
+  --bg-elevated: #1a1a25;
+  --text-primary: #f0f0f5;
+  --text-secondary: #a0a0b0;
+  --border-dark: #2a2a35;
 }
-body {
-  font-family: var(--font-amiri);
+
+html, body {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Override Light Backgrounds */
+.bg-white, .bg-gray-50, .bg-gray-100, .bg-slate-50, .bg-slate-100,
+[class*="bg-white"], [class*="bg-gray-50"] {
+  background-color: var(--bg-card) !important;
+}
+
+.bg-gray-200, .bg-gray-300, .bg-slate-200 {
+  background-color: var(--bg-elevated) !important;
+}
+
+/* Override Text Colors */
+.text-gray-900, .text-gray-800, .text-slate-900, .text-slate-800,
+.text-black, [class*="text-gray-900"] {
+  color: var(--text-primary) !important;
+}
+
+.text-gray-600, .text-gray-500, .text-gray-400,
+.text-slate-600, .text-slate-500 {
+  color: var(--text-secondary) !important;
+}
+
+/* Borders */
+.border-gray-200, .border-gray-300, .border-slate-200 {
+  border-color: var(--border-dark) !important;
+}
+
+/* Cards & Sections */
+[class*="card"], [class*="Card"],
+section, .section,
+[class*="rounded-xl"], [class*="rounded-lg"] {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-dark) !important;
+}
+
+/* GOLD BUTTONS */
+button, .btn, [role="button"],
+[class*="button"], [class*="Button"],
+[type="submit"], [type="button"] {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%) !important;
+  color: #000 !important;
+  border: none !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3) !important;
+}
+
+button:hover, .btn:hover, [role="button"]:hover,
+[class*="button"]:hover, [class*="Button"]:hover {
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%) !important;
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.5) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Outline / Ghost Buttons */
+[class*="outline"], [class*="Outline"], [class*="ghost"] {
+  background: transparent !important;
+  color: var(--gold) !important;
+  border: 2px solid var(--gold) !important;
+  box-shadow: none !important;
+}
+
+[class*="outline"]:hover, [class*="ghost"]:hover {
+  background: var(--gold) !important;
+  color: #000 !important;
+}
+
+/* Inputs */
+input, textarea, select,
+[class*="input"], [class*="Input"] {
+  background-color: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-dark) !important;
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-secondary) !important;
+}
+
+/* Navigation */
+nav, header, [class*="navbar"], [class*="header"], [class*="Navigation"] {
+  background-color: rgba(10, 10, 15, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border-bottom: 1px solid var(--border-dark) !important;
+}
+
+/* Links */
+a, [class*="link"] {
+  color: var(--gold) !important;
+}
+
+a:hover {
+  color: var(--gold-light) !important;
+}
+
+/* Footer */
+footer, [class*="footer"] {
+  background-color: var(--bg-dark) !important;
+  border-top: 1px solid var(--border-dark) !important;
+}
+
+/* Tables */
+[class*="table"], table {
+  background-color: var(--bg-card) !important;
+}
+
+tr:nth-child(even) {
+  background-color: var(--bg-elevated) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-dark); }
+::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold); }
+
+::selection {
+  background: var(--gold);
+  color: #000;
+}
+
+svg text {
+  fill: var(--text-primary) !important;
 }
