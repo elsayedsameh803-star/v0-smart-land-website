@@ -76,6 +76,18 @@ export function Navbar() {
             >
               {t("اتصل بنا", "Contact")}
             </Link>
+            <Link
+              href="/methodology"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {t("المنهجية", "Methodology")}
+            </Link>
+            <Link
+              href="/admin"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {t("الإدارة", "Admin")}
+            </Link>
           </div>
 
           {/* Right side */}
@@ -178,6 +190,20 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {t("اتصل بنا", "Contact")}
+              </Link>
+              <Link
+                href="/methodology"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {t("المنهجية", "Methodology")}
+              </Link>
+              <Link
+                href="/admin"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {t("الإدارة", "Admin")}
               </Link>
               <Button
                 variant="outline"

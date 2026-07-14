@@ -31,6 +31,10 @@ import {
   Activity,
 } from "lucide-react"
 
+function getRandomBaseline(min: number, max: number) {
+  return Math.floor(min + Math.random() * (max - min + 1))
+}
+
 // Demo data for charts
 const demoData = [
   { name: "Jan", visits: 4000, sales: 2400, engagement: 2400 },
@@ -418,7 +422,7 @@ export function VisitorCounter() {
   useEffect(() => {
     // Simulate visitor count from localStorage or start fresh
     const storedVisitors = localStorage.getItem("smartland_visitors")
-    const baseCount = storedVisitors ? parseInt(storedVisitors) : 124520
+    const baseCount = storedVisitors ? parseInt(storedVisitors) : getRandomBaseline(128000, 174000)
     const newCount = baseCount + 1
     localStorage.setItem("smartland_visitors", newCount.toString())
     

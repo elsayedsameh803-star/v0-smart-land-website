@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer"
 import { WhatsAppButton } from "@/components/whatsapp-button"
 import { DashboardCharts } from "@/components/dashboard-charts"
 import Recommendations from "@/components/recommendations"
+import { useEffect, useState } from "react"
 import { useLanguage } from "@/lib/language-context"
 import { Button } from "@/components/ui/button"
 import { Download, RefreshCw } from "lucide-react"
@@ -14,6 +15,31 @@ import { exportDashboardPDF } from "@/lib/pdf-export"
 
 function DashboardContent() {
   const { language, t } = useLanguage()
+  const [dashboardStats, setDashboardStats] = useState({
+    visits: "0",
+    followers: "0",
+    conversion: "0%",
+    avgSession: "4:32",
+  })
+
+  useEffect(() => {
+    const storedVisits = localStorage.getItem("smartland_dashboard_visits")
+    const storedFollowers = localStorage.getItem("smartland_dashboard_followers")
+    const storedConversion = localStorage.getItem("smartland_dashboard_conversion")
+    const storedAvgSession = localStorage.getItem("smartland_dashboard_avg_session")
+
+    const visitsValue = storedVisits ? parseInt(storedVisits, 10) : 132450
+    const followersValue = storedFollowers ? parseInt(storedFollowers, 10) : 68000
+    const conversionValue = storedConversion ? parseFloat(storedConversion) : 3.42
+    const avgSessionValue = storedAvgSession || "4:32"
+
+    setDashboardStats({
+      visits: visitsValue.toLocaleString("en-US"),
+      followers: followersValue.toLocaleString("en-US"),
+      conversion: `${conversionValue.toFixed(2)}%`,
+      avgSession: avgSessionValue,
+    })
+  }, [])
 
   const handleExportPDF = () => {
     exportDashboardPDF({
@@ -21,9 +47,9 @@ function DashboardContent() {
       date: new Date().toLocaleDateString(language === "ar" ? "ar-EG" : "en-US"),
       score: 88,
       metrics: [
-        { label: t("إجمالي الزيارات", "Total Visits"), value: "124,520" },
-        { label: t("المتابعون", "Followers"), value: "155,000" },
-        { label: t("معدل التحويل", "Conversion Rate"), value: "3.42%" },
+        { label: t("إجمالي الزيارات", "Total Visits"), value: dashboardStats.visits },
+        { label: t("المتابعون", "Followers"), value: dashboardStats.followers },
+        { label: t("معدل التحويل", "Conversion Rate"), value: dashboardStats.conversion },
       ],
       issues: [
         { type: "success", message: t("اللوحة تعمل بشكل طبيعي", "Dashboard is working normally") },

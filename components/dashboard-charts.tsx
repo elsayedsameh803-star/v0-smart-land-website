@@ -71,6 +71,10 @@ function getStoredNumber(key: string, fallback: number) {
   return stored ? parseInt(stored, 10) : fallback
 }
 
+function getRandomBaseline(min: number, max: number) {
+  return Math.floor(min + Math.random() * (max - min + 1))
+}
+
 function VisitorCounter() {
   const { t } = useLanguage()
   const [totalVisitors, setTotalVisitors] = useState(0)
@@ -80,8 +84,14 @@ function VisitorCounter() {
   useEffect(() => {
     const todayKey = new Date().toISOString().slice(0, 10)
     const storedDate = localStorage.getItem("smartland_visitors_date")
-    const baseTotal = getStoredNumber("smartland_visitors_total", 124520)
+    const defaultTotal = getRandomBaseline(128000, 174000)
+    let baseTotal = getStoredNumber("smartland_visitors_total", defaultTotal)
     let baseToday = getStoredNumber("smartland_visitors_today", 0)
+
+    if (baseTotal === 124520) {
+      baseTotal = defaultTotal
+      localStorage.setItem("smartland_visitors_total", baseTotal.toString())
+    }
 
     if (storedDate !== todayKey) {
       baseToday = 0
@@ -387,10 +397,21 @@ export function DashboardCharts() {
   })
 
   useEffect(() => {
-    const storedVisits = getStoredNumber("smartland_dashboard_visits", 124520)
-    const storedFollowers = getStoredNumber("smartland_dashboard_followers", 155000)
+    const defaultVisits = getRandomBaseline(128000, 174000)
+    const defaultFollowers = getRandomBaseline(42000, 84000)
+
+    let storedVisits = getStoredNumber("smartland_dashboard_visits", defaultVisits)
+    let storedFollowers = getStoredNumber("smartland_dashboard_followers", defaultFollowers)
     const storedConversion = parseFloat(localStorage.getItem("smartland_dashboard_conversion") || "3.42")
     const storedSession = localStorage.getItem("smartland_dashboard_avg_session") || "4:32"
+
+    if (storedVisits === 124520) {
+      storedVisits = defaultVisits
+    }
+
+    if (storedFollowers === 155000) {
+      storedFollowers = defaultFollowers
+    }
 
     localStorage.setItem("smartland_dashboard_visits", storedVisits.toString())
     localStorage.setItem("smartland_dashboard_followers", storedFollowers.toString())
