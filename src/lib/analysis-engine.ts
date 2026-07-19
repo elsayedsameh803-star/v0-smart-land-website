@@ -17,6 +17,7 @@ import type {
   AdminMetrics,
 } from './types';
 import { generateId, normalizeUrl, calculateOverallScore, generateShareToken } from './utils';
+import { saveResult, getResult, saveHistory, getHistoryForUrl, getAllResults } from './storage';
 
 const ANALYSIS_STAGES: AnalysisStage[] = [
   { id: 'validating', label: 'Validating submitted URL', labelAr: 'التحقق من صحة الرابط', status: 'pending' },
@@ -58,7 +59,7 @@ export async function analyzeUrl(
     await simulateProcessing(500, 1200);
     updateStage('validating', 'completed');
 
-    // Stage 2: Connect to target
+    // Stage 2: Connect to target (using server-side API to avoid CORS)
     updateStage('connecting', 'processing');
     const html = await fetchUrlContent(normalizedUrl);
     updateStage('connecting', 'completed');
@@ -143,7 +144,7 @@ export async function analyzeUrl(
 
     updateStage('preparing', 'completed');
 
-    return {
+    const result: AnalysisResult = {
       id: generateId(),
       url: normalizedUrl,
       date: new Date().toISOString(),
@@ -155,6 +156,11 @@ export async function analyzeUrl(
       criticalIssues,
       metadata,
     };
+
+    // Save to localStorage for persistence
+    storeAnalysisResult(result);
+
+    return result;
   } catch (error) {
     // Mark current processing stage as error
     const currentProcessingStage = stages.find((s) => s.status === 'processing');
@@ -167,16 +173,33 @@ export async function analyzeUrl(
 
 async function fetchUrlContent(url: string): Promise<string> {
   try {
-    const response = await fetch(url, {
+    // Try server-side API route first (no CORS issues)
+    const apiResponse = await fetch('/api/analyze-url', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+    });
+
+    if (apiResponse.ok) {
+      const data = await apiResponse.json();
+      if (data.success && data.html) {
+        return data.html;
+      }
+      console.warn('API returned no HTML content');
+      return '';
+    }
+
+    // If API fails, try direct fetch as fallback
+    console.warn(`API route failed with status ${apiResponse.status}, trying direct fetch`);
+    const directResponse = await fetch(url, {
       method: 'GET',
       headers: {
         'User-Agent': 'SmartLand-Audit/1.0',
         'Accept': 'text/html,application/xhtml+xml',
       },
     });
-    return await response.text();
+    return await directResponse.text();
   } catch (error) {
-    // If direct fetch fails, return empty string for analysis of available metadata
     console.warn('Could not fetch URL content, analyzing available metadata:', error);
     return '';
   }
@@ -1013,34 +1036,36 @@ export function getAdminMetrics(results: AnalysisResult[]): AdminMetrics {
   };
 }
 
-// In-memory store for analysis results
-const analysisStore = new Map<string, AnalysisResult>();
-const analysisHistoryStore = new Map<string, AnalysisHistory[]>();
+// ========== Persistence Layer (localStorage) ==========
 
 export function storeAnalysisResult(result: AnalysisResult): void {
-  analysisStore.set(result.id, result);
+  // Save to localStorage for persistence across page refreshes
+  saveResult(result);
 
-  const history = analysisHistoryStore.get(result.url) || [];
-  const change = history.length > 0 ? result.overallScore - history[0].overallScore : null;
-  history.unshift({
+  // Build history entry
+  const existingHistory = getHistoryForUrl(result.url);
+  const change = existingHistory.length > 0 ? result.overallScore - existingHistory[0].overallScore : null;
+
+  const historyEntry: AnalysisHistory = {
     id: result.id,
     url: result.url,
     date: result.date,
     overallScore: result.overallScore,
     change,
     findingsCount: result.findings.length,
-  });
-  analysisHistoryStore.set(result.url, history);
+  };
+
+  saveHistory(result.url, historyEntry);
 }
 
-export function getAnalysisResult(id: string): AnalysisResult | undefined {
-  return analysisStore.get(id);
+export function getAnalysisResult(id: string): AnalysisResult | null {
+  return getResult(id);
 }
 
 export function getAnalysisHistory(url: string): AnalysisHistory[] {
-  return analysisHistoryStore.get(url) || [];
+  return getHistoryForUrl(url);
 }
 
 export function getAllAnalyses(): AnalysisResult[] {
-  return Array.from(analysisStore.values());
+  return getAllResults();
 }
