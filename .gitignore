@@ -1,17 +1,17 @@
 # dependencies
-/node_modules
-/.pnp
+node_modules/
+.pnp
 .pnp.js
 
 # testing
-/coverage
+coverage/
 
 # next.js
-/.next/
-/out/
+.next/
+out/
 
 # production
-/build
+build/
 
 # misc
 .DS_Store
@@ -24,7 +24,6 @@ yarn-error.log*
 
 # local env files
 .env*.local
-.env
 
 # vercel
 .vercel
@@ -35,14 +34,6 @@ next-env.d.ts
 
 # IDE
 .vscode/
-.idea/
 *.swp
 *.swo
-
-# OS
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Build output
-build-output.txt
+*~

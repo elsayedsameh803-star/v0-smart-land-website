@@ -1,6 +1,8 @@
 // ============================================
-// Smart Land - AI Digital Audit Platform Types
+// Smart Land v2 - AI Digital Audit Platform Types
 // ============================================
+
+export type Locale = "en" | "ar";
 
 export interface AnalysisResult {
   id: string;
@@ -38,7 +40,7 @@ export interface Finding {
   id: string;
   issue: string;
   issueAr: string;
-  severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
+  severity: Severity;
   evidence: string;
   evidenceAr: string;
   location: string;
@@ -51,6 +53,8 @@ export interface Finding {
   expectedBenefitAr: string;
   category: keyof CategoryScores;
 }
+
+export type Severity = "critical" | "high" | "medium" | "low" | "info";
 
 export interface AnalysisMetadata {
   analyzedUrl: string;
@@ -65,7 +69,7 @@ export interface AnalysisStage {
   id: string;
   label: string;
   labelAr: string;
-  status: 'pending' | 'processing' | 'completed' | 'error';
+  status: "pending" | "processing" | "completed" | "error";
   duration?: number;
 }
 
@@ -73,11 +77,11 @@ export interface CompetitorComparison {
   url: string;
   competitorUrl: string;
   date: string;
-  scores: {
+  scores: Array<{
     category: keyof CategoryScores;
     primary: number;
     competitor: number;
-  }[];
+  }>;
   findings: {
     primaryOnly: string[];
     competitorOnly: string[];
@@ -135,7 +139,7 @@ export interface PdfReportData {
 }
 
 export interface ActionItem {
-  priority: 'critical' | 'high' | 'medium' | 'low' | 'info';
+  priority: Severity;
   issue: string;
   issueAr: string;
   action: string;
@@ -146,32 +150,22 @@ export interface ActionItem {
 
 export interface AdminMetrics {
   totalAnalyses: number;
-  platformDistribution: { name: string; count: number }[];
-  recentActivity: { date: string; count: number }[];
+  platformDistribution: Array<{ name: string; count: number }>;
+  recentActivity: Array<{ date: string; count: number }>;
   processingFailures: number;
   apiFailures: number;
   averageDuration: number;
-  commonIssues: { issue: string; count: number }[];
+  commonIssues: Array<{ issue: string; count: number }>;
   systemHealth: {
-    api: 'healthy' | 'degraded' | 'down';
-    database: 'healthy' | 'degraded' | 'down';
+    api: "healthy" | "degraded" | "down";
+    database: "healthy" | "degraded" | "down";
     lastChecked: string;
   };
 }
 
-export interface ExplainerVideo {
-  posterUrl: string;
-  videoUrl: string;
-  duration: number;
-  transcriptEn: string;
-  transcriptAr: string;
-  thumbnailUrl: string;
-}
-
-export interface MethodologySection {
-  title: string;
-  titleAr: string;
-  content: string;
-  contentAr: string;
-  icon: string;
+export interface NavItem {
+  href: string;
+  label: string;
+  labelAr: string;
+  icon?: string;
 }

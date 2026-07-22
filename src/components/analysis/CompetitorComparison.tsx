@@ -1,128 +1,130 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ArrowRight, AlertTriangle, Info } from 'lucide-react';
-import type { AnalysisResult } from '@/lib/types';
-import { compareWithCompetitor } from '@/lib/analysis-engine';
-import { getScoreColor, getScoreBgColor, getCategoryLabel } from '@/lib/utils';
+import { useState } from "react";
+import { BarChart3, AlertTriangle, Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { AnalysisResult } from "@/lib/types";
 
-interface Props {
+interface CompetitorComparisonProps {
   primaryResult: AnalysisResult;
-  locale: 'en' | 'ar';
+  locale: string;
 }
 
-export function CompetitorComparison({ primaryResult, locale }: Props) {
-  const [competitorUrl, setCompetitorUrl] = useState('');
-  const [comparison, setComparison] = useState<ReturnType<typeof compareWithCompetitor> | null>(null);
+export function CompetitorComparison({ primaryResult, locale }: CompetitorComparisonProps) {
+  const isRtl = locale === "ar";
+  const [competitorUrl, setCompetitorUrl] = useState("");
   const [isComparing, setIsComparing] = useState(false);
+  const [competitorResult, setCompetitorResult] = useState<AnalysisResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleCompare = () => {
+  const handleCompare = async () => {
     if (!competitorUrl.trim()) return;
     setIsComparing(true);
-    
-    // Simulate comparison
-    setTimeout(() => {
-      const result = compareWithCompetitor(primaryResult, competitorUrl);
-      setComparison(result);
+    setError(null);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      const { analyzeUrl } = await import("@/lib/analysis-engine");
+      const result = await analyzeUrl(competitorUrl);
+      setCompetitorResult(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Comparison failed");
+    } finally {
       setIsComparing(false);
-    }, 1500);
+    }
   };
 
-  return (
-    <div className="glass-card rounded-xl p-6">
-      <h3 className="text-lg font-semibold text-white mb-2">
-        {locale === 'ar' ? 'مقارنة المنافسين' : 'Competitor Comparison'}
-      </h3>
-      <p className="text-sm text-smart-gray mb-6">
-        {locale === 'ar' ? 'قارن موقعك مع رابط عام آخر' : 'Compare your site with another public URL'}
-      </p>
+  const categories = [
+    { key: "seo" as const, label: "SEO", labelAr: "تحسين محركات البحث" },
+    { key: "performance" as const, label: "Performance", labelAr: "الأداء" },
+    { key: "accessibility" as const, label: "Accessibility", labelAr: "إمكانية الوصول" },
+    { key: "security" as const, label: "Security", labelAr: "الأمان" },
+    { key: "content" as const, label: "Content", labelAr: "المحتوى" },
+    { key: "technical" as const, label: "Technical", labelAr: "التقني" },
+  ];
 
-      {/* Input */}
-      <div className="flex items-center gap-2 mb-6">
+  return (
+    <div className="space-y-6">
+      <div>
+        <h3 className="text-xl font-semibold text-white mb-2">
+          {isRtl ? "مقارنة المنافسين" : "Competitor Comparison"}
+        </h3>
+        <p className="text-sm text-surface-400">
+          {isRtl ? "قارن موقعك مع رابط عام آخر" : "Compare your site with another public URL"}
+        </p>
+      </div>
+      <div className="flex gap-3">
         <input
           type="text"
           value={competitorUrl}
           onChange={(e) => setCompetitorUrl(e.target.value)}
-          placeholder={locale === 'ar' ? 'أدخل رابط المنافس' : 'Enter competitor URL'}
-          className="flex-1 bg-smart-dark-3 border border-smart-dark-3 rounded-lg px-4 py-2.5 text-sm text-white placeholder-smart-gray-dark focus:border-smart-gold/50 transition-colors"
+          placeholder={isRtl ? "أدخل رابط المنافس" : "Enter competitor URL"}
+          className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-surface-400 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500/50"
+          dir={isRtl ? "rtl" : "ltr"}
         />
         <button
           onClick={handleCompare}
-          disabled={!competitorUrl.trim() || isComparing}
-          className="btn-gold px-4 py-2.5 rounded-lg text-sm disabled:opacity-50"
+          disabled={isComparing || !competitorUrl.trim()}
+          className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-xl text-sm font-medium transition-colors flex items-center gap-2"
         >
-          {isComparing
-            ? (locale === 'ar' ? 'جارٍ المقارنة...' : 'Comparing...')
-            : (locale === 'ar' ? 'قارن' : 'Compare')}
+          {isComparing ? (
+            <><Loader2 className="w-4 h-4 animate-spin" />{isRtl ? "جارٍ المقارنة..." : "Comparing..."}</>
+          ) : (
+            <><BarChart3 className="w-4 h-4" />{isRtl ? "قارن" : "Compare"}</>
+          )}
         </button>
       </div>
-
-      {/* Comparison Results */}
-      {comparison && (
-        <div className="space-y-6 animate-fade-in">
-          {/* Score Comparison */}
-          <div className="space-y-3">
-            {comparison.scores.map((score) => (
-              <div key={score.category} className="space-y-1">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-smart-gray-light">
-                    {getCategoryLabel(score.category, locale)}
-                  </span>
-                  <div className="flex items-center gap-3">
-                    <span className={`font-medium ${getScoreColor(score.primary)}`}>
-                      {locale === 'ar' ? 'موقعك: ' : 'You: '}{score.primary}
-                    </span>
-                    <ArrowRight className="w-3 h-3 text-smart-gray-dark" />
-                    <span className={`font-medium ${getScoreColor(score.competitor)}`}>
-                      {locale === 'ar' ? 'المنافس: ' : 'Them: '}{score.competitor}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex gap-1 h-2">
-                  <div
-                    className={`rounded-l-full ${getScoreBgColor(score.primary)}`}
-                    style={{ width: `${score.primary}%` }}
-                  />
-                  <div
-                    className={`rounded-r-full ${getScoreBgColor(score.competitor)}`}
-                    style={{ width: `${score.competitor}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Limitations */}
-          <div className="p-4 rounded-lg bg-yellow-500/5 border border-yellow-500/20">
-            <div className="flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-yellow-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-semibold text-yellow-400 mb-2">
-                  {locale === 'ar' ? 'حدود المقارنة' : 'Comparison Limitations'}
-                </p>
-                <ul className="space-y-1">
-                  {comparison.limitations.map((lim, i) => (
-                    <li key={i} className="text-xs text-yellow-400/70 flex items-start gap-1">
-                      <span>•</span>
-                      {lim}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+      {error && (
+        <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-2">
+          <AlertTriangle className="w-4 h-4 text-red-400 mt-0.5 shrink-0" />
+          <p className="text-sm text-red-300">{error}</p>
         </div>
       )}
-
-      {/* Info when no comparison yet */}
-      {!comparison && (
-        <div className="flex items-center gap-2 text-xs text-smart-gray-dark">
-          <Info className="w-3 h-3" />
-          <span>
-            {locale === 'ar'
-              ? 'أدخل رابط منافس لمقارنة الإشارات العامة القابلة للقياس'
-              : 'Enter a competitor URL to compare publicly measurable signals'}
-          </span>
+      {competitorResult && (
+        <div className="space-y-4">
+          <div className="grid gap-3">
+            {categories.map(({ key, label, labelAr }) => {
+              const primary = primaryResult.scores[key].score;
+              const competitor = competitorResult.scores[key].score;
+              const diff = primary - competitor;
+              const maxVal = Math.max(primary, competitor, 1);
+              return (
+                <div key={key} className="p-4 rounded-xl bg-white/5 border border-white/10">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-white">{isRtl ? labelAr : label}</span>
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-primary-400">{isRtl ? "موقعك" : "You"}: {primary}</span>
+                      <span className="text-sm text-surface-400">vs</span>
+                      <span className="text-sm text-accent-400">{isRtl ? "المنافس" : "Competitor"}: {competitor}</span>
+                      {diff !== 0 && (
+                        <span className={cn("text-xs font-medium", diff > 0 ? "text-accent-500" : "text-red-500")}>
+                          {diff > 0 ? "+" : ""}{diff}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="relative h-6 bg-surface-800 rounded-full overflow-hidden">
+                    <div className="absolute top-0 left-0 h-full bg-primary-500/50 rounded-full transition-all" style={{ width: `${(primary / maxVal) * 100}%` }} />
+                    <div className="absolute top-0 h-full bg-accent-500/50 rounded-full transition-all" style={{ width: `${(competitor / maxVal) * 100}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="p-4 rounded-xl bg-yellow-500/5 border border-yellow-500/20">
+            <h4 className="text-sm font-semibold text-yellow-300 mb-2 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4" />
+              {isRtl ? "حدود المقارنة" : "Comparison Limitations"}
+            </h4>
+            <ul className="space-y-1">
+              {[
+                isRtl ? "تتم مقارنة الإشارات العامة القابلة للقياس فقط" : "Only publicly measurable signals are compared",
+                isRtl ? "تعكس النتائج البيانات المتاحة وقت التحليل" : "Results reflect available data at the time of analysis",
+                isRtl ? "المقاييس الداخلية والبيانات الخاصة غير مشمولة" : "Internal metrics and private data are not included",
+              ].map((limitation, i) => (
+                <li key={i} className="text-xs text-yellow-400 flex items-start gap-2"><span>•</span>{limitation}</li>
+              ))}
+            </ul>
+          </div>
         </div>
       )}
     </div>

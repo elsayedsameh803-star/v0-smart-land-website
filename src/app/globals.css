@@ -2,209 +2,90 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@layer base {
+  :root {
+    --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+    --font-cairo: "Cairo", system-ui, -apple-system, sans-serif;
+  }
 
-:root {
-  --background: #0a0a0a;
-  --foreground: #f5f0e8;
-  --gold: #d4a853;
-  --gold-light: #e8c970;
-  --gold-dark: #b8923e;
-  --card-bg: #111111;
-  --card-border: #222222;
-  --card-hover: #1a1a1a;
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-white text-surface-900;
+    font-family: var(--font-inter);
+  }
+
+  html[dir="rtl"] body {
+    font-family: var(--font-cairo);
+  }
+
+  * {
+    @apply border-surface-200;
+  }
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-primary {
+    @apply bg-gradient-to-r from-primary-600 to-primary-800;
+  }
+
+  .gradient-accent {
+    @apply bg-gradient-to-r from-accent-500 to-accent-600;
+  }
+
+  .gradient-hero {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #172554 100%);
+  }
+
+  .gradient-card {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(34, 197, 94, 0.1) 100%);
+  }
+
+  .animate-in {
+    animation: fadeIn 0.5s ease-in-out, slideUp 0.5s ease-out;
+  }
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: 'Inter', system-ui, sans-serif;
-  min-height: 100vh;
-}
-
-/* RTL Support */
-[dir="rtl"] {
-  font-family: 'Noto Sans Arabic', system-ui, sans-serif;
-}
-
-[dir="rtl"] .ltr-text {
-  font-family: 'Inter', system-ui, sans-serif;
-  direction: ltr;
-  unicode-bidi: embed;
-}
-
-/* Scrollbar */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #111111;
+  @apply bg-surface-100;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333333;
-  border-radius: 3px;
+  @apply bg-surface-300 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555555;
-}
-
-/* Gold gradient text */
-.gold-gradient-text {
-  background: linear-gradient(135deg, #d4a853, #e8c970, #d4a853);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Gold border */
-.gold-border {
-  border: 1px solid rgba(212, 168, 83, 0.3);
-}
-
-.gold-border:hover {
-  border-color: rgba(212, 168, 83, 0.6);
-}
-
-/* Glass effect */
-.glass-card {
-  background: rgba(17, 17, 17, 0.8);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(212, 168, 83, 0.1);
-}
-
-/* Skeleton loading */
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    #1a1a1a 25%,
-    #222222 50%,
-    #1a1a1a 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
-}
-
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* Progress bar animation */
-.progress-bar-indeterminate {
-  position: relative;
-  overflow: hidden;
-}
-
-.progress-bar-indeterminate::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 40%;
-  background: linear-gradient(90deg, transparent, #d4a853, transparent);
-  animation: progress-bar 2s ease-in-out infinite;
-}
-
-@keyframes progress-bar {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(350%); }
-}
-
-/* Audit card hover */
-.audit-card {
-  transition: all 0.3s ease;
-}
-
-.audit-card:hover {
-  border-color: rgba(212, 168, 83, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(212, 168, 83, 0.08);
-}
-
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  @apply bg-surface-400;
 }
 
 /* Focus styles */
-input:focus, textarea:focus, select:focus {
-  outline: none;
-  border-color: #d4a853;
-  box-shadow: 0 0 0 3px rgba(212, 168, 83, 0.15);
+:focus-visible {
+  @apply outline-2 outline-offset-2 outline-primary-500;
 }
 
-/* Button base */
-.btn-gold {
-  background: linear-gradient(135deg, #d4a853, #b8923e);
-  color: #0a0a0a;
-  font-weight: 600;
-  transition: all 0.3s ease;
+/* Selection */
+::selection {
+  @apply bg-primary-100 text-primary-900;
 }
 
-.btn-gold:hover {
-  background: linear-gradient(135deg, #e8c970, #d4a853);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 20px rgba(212, 168, 83, 0.3);
-}
-
-.btn-gold-outline {
-  background: transparent;
-  border: 1px solid #d4a853;
-  color: #d4a853;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.btn-gold-outline:hover {
-  background: rgba(212, 168, 83, 0.1);
-  transform: translateY(-1px);
-}
-
-/* Stats grid */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-/* Responsive video container */
-.video-container {
-  position: relative;
-  width: 100%;
-  padding-bottom: 56.25%; /* 16:9 aspect ratio */
-}
-
-.video-container iframe,
-.video-container video {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: 12px;
-}
-
-/* Print styles for PDF */
+/* Print styles */
 @media print {
-  body {
-    background: white;
-    color: black;
-  }
+  header,
+  footer,
   .no-print {
     display: none !important;
   }

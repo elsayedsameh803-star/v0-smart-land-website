@@ -1,78 +1,90 @@
-'use client';
+"use client";
 
-interface Props {
-  locale: 'en' | 'ar';
+import { Search, Brain, Target, Wrench, TrendingUp } from "lucide-react";
+
+interface OnboardingStepsProps {
+  locale: string;
 }
 
-const steps = [
-  { 
-    icon: '🔗',
-    en: { title: 'Submit your link', desc: 'Enter any public website URL to begin the analysis.' },
-    ar: { title: 'أرسل الرابط', desc: 'أدخل أي رابط موقع عام لبدء التحليل.' }
-  },
-  { 
-    icon: '🤖',
-    en: { title: 'Smart Land analyzes real data', desc: 'Our AI examines available public signals across multiple dimensions.' },
-    ar: { title: 'سمارت لاند تحلل البيانات الفعلية', desc: 'يقوم الذكاء الاصطناعي لدينا بفحص الإشارات العامة المتاحة عبر أبعاد متعددة.' }
-  },
-  { 
-    icon: '📊',
-    en: { title: 'Discover strengths & weaknesses', desc: 'Get a transparent breakdown with evidence for every finding.' },
-    ar: { title: 'اكتشف نقاط القوة والضعف', desc: 'احصل على تحليل شفاف مع أدلة لكل نتيجة.' }
-  },
-  { 
-    icon: '🔧',
-    en: { title: 'Understand how to fix problems', desc: 'Receive actionable fix recommendations with technical examples.' },
-    ar: { title: 'افهم كيفية إصلاح المشكلات', desc: 'احصل على توصيات إصلاح قابلة للتنفيذ مع أمثلة تقنية.' }
-  },
-  { 
-    icon: '📈',
-    en: { title: 'Re-analyze & measure improvement', desc: 'Track your progress over time with before/after comparisons.' },
-    ar: { title: 'أعد التحليل وقياس التحسن', desc: 'تتبع تقدمك بمرور الوقت مع مقارنات قبل/بعد.' }
-  },
-];
+export function OnboardingSteps({ locale }: OnboardingStepsProps) {
+  const isRtl = locale === "ar";
 
-export function OnboardingSteps({ locale }: Props) {
-  const t = (key: 'title' | 'desc', step: typeof steps[0]) => {
-    return locale === 'ar' ? step.ar[key] : step.en[key];
-  };
+  const steps = [
+    {
+      icon: Search,
+      title: isRtl ? "أرسل الرابط" : "Submit your link",
+      description: isRtl ? "أدخل أي رابط موقع عام لبدء التحليل." : "Enter any public website URL to begin the analysis.",
+      gradient: "from-blue-500 to-blue-600",
+    },
+    {
+      icon: Brain,
+      title: isRtl ? "سمارت لاند تحلل البيانات" : "Smart Land analyzes real data",
+      description: isRtl ? "يقوم الذكاء الاصطناعي لدينا بفحص الإشارات العامة المتاحة عبر أبعاد متعددة." : "Our AI examines available public signals across multiple dimensions.",
+      gradient: "from-purple-500 to-pink-500",
+    },
+    {
+      icon: Target,
+      title: isRtl ? "اكتشف نقاط القوة والضعف" : "Discover strengths & weaknesses",
+      description: isRtl ? "احصل على تحليل شفاف مع أدلة لكل نتيجة." : "Get a transparent breakdown with evidence for every finding.",
+      gradient: "from-green-500 to-emerald-500",
+    },
+    {
+      icon: Wrench,
+      title: isRtl ? "افهم كيفية إصلاح المشكلات" : "Understand how to fix problems",
+      description: isRtl ? "احصل على توصيات إصلاح قابلة للتنفيذ مع أمثلة تقنية." : "Receive actionable fix recommendations with technical examples.",
+      gradient: "from-orange-500 to-red-500",
+    },
+    {
+      icon: TrendingUp,
+      title: isRtl ? "أعد التحليل وقياس التحسن" : "Re-analyze & measure improvement",
+      description: isRtl ? "تتبع تقدمك بمرور الوقت مع مقارنات قبل/بعد." : "Track your progress over time with before/after comparisons.",
+      gradient: "from-teal-500 to-cyan-500",
+    },
+  ];
 
   return (
-    <section className="py-24 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-smart-dark to-smart-black" />
-      
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="relative py-20 bg-surface-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
         <div className="text-center mb-16">
-          <h2 className="text-3xl sm:text-4xl font-bold gold-gradient-text mb-4">
-            {locale === 'ar' ? 'كيف تعمل سمارت لاند' : 'How Smart Land Works'}
+          <h2 className="text-3xl sm:text-4xl font-bold text-surface-900 mb-4">
+            {isRtl ? "كيف تعمل سمارت لاند" : "How Smart Land Works"}
           </h2>
-          <p className="text-smart-gray-light text-lg max-w-2xl mx-auto">
-            {locale === 'ar'
-              ? 'خمس خطوات بسيطة لتحليل حضورك الرقمي وتحسينه'
-              : 'Five simple steps to analyze and improve your digital presence'}
+          <p className="text-lg text-surface-500 max-w-2xl mx-auto">
+            {isRtl
+              ? "خمس خطوات بسيطة لتحليل وتحسين حضورك الرقمي"
+              : "Five simple steps to analyze and improve your digital presence"}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          {steps.map((step, i) => (
-            <div key={i} className="relative">
-              {/* Connector Line */}
-              {i < steps.length - 1 && (
-                <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-px bg-gradient-to-r from-smart-gold/40 to-transparent" />
+        {/* Steps Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {steps.map((step, index) => (
+            <div key={index} className="relative group">
+              {/* Connection line */}
+              {index < steps.length - 1 && (
+                <div className="hidden lg:block absolute top-12 left-[60%] w-[80%] h-px bg-gradient-to-r from-primary-200 to-transparent" />
               )}
               
-              <div className="glass-card rounded-xl p-6 text-center h-full hover:border-smart-gold/30 transition-all">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-xl bg-smart-dark-3 flex items-center justify-center text-2xl">
-                  {step.icon}
+              <div className="relative flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-surface-200 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+                {/* Step Number */}
+                <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-surface-900 text-white text-sm font-bold flex items-center justify-center shadow-lg">
+                  {index + 1}
                 </div>
-                <div className="text-xs text-smart-gold font-semibold mb-2">
-                  {locale === 'ar' ? `الخطوة ${i + 1}` : `Step ${i + 1}`}
+
+                {/* Icon */}
+                <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${step.gradient} flex items-center justify-center mb-4 shadow-lg`}>
+                  <step.icon className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-sm font-semibold text-white mb-2">
-                  {t('title', step)}
+
+                {/* Title */}
+                <h3 className="text-lg font-semibold text-surface-900 mb-2">
+                  {step.title}
                 </h3>
-                <p className="text-xs text-smart-gray leading-relaxed">
-                  {t('desc', step)}
+
+                {/* Description */}
+                <p className="text-sm text-surface-500 leading-relaxed">
+                  {step.description}
                 </p>
               </div>
             </div>

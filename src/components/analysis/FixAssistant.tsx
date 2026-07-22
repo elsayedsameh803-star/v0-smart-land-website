@@ -1,117 +1,135 @@
-'use client';
+"use client";
 
-import { X, Lightbulb, List, Code, Star, Sparkles } from 'lucide-react';
-import type { Finding } from '@/lib/types';
-import { generateFixSuggestion } from '@/lib/analysis-engine';
-import { getSeverityColor, getSeverityLabel } from '@/lib/utils';
+import { X, Lightbulb, Code, Target, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import type { Finding } from "@/lib/types";
 
-interface Props {
+interface FixAssistantProps {
   finding: Finding;
-  locale: 'en' | 'ar';
+  locale: string;
   onClose: () => void;
 }
 
-export function FixAssistant({ finding, locale, onClose }: Props) {
-  const suggestion = generateFixSuggestion(finding, locale);
+export function FixAssistant({ finding, locale, onClose }: FixAssistantProps) {
+  const isRtl = locale === "ar";
+  const [activeTab, setActiveTab] = useState<"steps" | "code">("steps");
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto glass-card rounded-2xl border border-smart-gold/20 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div className="relative w-full sm:max-w-2xl max-h-[85vh] overflow-y-auto bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl">
         {/* Header */}
-        <div className="sticky top-0 bg-smart-dark/95 backdrop-blur-md border-b border-smart-dark-3 px-6 py-4 rounded-t-2xl flex items-center justify-between">
+        <div className="sticky top-0 bg-white border-b border-surface-200 px-6 py-4 flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-smart-gold to-smart-gold-dark flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-smart-black" />
+            <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center">
+              <Lightbulb className="w-5 h-5 text-primary-600" />
             </div>
             <div>
-              <h3 className="text-base font-bold gold-gradient-text">
-                {locale === 'ar' ? 'مساعد الإصلاح بالذكاء الاصطناعي' : 'AI Fix Assistant'}
+              <h3 className="text-lg font-semibold text-surface-900">
+                {isRtl ? "مساعد الإصلاح بالذكاء الاصطناعي" : "AI Fix Assistant"}
               </h3>
-              <span className={`text-xs px-2 py-0.5 rounded-full border ${getSeverityColor(finding.severity)}`}>
-                {getSeverityLabel(finding.severity, locale)}
-              </span>
+              <p className="text-sm text-surface-500">
+                {isRtl ? "إليك كيفية إصلاح هذه المشكلة المحددة" : "Here's how to fix this specific issue"}
+              </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/5 text-smart-gray-light hover:text-white transition-colors"
+            className="p-2 rounded-lg hover:bg-surface-100 transition-colors"
+            aria-label={isRtl ? "إغلاق" : "Close"}
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5 text-surface-500" />
           </button>
         </div>
 
-        <div className="px-6 py-6 space-y-6">
-          {/* Issue */}
-          <div>
-            <h4 className="text-sm font-semibold text-white mb-2">
-              {locale === 'ar' ? 'المشكلة' : 'Issue'}
-            </h4>
-            <p className="text-sm text-smart-gray-light">
-              {locale === 'ar' ? finding.issueAr : finding.issue}
-            </p>
-          </div>
-
-          {/* Explanation */}
-          <div>
-            <div className="flex items-center gap-2 text-xs text-smart-gold font-semibold mb-2">
-              <Lightbulb className="w-3.5 h-3.5" />
-              {locale === 'ar' ? 'الشرح' : 'Explanation'}
-            </div>
-            <p className="text-sm text-smart-gray-light bg-smart-dark-3/50 rounded-lg p-4">
-              {suggestion.explanation}
-            </p>
+        <div className="p-6 space-y-6">
+          {/* Tabs */}
+          <div className="flex gap-2 bg-surface-100 rounded-lg p-1">
+            <button
+              onClick={() => setActiveTab("steps")}
+              className={cn(
+                "flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
+                activeTab === "steps" ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
+              )}
+            >
+              <Target className="w-4 h-4" />
+              {isRtl ? "خطوات الإصلاح" : "Fix Steps"}
+            </button>
+            {finding.technicalExample && (
+              <button
+                onClick={() => setActiveTab("code")}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all",
+                  activeTab === "code" ? "bg-white text-surface-900 shadow-sm" : "text-surface-500 hover:text-surface-700"
+                )}
+              >
+                <Code className="w-4 h-4" />
+                {isRtl ? "مثال برمجي" : "Code Example"}
+              </button>
+            )}
           </div>
 
           {/* Steps */}
-          <div>
-            <div className="flex items-center gap-2 text-xs text-smart-gold font-semibold mb-3">
-              <List className="w-3.5 h-3.5" />
-              {locale === 'ar' ? 'خطوات الإصلاح' : 'Fix Steps'}
+          {activeTab === "steps" && (
+            <div className="space-y-4">
+              <div className="p-4 rounded-xl bg-primary-50 border border-primary-200">
+                <h4 className="text-sm font-semibold text-primary-800 mb-2 flex items-center gap-2">
+                  <Lightbulb className="w-4 h-4" />
+                  {isRtl ? "الشرح" : "Explanation"}
+                </h4>
+                <p className="text-sm text-primary-700">
+                  {isRtl ? finding.whyItMattersAr : finding.whyItMatters}
+                </p>
+              </div>
+
+              <div>
+                <h4 className="text-sm font-semibold text-surface-900 mb-3 flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  {isRtl ? "دليل خطوة بخطوة" : "Step-by-Step Guide"}
+                </h4>
+                <div className="space-y-3">
+                  <div className="flex gap-3 p-3 rounded-lg bg-surface-50 border border-surface-200">
+                    <div className="w-6 h-6 rounded-full bg-primary-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">
+                      1
+                    </div>
+                    <p className="text-sm text-surface-700">
+                      {isRtl ? finding.howToFixAr : finding.howToFix}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl bg-accent-50 border border-accent-200">
+                <h4 className="text-sm font-semibold text-accent-800 mb-2 flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" />
+                  {isRtl ? "النتيجة المتوقعة" : "Expected Outcome"}
+                </h4>
+                <p className="text-sm text-accent-700">
+                  {isRtl ? finding.expectedBenefitAr : finding.expectedBenefit}
+                </p>
+              </div>
             </div>
-            <ol className="space-y-2">
-              {(locale === 'ar' ? suggestion.stepsAr : suggestion.steps).map((step, i) => (
-                <li key={i} className="flex items-start gap-3 text-sm text-smart-gray-light">
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-smart-gold/10 text-smart-gold flex items-center justify-center text-xs font-bold">
-                    {i + 1}
-                  </span>
-                  {step}
-                </li>
-              ))}
-            </ol>
-          </div>
+          )}
 
           {/* Code Example */}
-          {suggestion.codeExample && (
+          {activeTab === "code" && finding.technicalExample && (
             <div>
-              <div className="flex items-center gap-2 text-xs text-smart-gold font-semibold mb-2">
-                <Code className="w-3.5 h-3.5" />
-                {locale === 'ar' ? 'مثال برمجي' : 'Code Example'}
-              </div>
-              <pre className="text-xs text-smart-gray-light bg-smart-black rounded-lg p-4 overflow-x-auto font-mono border border-smart-dark-3">
-                {suggestion.codeExample}
+              <h4 className="text-sm font-semibold text-surface-900 mb-3 flex items-center gap-2">
+                <Code className="w-4 h-4" />
+                {isRtl ? "مثال برمجي" : "Code Example"}
+              </h4>
+              <pre className="text-sm bg-surface-900 text-surface-100 p-4 rounded-xl overflow-x-auto">
+                <code>{finding.technicalExample}</code>
               </pre>
             </div>
           )}
 
-          {/* Expected Outcome */}
-          <div>
-            <div className="flex items-center gap-2 text-xs text-green-400 font-semibold mb-2">
-              <Star className="w-3.5 h-3.5" />
-              {locale === 'ar' ? 'النتيجة المتوقعة' : 'Expected Outcome'}
-            </div>
-            <p className="text-sm text-green-400/80 bg-green-500/5 rounded-lg p-4">
-              {locale === 'ar' ? suggestion.expectedOutcomeAr : suggestion.expectedOutcome}
-            </p>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-6 py-4 border-t border-smart-dark-3 flex justify-end">
+          {/* Close Button */}
           <button
             onClick={onClose}
-            className="btn-gold-outline px-6 py-2 rounded-lg text-sm"
+            className="w-full py-3 rounded-xl bg-surface-100 hover:bg-surface-200 text-surface-700 font-medium transition-colors text-sm"
           >
-            {locale === 'ar' ? 'إغلاق' : 'Close'}
+            {isRtl ? "إغلاق" : "Close"}
           </button>
         </div>
       </div>

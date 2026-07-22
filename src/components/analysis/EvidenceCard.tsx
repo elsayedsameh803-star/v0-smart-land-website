@@ -1,137 +1,127 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { ChevronDown, ChevronUp, AlertTriangle, Info, HelpCircle, Code, Target, Zap } from 'lucide-react';
-import type { Finding } from '@/lib/types';
-import { getSeverityColor, getSeverityLabel } from '@/lib/utils';
+import { cn } from "@/lib/utils";
+import { AlertCircle, AlertTriangle, Info, ChevronDown, Wrench } from "lucide-react";
+import { useState } from "react";
+import type { Finding } from "@/lib/types";
 
-interface Props {
+interface EvidenceCardProps {
   finding: Finding;
-  locale: 'en' | 'ar';
+  locale: string;
   onHelpFix?: () => void;
 }
 
-export function EvidenceCard({ finding, locale, onHelpFix }: Props) {
+export function EvidenceCard({ finding, locale, onHelpFix }: EvidenceCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const isRtl = locale === "ar";
+
+  const severityConfig: Record<string, { icon: React.ElementType; color: string; bg: string; badge: string }> = {
+    critical: { icon: AlertCircle, color: "text-red-500", bg: "bg-red-50 border-red-200", badge: "bg-red-100 text-red-700" },
+    high: { icon: AlertTriangle, color: "text-orange-500", bg: "bg-orange-50 border-orange-200", badge: "bg-orange-100 text-orange-700" },
+    medium: { icon: AlertCircle, color: "text-yellow-500", bg: "bg-yellow-50 border-yellow-200", badge: "bg-yellow-100 text-yellow-700" },
+    low: { icon: Info, color: "text-blue-500", bg: "bg-blue-50 border-blue-200", badge: "bg-blue-100 text-blue-700" },
+    info: { icon: Info, color: "text-surface-500", bg: "bg-surface-50 border-surface-200", badge: "bg-surface-100 text-surface-700" },
+  };
+
+  const config = severityConfig[finding.severity];
+  const SeverityIcon = config.icon;
+
+  const severityLabels: Record<string, string> = {
+    critical: "حرج",
+    high: "عالٍ",
+    medium: "متوسط",
+    low: "منخفض",
+    info: "معلومات",
+  };
 
   return (
-    <div className={`audit-card glass-card rounded-xl overflow-hidden border-l-4 ${
-      finding.severity === 'critical' ? 'border-l-red-500' :
-      finding.severity === 'high' ? 'border-l-orange-500' :
-      finding.severity === 'medium' ? 'border-l-yellow-500' :
-      finding.severity === 'low' ? 'border-l-smart-gold' :
-      'border-l-blue-500'
-    }`}>
-      {/* Header */}
+    <div className={cn("rounded-xl border transition-all duration-200", config.bg)}>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-start gap-3 p-4 text-left hover:bg-white/5 transition-colors"
+        className="w-full flex items-start gap-3 p-4 text-left"
       >
-        <div className="flex-shrink-0 mt-0.5">
-          {finding.severity === 'critical' || finding.severity === 'high' ? (
-            <AlertTriangle className="w-5 h-5 text-red-400" />
-          ) : (
-            <Info className="w-5 h-5 text-smart-gold" />
-          )}
-        </div>
-        
+        <SeverityIcon className={cn("w-5 h-5 mt-0.5 shrink-0", config.color)} />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <span className={`text-xs font-medium px-2 py-0.5 rounded-full border ${getSeverityColor(finding.severity)}`}>
-              {getSeverityLabel(finding.severity, locale)}
+            <span className={cn("px-2 py-0.5 rounded text-xs font-medium", config.badge)}>
+              {isRtl ? severityLabels[finding.severity] : finding.severity.charAt(0).toUpperCase() + finding.severity.slice(1)}
             </span>
           </div>
-          <h4 className="text-sm font-medium text-white">
-            {locale === 'ar' ? finding.issueAr : finding.issue}
-          </h4>
+          <p className="text-sm font-medium text-surface-900">
+            {isRtl ? finding.issueAr : finding.issue}
+          </p>
         </div>
-
-        <div className="flex-shrink-0 text-smart-gray mt-1">
-          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-        </div>
+        <ChevronDown className={cn("w-5 h-5 text-surface-400 transition-transform shrink-0 mt-1", isExpanded && "rotate-180")} />
       </button>
 
-      {/* Expanded Content */}
       {isExpanded && (
-        <div className="px-4 pb-4 space-y-4 animate-fade-in">
-          <div className="border-t border-smart-dark-3 pt-4" />
-
+        <div className="px-4 pb-4 space-y-4 animate-slide-down">
           {/* Evidence */}
           <div>
-            <div className="flex items-center gap-2 text-xs text-smart-gold font-semibold mb-2">
-              <Target className="w-3.5 h-3.5" />
-              {locale === 'ar' ? 'الدليل' : 'Evidence'}
-            </div>
-            <p className="text-sm text-smart-gray-light bg-smart-dark-3/50 rounded-lg p-3">
-              {locale === 'ar' ? finding.evidenceAr : finding.evidence}
-            </p>
+            <h4 className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1">
+              {isRtl ? "الدليل" : "Evidence"}
+            </h4>
+            <p className="text-sm text-surface-700">{isRtl ? finding.evidenceAr : finding.evidence}</p>
           </div>
 
           {/* Location */}
-          <div>
-            <div className="flex items-center gap-2 text-xs text-smart-gold font-semibold mb-2">
-              <Code className="w-3.5 h-3.5" />
-              {locale === 'ar' ? 'الموقع' : 'Location'}
+          {finding.location && (
+            <div>
+              <h4 className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1">
+                {isRtl ? "الموقع" : "Location"}
+              </h4>
+              <code className="text-sm text-primary-600 bg-primary-50 px-2 py-1 rounded break-all">
+                {finding.location}
+              </code>
             </div>
-            <p className="text-sm text-smart-gray-light font-mono">
-              {finding.location}
-            </p>
-          </div>
+          )}
 
           {/* Why It Matters */}
           <div>
-            <div className="flex items-center gap-2 text-xs text-smart-gold font-semibold mb-2">
-              <AlertTriangle className="w-3.5 h-3.5" />
-              {locale === 'ar' ? 'لماذا يهم' : 'Why It Matters'}
-            </div>
-            <p className="text-sm text-smart-gray-light">
-              {locale === 'ar' ? finding.whyItMattersAr : finding.whyItMatters}
-            </p>
+            <h4 className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1">
+              {isRtl ? "لماذا يهم" : "Why It Matters"}
+            </h4>
+            <p className="text-sm text-surface-700">{isRtl ? finding.whyItMattersAr : finding.whyItMatters}</p>
           </div>
 
           {/* How to Fix */}
           <div>
-            <div className="flex items-center gap-2 text-xs text-smart-gold font-semibold mb-2">
-              <HelpCircle className="w-3.5 h-3.5" />
-              {locale === 'ar' ? 'كيفية الإصلاح' : 'How to Fix'}
-            </div>
-            <p className="text-sm text-smart-gray-light">
-              {locale === 'ar' ? finding.howToFixAr : finding.howToFix}
-            </p>
+            <h4 className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1">
+              {isRtl ? "كيفية الإصلاح" : "How to Fix"}
+            </h4>
+            <p className="text-sm text-surface-700">{isRtl ? finding.howToFixAr : finding.howToFix}</p>
           </div>
 
           {/* Technical Example */}
           {finding.technicalExample && (
             <div>
-              <div className="flex items-center gap-2 text-xs text-smart-gold font-semibold mb-2">
-                <Code className="w-3.5 h-3.5" />
-                {locale === 'ar' ? 'مثال تقني' : 'Technical Example'}
-              </div>
-              <pre className="text-xs text-smart-gray-light bg-smart-black rounded-lg p-3 overflow-x-auto font-mono border border-smart-dark-3">
-                {finding.technicalExample}
+              <h4 className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1">
+                {isRtl ? "مثال تقني" : "Technical Example"}
+              </h4>
+              <pre className="text-sm bg-surface-900 text-surface-100 p-3 rounded-lg overflow-x-auto">
+                <code>{finding.technicalExample}</code>
               </pre>
             </div>
           )}
 
           {/* Expected Benefit */}
           <div>
-            <div className="flex items-center gap-2 text-xs text-green-400 font-semibold mb-2">
-              <Zap className="w-3.5 h-3.5" />
-              {locale === 'ar' ? 'الفوائد المتوقعة' : 'Expected Benefit'}
-            </div>
-            <p className="text-sm text-green-400/80">
-              {locale === 'ar' ? finding.expectedBenefitAr : finding.expectedBenefit}
+            <h4 className="text-xs font-semibold text-surface-500 uppercase tracking-wider mb-1">
+              {isRtl ? "الفوائد المتوقعة" : "Expected Benefit"}
+            </h4>
+            <p className="text-sm text-accent-700 font-medium">
+              {isRtl ? finding.expectedBenefitAr : finding.expectedBenefit}
             </p>
           </div>
 
-          {/* Help Me Fix Button */}
+          {/* Help Fix Button */}
           {onHelpFix && (
             <button
               onClick={onHelpFix}
-              className="w-full btn-gold-outline flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm mt-4"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors"
             >
-              <HelpCircle className="w-4 h-4" />
-              {locale === 'ar' ? 'ساعدني في الإصلاح' : 'Help Me Fix This'}
+              <Wrench className="w-4 h-4" />
+              {isRtl ? "ساعدني في الإصلاح" : "Help Me Fix This"}
             </button>
           )}
         </div>

@@ -4,7 +4,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { getDictionary } from "@/lib/i18n";
 import { Toaster } from "sonner";
-import "./globals.css";
+import "../globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const cairo = Cairo({ subsets: ["arabic"], variable: "--font-cairo" });
@@ -15,13 +15,14 @@ export const metadata: Metadata = {
   keywords: ["digital audit", "SEO analysis", "website analyzer", "AI audit"],
 };
 
-export default async function RootLayout({
+export default async function LocaleLayout({
   children,
-  params: { locale = "en" },
+  params,
 }: {
   children: React.ReactNode;
-  params: { locale?: string };
+  params: { locale: string };
 }) {
+  const { locale } = params;
   const dir = locale === "ar" ? "rtl" : "ltr";
   const dict = await getDictionary(locale);
 

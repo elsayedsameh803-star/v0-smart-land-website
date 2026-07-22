@@ -1,88 +1,108 @@
-'use client';
+"use client";
 
-import type { CategoryScores } from '@/lib/types';
-import { getScoreColor, getScoreBgColor, getScoreLabel, getCategoryLabel } from '@/lib/utils';
+import { cn, getScoreColor, getScoreBgColor, getScoreRating } from "@/lib/utils";
+import type { CategoryScores } from "@/lib/types";
 
-interface Props {
+interface ScoreBreakdownProps {
   overallScore: number;
   scores: CategoryScores;
-  locale: 'en' | 'ar';
+  locale: string;
 }
 
-export function ScoreBreakdown({ overallScore, scores, locale }: Props) {
-  const categories = Object.entries(scores) as [keyof CategoryScores, typeof scores[keyof CategoryScores]][];
+export function ScoreBreakdown({ overallScore, scores, locale }: ScoreBreakdownProps) {
+  const isRtl = locale === "ar";
+  const size = 128;
+  const stroke = 4;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (overallScore / 100) * circumference;
+
+  const categories = [
+    { key: "seo" as const, icon: "🔍" },
+    { key: "performance" as const, icon: "⚡" },
+    { key: "accessibility" as const, icon: "♿" },
+    { key: "security" as const, icon: "🔒" },
+    { key: "content" as const, icon: "📝" },
+    { key: "technical" as const, icon: "🛠️" },
+  ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Overall Score */}
-      <div className="glass-card rounded-xl p-8 text-center">
-        <p className="text-sm text-smart-gray mb-2">
-          {locale === 'ar' ? 'النتيجة الإجمالية' : 'Overall Score'}
-        </p>
-        <div className="relative inline-flex items-center justify-center">
-          <svg className="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
+      <div className="text-center">
+        <div className="inline-flex items-center justify-center w-32 h-32 relative mb-4">
+          <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox={`0 0 ${size} ${size}`}>
             <circle
-              cx="60"
-              cy="60"
-              r="54"
-              fill="none"
-              stroke="#222"
-              strokeWidth="8"
-            />
-            <circle
-              cx="60"
-              cy="60"
-              r="54"
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
               fill="none"
               stroke="currentColor"
-              strokeWidth="8"
+              strokeWidth={stroke}
+              className="text-surface-200"
+            />
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={stroke}
+              strokeDasharray={circumference}
+              strokeDashoffset={offset}
               strokeLinecap="round"
-              strokeDasharray={`${(overallScore / 100) * 339.292} 339.292`}
-              className={getScoreColor(overallScore)}
+              className={cn("transition-all duration-1000", getScoreColor(overallScore).replace("text-", "text-"))}
             />
           </svg>
-          <span className={`absolute text-3xl font-bold ${getScoreColor(overallScore)}`}>
-            {overallScore}
-          </span>
+          <div className="text-center">
+            <div className={cn("text-3xl font-bold", getScoreColor(overallScore))}>
+              {overallScore}
+            </div>
+            <div className="text-xs text-surface-400 mt-0.5">
+              {isRtl ? "من 100" : "/100"}
+            </div>
+          </div>
         </div>
-        <p className={`text-sm font-medium mt-2 ${getScoreColor(overallScore)}`}>
-          {getScoreLabel(overallScore, locale)}
+        <h3 className="text-xl font-semibold text-surface-900 mb-1">
+          {isRtl ? "النتيجة الإجمالية" : "Overall Score"}
+        </h3>
+        <p className={cn("text-lg font-medium", getScoreColor(overallScore))}>
+          {getScoreRating(overallScore, locale)}
         </p>
       </div>
 
       {/* Category Scores */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map(([key, category]) => (
-          <div key={key} className="glass-card rounded-xl p-5">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-white">
-                {getCategoryLabel(key, locale)}
-              </span>
-              <span className={`text-sm font-bold ${getScoreColor(category.score)}`}>
-                {category.score}
-              </span>
-            </div>
-            
-            {/* Progress Bar */}
-            <div className="h-2 bg-smart-dark-3 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-700 ${getScoreBgColor(category.score)}`}
-                style={{ width: `${(category.score / category.maxScore) * 100}%` }}
-              />
-            </div>
-
-            <p className={`text-xs mt-2 ${getScoreColor(category.score)}`}>
-              {getScoreLabel(category.score, locale)}
-            </p>
-
-            {category.findings.length > 0 && (
-              <p className="text-xs text-smart-gray-dark mt-1">
-                {category.findings.length} {locale === 'ar' ? 'نتيجة' : 'finding'}
-                {category.findings.length !== 1 ? (locale === 'ar' ? '' : 's') : ''}
+        {categories.map(({ key, icon }) => {
+          const score = scores[key];
+          return (
+            <div
+              key={key}
+              className="p-5 rounded-xl bg-white border border-surface-200 hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">{icon}</span>
+                  <span className="text-sm font-medium text-surface-700">
+                    {isRtl ? score.labelAr : score.label}
+                  </span>
+                </div>
+                <span className={cn("text-lg font-bold", getScoreColor(score.score))}>
+                  {score.score}
+                </span>
+              </div>
+              <div className="w-full bg-surface-200 rounded-full h-2 overflow-hidden">
+                <div
+                  className={cn("h-full rounded-full transition-all duration-500", getScoreBgColor(score.score))}
+                  style={{ width: `${score.score}%` }}
+                />
+              </div>
+              <p className="text-xs text-surface-400 mt-2">
+                {isRtl ? score.descriptionAr : score.description}
               </p>
-            )}
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

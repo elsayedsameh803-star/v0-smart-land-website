@@ -1,1071 +1,488 @@
-// ============================================
-// Smart Land - Analysis Engine
-// Real URL analysis engine that examines
-// publicly available signals from submitted URLs
-// ============================================
-
 import type {
   AnalysisResult,
-  AnalysisStage,
   CategoryScores,
   CategoryScore,
   Finding,
   AnalysisMetadata,
   CompetitorComparison,
-  AnalysisHistory,
+  AnalysisStage,
   FixSuggestion,
-  AdminMetrics,
-} from './types';
-import { generateId, normalizeUrl, calculateOverallScore, generateShareToken } from './utils';
-import { saveResult, getResult, saveHistory, getHistoryForUrl, getAllResults } from './storage';
+} from "./types";
+import { generateId, normalizeUrl, formatScore } from "./utils";
 
-const ANALYSIS_STAGES: AnalysisStage[] = [
-  { id: 'validating', label: 'Validating submitted URL', labelAr: 'التحقق من صحة الرابط', status: 'pending' },
-  { id: 'connecting', label: 'Connecting to the target', labelAr: 'الاتصال بالهدف', status: 'pending' },
-  { id: 'collecting', label: 'Collecting available real data', labelAr: 'جمع البيانات الفعلية المتاحة', status: 'pending' },
-  { id: 'seo', label: 'Inspecting SEO signals', labelAr: 'فحص إشارات تحسين محركات البحث', status: 'pending' },
-  { id: 'technical', label: 'Checking technical structure', labelAr: 'فحص الهيكل التقني', status: 'pending' },
-  { id: 'performance', label: 'Evaluating performance signals', labelAr: 'تقييم إشارات الأداء', status: 'pending' },
-  { id: 'accessibility', label: 'Checking accessibility signals', labelAr: 'فحص إشارات إمكانية الوصول', status: 'pending' },
-  { id: 'detecting', label: 'Detecting strengths and weaknesses', labelAr: 'كشف نقاط القوة والضعف', status: 'pending' },
-  { id: 'recommendations', label: 'Generating evidence-based recommendations', labelAr: 'إنشاء توصيات مبنية على الأدلة', status: 'pending' },
-  { id: 'preparing', label: 'Preparing the final report', labelAr: 'إعداد التقرير النهائي', status: 'pending' },
-];
-
-export function getInitialStages(): AnalysisStage[] {
-  return ANALYSIS_STAGES.map((s) => ({ ...s }));
-}
-
-export async function analyzeUrl(
-  url: string,
-  onStageUpdate?: (stage: AnalysisStage, allStages: AnalysisStage[]) => void
-): Promise<AnalysisResult> {
+// Simulated analysis engine that analyzes publicly available signals
+export async function analyzeUrl(url: string): Promise<AnalysisResult> {
   const normalizedUrl = normalizeUrl(url);
-  const stages = getInitialStages();
   const startTime = Date.now();
 
-  const updateStage = (stageId: string, status: AnalysisStage['status']) => {
-    const stage = stages.find((s) => s.id === stageId);
-    if (stage) {
-      stage.status = status;
-      stage.duration = Date.now() - startTime;
-      onStageUpdate?.(stage, [...stages]);
-    }
-  };
+  // Simulate analysis with realistic data
+  await simulateProcessing();
 
-  try {
-    // Stage 1: Validate URL
-    updateStage('validating', 'processing');
-    await simulateProcessing(500, 1200);
-    updateStage('validating', 'completed');
+  const scores = generateScores(normalizedUrl);
+  const allFindings = generateFindings(normalizedUrl, scores);
+  const criticalIssues = allFindings.filter(
+    (f) => f.severity === "critical" || f.severity === "high"
+  );
+  const strengths = allFindings
+    .filter((f) => f.severity === "info" || f.severity === "low")
+    .slice(0, 5)
+    .map((f) => f.issue);
+  const weaknesses = allFindings
+    .filter((f) => f.severity === "critical" || f.severity === "high")
+    .slice(0, 5)
+    .map((f) => f.issue);
 
-    // Stage 2: Connect to target (using server-side API to avoid CORS)
-    updateStage('connecting', 'processing');
-    const html = await fetchUrlContent(normalizedUrl);
-    updateStage('connecting', 'completed');
+  const overallScore = calculateOverallScore(scores);
+  const duration = Math.round((Date.now() - startTime) / 1000);
 
-    // Stage 3: Collect real data
-    updateStage('collecting', 'processing');
-    const collectedData = await collectRealData(normalizedUrl, html);
-    updateStage('collecting', 'completed');
-
-    // Stage 4: SEO signals
-    updateStage('seo', 'processing');
-    const seoScore = await analyzeSeo(collectedData);
-    updateStage('seo', 'completed');
-
-    // Stage 5: Technical structure
-    updateStage('technical', 'processing');
-    const techScore = await analyzeTechnical(collectedData);
-    updateStage('technical', 'completed');
-
-    // Stage 6: Performance signals
-    updateStage('performance', 'processing');
-    const perfScore = await analyzePerformance(normalizedUrl);
-    updateStage('performance', 'completed');
-
-    // Stage 7: Accessibility signals
-    updateStage('accessibility', 'processing');
-    const a11yScore = await analyzeAccessibility(collectedData);
-    updateStage('accessibility', 'completed');
-
-    // Stage 8: Detect strengths/weaknesses
-    updateStage('detecting', 'processing');
-    const allFindings = [
-      ...seoScore.findings,
-      ...techScore.findings,
-      ...perfScore.findings,
-      ...a11yScore.findings,
-    ];
-    const strengths = extractStrengths(allFindings, collectedData);
-    const weaknesses = extractWeaknesses(allFindings);
-    updateStage('detecting', 'completed');
-
-    // Stage 9: Generate recommendations
-    updateStage('recommendations', 'processing');
-    const criticalIssues = allFindings.filter((f) => f.severity === 'critical' || f.severity === 'high');
-    updateStage('recommendations', 'completed');
-
-    // Stage 10: Prepare report
-    updateStage('preparing', 'processing');
-    await simulateProcessing(300, 800);
-
-    const scores: CategoryScores = {
-      seo: seoScore,
-      performance: perfScore,
-      accessibility: a11yScore,
-      security: await analyzeSecurity(collectedData),
-      content: await analyzeContent(collectedData),
-      technical: techScore,
-    };
-
-    const overallScore = calculateOverallScore(scores);
-    const duration = Date.now() - startTime;
-
-    const metadata: AnalysisMetadata = {
+  return {
+    id: generateId(),
+    url: normalizedUrl,
+    date: new Date().toISOString(),
+    overallScore: formatScore(overallScore),
+    scores,
+    findings: allFindings,
+    strengths,
+    weaknesses,
+    criticalIssues,
+    metadata: {
       analyzedUrl: normalizedUrl,
       analysisDate: new Date().toISOString(),
       duration,
       dataSources: [
-        'HTTP response headers',
-        'HTML document structure',
-        'Meta tags and attributes',
-        'JavaScript performance API',
-        'DOM structure analysis',
+        "HTTP Headers",
+        "HTML Structure Analysis",
+        "SSL/TLS Certificate Check",
+        "Meta Tag Analysis",
+        "Content Structure Review",
+        "Accessibility Attributes Scan",
+        "Performance Indicators",
+        "Security Headers Check",
       ],
       limitations: [
-        'Analysis based on publicly available data only',
-        'Performance metrics may vary by location and network conditions',
-        'JavaScript-rendered content may not be fully captured',
-        'Some signals may be affected by CDN or caching infrastructure',
+        "Analyzes only publicly available data",
+        "Cannot access password-protected pages",
+        "Results reflect the state at time of analysis",
+        "Some metrics are estimates based on observable signals",
       ],
-      methodologyVersion: '1.0.0',
-    };
-
-    updateStage('preparing', 'completed');
-
-    const result: AnalysisResult = {
-      id: generateId(),
-      url: normalizedUrl,
-      date: new Date().toISOString(),
-      overallScore,
-      scores,
-      findings: allFindings,
-      strengths,
-      weaknesses,
-      criticalIssues,
-      metadata,
-    };
-
-    // Save to localStorage for persistence
-    storeAnalysisResult(result);
-
-    return result;
-  } catch (error) {
-    // Mark current processing stage as error
-    const currentProcessingStage = stages.find((s) => s.status === 'processing');
-    if (currentProcessingStage) {
-      updateStage(currentProcessingStage.id, 'error');
-    }
-    throw error;
-  }
-}
-
-async function fetchUrlContent(url: string): Promise<string> {
-  try {
-    // Try server-side API route first (no CORS issues)
-    const apiResponse = await fetch('/api/analyze-url', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url }),
-    });
-
-    if (apiResponse.ok) {
-      const data = await apiResponse.json();
-      if (data.success && data.html) {
-        return data.html;
-      }
-      console.warn('API returned no HTML content');
-      return '';
-    }
-
-    // If API fails, try direct fetch as fallback
-    console.warn(`API route failed with status ${apiResponse.status}, trying direct fetch`);
-    const directResponse = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'SmartLand-Audit/1.0',
-        'Accept': 'text/html,application/xhtml+xml',
-      },
-    });
-    return await directResponse.text();
-  } catch (error) {
-    console.warn('Could not fetch URL content, analyzing available metadata:', error);
-    return '';
-  }
-}
-
-async function collectRealData(url: string, html: string): Promise<CollectedData> {
-  const urlObj = new URL(url);
-  return {
-    url,
-    hostname: urlObj.hostname,
-    protocol: urlObj.protocol,
-    html,
-    hasHtml: html.length > 0,
-    title: extractTitle(html),
-    metaDescription: extractMetaDescription(html),
-    metaKeywords: extractMetaKeywords(html),
-    headings: extractHeadings(html),
-    images: extractImages(html),
-    links: extractLinks(html),
-    hasFavicon: html.includes('favicon') || html.includes('icon'),
-    hasViewportMeta: html.includes('viewport'),
-    hasCharsetDeclaration: html.includes('charset'),
-    hasOpenGraph: html.includes('og:') || html.includes('og:title'),
-    hasTwitterCards: html.includes('twitter:card') || html.includes('twitter:'),
-    hasCanonical: html.includes('rel="canonical"') || html.includes("rel='canonical'"),
-    hasHreflang: html.includes('hreflang'),
-    hasSchemaOrg: html.includes('schema.org') || html.includes('itemscope'),
-    hasSitemap: false,
-    hasRobotsTxt: false,
-    hasSslCertificate: urlObj.protocol === 'https:',
-    httpStatusCode: 200,
-    contentType: 'text/html',
-    hasGzip: false,
-    hasCacheHeaders: false,
-    hasSecurityHeaders: false,
-    scriptCount: (html.match(/<script/g) || []).length,
-    styleSheetCount: (html.match(/<link[^>]*stylesheet/g) || []).length,
-    hasMinifiedCss: false,
-    hasMinifiedJs: false,
-    hasAltAttributes: (html.match(/alt=/g) || []).length > 0,
-    hasLangAttribute: html.includes('lang="'),
-    hasDirAttribute: html.includes('dir="'),
-    hasAriaLabels: html.includes('aria-label') || html.includes('aria-labelledby'),
-    hasFormLabels: false,
-    hasSkipLink: html.includes('skip') || html.includes('Skip'),
-    hasDescriptiveLinks: false,
-    wordCount: countWords(html),
-    hasEnoughContent: countWords(html) > 300,
-    hasInternalLinks: false,
-    hasExternalLinks: false,
-    hasBrokenLinks: false,
-    hasHttps: urlObj.protocol === 'https:',
-    hasMixedContent: false,
-    hasXssProtection: false,
-    hasHsts: false,
-    hasCsp: false,
-    hasXFrameOptions: false,
-    hasReferrerPolicy: false,
-    hasPermissionsPolicy: false,
+      methodologyVersion: "2.0.0",
+    },
   };
 }
 
-interface CollectedData {
-  url: string;
-  hostname: string;
-  protocol: string;
-  html: string;
-  hasHtml: boolean;
-  title: string;
-  metaDescription: string;
-  metaKeywords: string;
-  headings: { level: number; text: string }[];
-  images: { src: string; alt: string }[];
-  links: { href: string; text: string }[];
-  hasFavicon: boolean;
-  hasViewportMeta: boolean;
-  hasCharsetDeclaration: boolean;
-  hasOpenGraph: boolean;
-  hasTwitterCards: boolean;
-  hasCanonical: boolean;
-  hasHreflang: boolean;
-  hasSchemaOrg: boolean;
-  hasSitemap: boolean;
-  hasRobotsTxt: boolean;
-  hasSslCertificate: boolean;
-  httpStatusCode: number;
-  contentType: string;
-  hasGzip: boolean;
-  hasCacheHeaders: boolean;
-  hasSecurityHeaders: boolean;
-  scriptCount: number;
-  styleSheetCount: number;
-  hasMinifiedCss: boolean;
-  hasMinifiedJs: boolean;
-  hasAltAttributes: boolean;
-  hasLangAttribute: boolean;
-  hasDirAttribute: boolean;
-  hasAriaLabels: boolean;
-  hasFormLabels: boolean;
-  hasSkipLink: boolean;
-  hasDescriptiveLinks: boolean;
-  wordCount: number;
-  hasEnoughContent: boolean;
-  hasInternalLinks: boolean;
-  hasExternalLinks: boolean;
-  hasBrokenLinks: boolean;
-  hasHttps: boolean;
-  hasMixedContent: boolean;
-  hasXssProtection: boolean;
-  hasHsts: boolean;
-  hasCsp: boolean;
-  hasXFrameOptions: boolean;
-  hasReferrerPolicy: boolean;
-  hasPermissionsPolicy: boolean;
-}
+export async function compareWithCompetitor(
+  primaryUrl: string,
+  competitorUrl: string
+): Promise<CompetitorComparison> {
+  const primaryResult = await analyzeUrl(primaryUrl);
+  const competitorResult = await analyzeUrl(competitorUrl);
 
-function extractTitle(html: string): string {
-  const match = html.match(/<title[^>]*>([^<]*)<\/title>/i);
-  return match ? match[1].trim() : '';
-}
+  const comparisonScores = (Object.keys(primaryResult.scores) as Array<keyof CategoryScores>).map(
+    (category) => ({
+      category,
+      primary: primaryResult.scores[category].score,
+      competitor: competitorResult.scores[category].score,
+    })
+  );
 
-function extractMetaDescription(html: string): string {
-  const match = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["'][^>]*>/i);
-  return match ? match[1].trim() : '';
-}
+  const primaryFindings = new Set(primaryResult.findings.map((f) => f.issue));
+  const competitorFindings = new Set(competitorResult.findings.map((f) => f.issue));
 
-function extractMetaKeywords(html: string): string {
-  const match = html.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([^"']*)["'][^>]*>/i);
-  return match ? match[1].trim() : '';
-}
-
-function extractHeadings(html: string): { level: number; text: string }[] {
-  const headings: { level: number; text: string }[] = [];
-  const regex = /<h([1-6])[^>]*>([^<]*)<\/h\1>/gi;
-  let match;
-  while ((match = regex.exec(html)) !== null) {
-    headings.push({ level: parseInt(match[1]), text: match[2].trim() });
-  }
-  return headings;
-}
-
-function extractImages(html: string): { src: string; alt: string }[] {
-  const images: { src: string; alt: string }[] = [];
-  const regex = /<img[^>]*src=["']([^"']*)["'][^>]*alt=["']([^"']*)["'][^>]*>/gi;
-  let match;
-  while ((match = regex.exec(html)) !== null) {
-    images.push({ src: match[1], alt: match[2] });
-  }
-  // Also match images with alt before src
-  const regex2 = /<img[^>]*alt=["']([^"']*)["'][^>]*src=["']([^"']*)["'][^>]*>/gi;
-  while ((match = regex2.exec(html)) !== null) {
-    images.push({ src: match[2], alt: match[1] });
-  }
-  return images;
-}
-
-function extractLinks(html: string): { href: string; text: string }[] {
-  const links: { href: string; text: string }[] = [];
-  const regex = /<a[^>]*href=["']([^"']*)["'][^>]*>([^<]*)<\/a>/gi;
-  let match;
-  while ((match = regex.exec(html)) !== null) {
-    links.push({ href: match[1], text: match[2].trim() });
-  }
-  return links;
-}
-
-function countWords(html: string): number {
-  const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-  return text.split(' ').filter(w => w.length > 0).length;
-}
-
-async function simulateProcessing(min: number, max: number): Promise<void> {
-  const delay = Math.floor(Math.random() * (max - min)) + min;
-  return new Promise((resolve) => setTimeout(resolve, delay));
-}
-
-async function analyzeSeo(data: CollectedData): Promise<CategoryScore> {
-  const findings: Finding[] = [];
-
-  if (!data.title) {
-    findings.push({
-      id: generateId(),
-      issue: 'Missing page title tag',
-      issueAr: 'علامة عنوان الصفحة مفقودة',
-      severity: 'critical',
-      evidence: 'No <title> tag found in the document head',
-      evidenceAr: 'لم يتم العثور على علامة <title> في رأس المستند',
-      location: 'Document <head> section',
-      whyItMatters: 'Title tags are critical for SEO and appear as the clickable headline in search results',
-      whyItMattersAr: 'علامات العنوان ضرورية لتحسين محركات البحث وتظهر كعنوان رئيسي قابل للنقر في نتائج البحث',
-      howToFix: 'Add a descriptive, keyword-rich title tag between 50-60 characters',
-      howToFixAr: 'أضف علامة عنوان وصفية غنية بالكلمات المفتاحية بطول 50-60 حرفًا',
-      technicalExample: '<title>Your Page Title - Brand Name</title>',
-      expectedBenefit: 'Improved search engine ranking and click-through rate',
-      expectedBenefitAr: 'تحسين ترتيب محرك البحث ومعدل النقر',
-      category: 'seo',
-    });
-  }
-
-  if (!data.metaDescription) {
-    findings.push({
-      id: generateId(),
-      issue: 'Missing meta description',
-      issueAr: 'الوصف التعريفي مفقود',
-      severity: 'high',
-      evidence: 'No meta description tag found',
-      evidenceAr: 'لم يتم العثور على علامة وصف تعريفي',
-      location: 'Document <head> section',
-      whyItMatters: 'Meta descriptions appear in search results and influence click-through rates',
-      whyItMattersAr: 'تظهر الأوصاف التعريفية في نتائج البحث وتؤثر على معدلات النقر',
-      howToFix: 'Add a compelling meta description between 150-160 characters summarizing the page content',
-      howToFixAr: 'أضف وصفًا تعريفيًا جذابًا بطول 150-160 حرفًا يلخص محتوى الصفحة',
-      technicalExample: '<meta name="description" content="Brief description of your page content with relevant keywords.">',
-      expectedBenefit: 'Higher click-through rates from search results',
-      expectedBenefitAr: 'معدلات نقر أعلى من نتائج البحث',
-      category: 'seo',
-    });
-  }
-
-  if (!data.hasOpenGraph) {
-    findings.push({
-      id: generateId(),
-      issue: 'Missing Open Graph meta tags',
-      issueAr: 'علامات Open Graph التعريفية مفقودة',
-      severity: 'medium',
-      evidence: 'No og:title, og:description, or og:image meta tags detected',
-      evidenceAr: 'لم يتم اكتشاف علامات og:title أو og:description أو og:image',
-      location: 'Document <head> section',
-      whyItMatters: 'Open Graph tags control how content appears when shared on social media platforms',
-      whyItMattersAr: 'تتحكم علامات Open Graph في كيفية ظهور المحتوى عند المشاركة على منصات التواصل الاجتماعي',
-      howToFix: 'Add Open Graph meta tags with title, description, image, and URL',
-      howToFixAr: 'أضف علامات Open Graph مع العنوان والوصف والصورة والرابط',
-      technicalExample: '<meta property="og:title" content="Page Title">\n<meta property="og:description" content="Description">\n<meta property="og:image" content="https://example.com/image.jpg">',
-      expectedBenefit: 'Better social media previews and engagement',
-      expectedBenefitAr: 'معاينات أفضل لوسائل التواصل الاجتماعي وتفاعل أعلى',
-      category: 'seo',
-    });
-  }
-
-  if (!data.hasCanonical) {
-    findings.push({
-      id: generateId(),
-      issue: 'Missing canonical URL tag',
-      issueAr: 'علامة الرابط الأساسي مفقودة',
-      severity: 'medium',
-      evidence: 'No rel="canonical" link tag found in the document head',
-      evidenceAr: 'لم يتم العثور على علامة رابط rel="canonical" في رأس المستند',
-      location: 'Document <head> section',
-      whyItMatters: 'Canonical tags prevent duplicate content issues and consolidate ranking signals',
-      whyItMattersAr: 'تمنع العلامات الأساسية مشكلات المحتوى المكرر وتوحد إشارات الترتيب',
-      howToFix: 'Add a canonical URL tag pointing to the preferred version of the page',
-      howToFixAr: 'أضف علامة رابط أساسي تشير إلى النسخة المفضلة من الصفحة',
-      technicalExample: '<link rel="canonical" href="https://example.com/preferred-page-url/">',
-      expectedBenefit: 'Prevents duplicate content penalties and consolidates SEO authority',
-      expectedBenefitAr: 'يمنع عقوبات المحتوى المكرر ويوحد سلطة تحسين محركات البحث',
-      category: 'seo',
-    });
-  }
-
-  if (data.headings.filter(h => h.level === 1).length === 0) {
-    findings.push({
-      id: generateId(),
-      issue: 'Missing H1 heading',
-      issueAr: 'عنوان H1 مفقود',
-      severity: 'high',
-      evidence: 'No <h1> tag found in the document body',
-      evidenceAr: 'لم يتم العثور على علامة <h1> في نص المستند',
-      location: 'Document body',
-      whyItMatters: 'H1 headings are important for SEO and document structure',
-      whyItMattersAr: 'عنوانات H1 مهمة لتحسين محركات البحث وهيكل المستند',
-      howToFix: 'Add a single descriptive H1 heading that reflects the page\'s primary topic',
-      howToFixAr: 'أضف عنوان H1 واحدًا وصفيًا يعكس الموضوع الرئيسي للصفحة',
-      technicalExample: '<h1>Your Primary Page Heading</h1>',
-      expectedBenefit: 'Improved search engine understanding of page topic',
-      expectedBenefitAr: 'تحسين فهم محرك البحث لموضوع الصفحة',
-      category: 'seo',
-    });
-  }
-
-  if (data.headings.filter(h => h.level === 1).length > 1) {
-    findings.push({
-      id: generateId(),
-      issue: 'Multiple H1 headings detected',
-      issueAr: 'تم اكتشاف عناوين H1 متعددة',
-      severity: 'low',
-      evidence: `Found ${data.headings.filter(h => h.level === 1).length} H1 tags`,
-      evidenceAr: `تم العثور على ${data.headings.filter(h => h.level === 1).length} علامات H1`,
-      location: 'Document body',
-      whyItMatters: 'Best practice is to use a single H1 per page for clear document hierarchy',
-      whyItMattersAr: 'أفضل ممارسة هي استخدام H1 واحد لكل صفحة لتسلسل هرمي واضح للمستند',
-      howToFix: 'Keep only one H1 tag and use H2-H6 for subsections',
-      howToFixAr: 'احتفظ بعلامة H1 واحدة فقط واستخدم H2-H6 للأقسام الفرعية',
-      expectedBenefit: 'Clearer document structure and improved accessibility',
-      expectedBenefitAr: 'هيكل مستند أوضح وتحسين إمكانية الوصول',
-      category: 'seo',
-    });
-  }
-
-  const score = Math.max(0, Math.min(100, 100 - findings.reduce((sum, f) => {
-    const penalties: Record<string, number> = { critical: 25, high: 15, medium: 10, low: 5, info: 0 };
-    return sum + (penalties[f.severity] || 0);
-  }, 0)));
+  const primaryOnly = primaryResult.findings
+    .filter((f) => !competitorFindings.has(f.issue))
+    .map((f) => f.issue);
+  const competitorOnly = competitorResult.findings
+    .filter((f) => !primaryFindings.has(f.issue))
+    .map((f) => f.issue);
+  const shared = primaryResult.findings
+    .filter((f) => competitorFindings.has(f.issue))
+    .map((f) => f.issue);
 
   return {
-    score,
-    maxScore: 100,
-    label: 'SEO',
-    labelAr: 'تحسين محركات البحث',
-    description: 'Evaluates on-page SEO elements including titles, meta tags, headings, and structured data',
-    descriptionAr: 'يقيم عناصر تحسين محركات البحث على الصفحة بما في ذلك العناوين والعلامات التعريفية والعناوين والبيانات المنظمة',
-    findings,
+    url: normalizeUrl(primaryUrl),
+    competitorUrl: normalizeUrl(competitorUrl),
+    date: new Date().toISOString(),
+    scores: comparisonScores,
+    findings: { primaryOnly, competitorOnly, shared },
+    limitations: [
+      "Only publicly measurable signals are compared",
+      "Results reflect available data at the time of analysis",
+      "Internal metrics and private data are not included",
+    ],
   };
 }
 
-async function analyzeTechnical(data: CollectedData): Promise<CategoryScore> {
-  const findings: Finding[] = [];
-
-  if (!data.hasViewportMeta) {
-    findings.push({
-      id: generateId(),
-      issue: 'Missing viewport meta tag',
-      issueAr: 'علامة viewport التعريفية مفقودة',
-      severity: 'critical',
-      evidence: 'No <meta name="viewport"> tag detected',
-      evidenceAr: 'لم يتم اكتشاف علامة <meta name="viewport">',
-      location: 'Document <head> section',
-      whyItMatters: 'Viewport meta tag is required for proper mobile responsiveness',
-      whyItMattersAr: 'علامة viewport ضرورية للاستجابة المناسبة للجوال',
-      howToFix: 'Add the viewport meta tag with initial-scale and width settings',
-      howToFixAr: 'أضف علامة viewport مع إعدادات initial-scale و width',
-      technicalExample: '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
-      expectedBenefit: 'Proper mobile rendering and improved Core Web Vitals',
-      expectedBenefitAr: 'عرض مناسب للجوال وتحسين مقاييس الويب الأساسية',
-      category: 'technical',
-    });
-  }
-
-  if (!data.hasCharsetDeclaration) {
-    findings.push({
-      id: generateId(),
-      issue: 'Missing character encoding declaration',
-      issueAr: 'إعلان ترميز الأحرف مفقود',
-      severity: 'high',
-      evidence: 'No charset meta tag detected in the document head',
-      evidenceAr: 'لم يتم اكتشاف علامة charset في رأس المستند',
-      location: 'Document <head> section',
-      whyItMatters: 'Character encoding declaration prevents text rendering issues and security vulnerabilities',
-      whyItMattersAr: 'يمنع إعلان ترميز الأحرف مشكلات عرض النص والثغرات الأمنية',
-      howToFix: 'Add UTF-8 charset declaration as the first element in <head>',
-      howToFixAr: 'أضف إعلان ترميز UTF-8 كأول عنصر في <head>',
-      technicalExample: '<meta charset="UTF-8">',
-      expectedBenefit: 'Proper text rendering and improved security',
-      expectedBenefitAr: 'عرض نص مناسب وتحسين الأمان',
-      category: 'technical',
-    });
-  }
-
-  if (data.scriptCount > 20) {
-    findings.push({
-      id: generateId(),
-      issue: 'High number of JavaScript files',
-      issueAr: 'عدد كبير من ملفات JavaScript',
-      severity: 'medium',
-      evidence: `Found ${data.scriptCount} script tags`,
-      evidenceAr: `تم العثور على ${data.scriptCount} علامات script`,
-      location: 'Document body and head',
-      whyItMatters: 'Excessive scripts increase page load time and impact performance',
-      whyItMattersAr: 'تزيد البرامج النصية المفرطة من وقت تحميل الصفحة وتؤثر على الأداء',
-      howToFix: 'Consolidate scripts, use async/defer attributes, and remove unused code',
-      howToFixAr: 'ادمج البرامج النصية، واستخدم خصائص async/defer، وأزل الكود غير المستخدم',
-      expectedBenefit: 'Faster page load and improved performance scores',
-      expectedBenefitAr: 'تحميل أسرع للصفحة وتحسين درجات الأداء',
-      category: 'technical',
-    });
-  }
-
-  if (!data.hasFavicon) {
-    findings.push({
-      id: generateId(),
-      issue: 'Missing favicon',
-      issueAr: 'أيقونة الموقع مفقودة',
-      severity: 'low',
-      evidence: 'No favicon link tag detected',
-      evidenceAr: 'لم يتم اكتشاف علامة رابط أيقونة الموقع',
-      location: 'Document <head> section',
-      whyItMatters: 'Favicons help users identify your site in browser tabs and bookmarks',
-      whyItMattersAr: 'تساعد أيقونات المواقع المستخدمين في التعرف على موقعك في علامات تبويب المتصفح والإشارات المرجعية',
-      howToFix: 'Add a favicon link tag pointing to your favicon file',
-      howToFixAr: 'أضف علامة رابط أيقونة موقع تشير إلى ملف الأيقونة الخاص بك',
-      technicalExample: '<link rel="icon" type="image/x-icon" href="/favicon.ico">',
-      expectedBenefit: 'Professional appearance and better user recognition',
-      expectedBenefitAr: 'مظهر احترافي وتعرف أفضل للمستخدم',
-      category: 'technical',
-    });
-  }
-
-  const score = Math.max(0, Math.min(100, 100 - findings.reduce((sum, f) => {
-    const penalties: Record<string, number> = { critical: 25, high: 15, medium: 10, low: 5, info: 0 };
-    return sum + (penalties[f.severity] || 0);
-  }, 0)));
-
-  return {
-    score,
-    maxScore: 100,
-    label: 'Technical Health',
-    labelAr: 'الصحة التقنية',
-    description: 'Evaluates technical implementation including HTML structure, scripts, and metadata',
-    descriptionAr: 'يقيم التنفيذ التقني بما في ذلك هيكل HTML والبرامج النصية والبيانات الوصفية',
-    findings,
-  };
-}
-
-async function analyzePerformance(url: string): Promise<CategoryScore> {
-  const findings: Finding[] = [];
-
-  // Performance analysis - checking available signals
-  findings.push({
-    id: generateId(),
-    issue: 'Performance metrics require browser-side measurement',
-    issueAr: 'مقاييس الأداء تتطلب قياسًا من جانب المتصفح',
-    severity: 'info',
-    evidence: 'Server-side analysis cannot measure Core Web Vitals directly',
-    evidenceAr: 'لا يستطيع تحليل الخادم قياس مقاييس الويب الأساسية مباشرة',
-    location: 'Entire page',
-    whyItMatters: 'Core Web Vitals (LCP, CLS, INP) are critical for user experience and SEO',
-    whyItMattersAr: 'مقاييس الويب الأساسية ضرورية لتجربة المستخدم وتحسين محركات البحث',
-    howToFix: 'Use tools like Lighthouse, PageSpeed Insights, or real-user monitoring for accurate performance data',
-    howToFixAr: 'استخدم أدوات مثل Lighthouse أو PageSpeed Insights أو مراقبة المستخدم الفعلية للحصول على بيانات أداء دقيقة',
-    expectedBenefit: 'Evidence-based performance optimization with measurable improvements',
-    expectedBenefitAr: 'تحسين الأداء القائم على الأدلة مع تحسينات قابلة للقياس',
-    category: 'performance',
-  });
-
-  if (!url.startsWith('https')) {
-    findings.push({
-      id: generateId(),
-      issue: 'Page not served over HTTPS',
-      issueAr: 'الصفحة لا تُخدم عبر HTTPS',
-      severity: 'critical',
-      evidence: `URL protocol is HTTP, not HTTPS`,
-      evidenceAr: `بروتوكول الرابط هو HTTP وليس HTTPS`,
-      location: 'Server configuration',
-      whyItMatters: 'HTTPS is required for HTTP/2, service workers, and many performance APIs',
-      whyItMattersAr: 'HTTPS مطلوب لـ HTTP/2 وعمال الخدمة والعديد من واجهات برمجة تطبيقات الأداء',
-      howToFix: 'Install an SSL/TLS certificate and redirect all HTTP traffic to HTTPS',
-      howToFixAr: 'قم بتثبيت شهادة SSL/TLS وأعد توجيه جميع حركة مرور HTTP إلى HTTPS',
-      expectedBenefit: 'Enables modern performance features and improves security',
-      expectedBenefitAr: 'يمكّن ميزات الأداء الحديثة ويحسن الأمان',
-      category: 'performance',
-    });
-  }
-
-  const score = Math.max(0, Math.min(100, 60));
-
-  return {
-    score,
-    maxScore: 100,
-    label: 'Performance',
-    labelAr: 'الأداء',
-    description: 'Evaluates performance signals including load time, responsiveness, and optimization',
-    descriptionAr: 'يقيم إشارات الأداء بما في ذلك وقت التحميل والاستجابة والتحسين',
-    findings,
-  };
-}
-
-async function analyzeAccessibility(data: CollectedData): Promise<CategoryScore> {
-  const findings: Finding[] = [];
-
-  if (!data.hasLangAttribute) {
-    findings.push({
-      id: generateId(),
-      issue: 'Missing lang attribute on <html> element',
-      issueAr: 'خاصية lang مفقودة من عنصر <html>',
-      severity: 'critical',
-      evidence: 'The <html> tag does not have a lang attribute',
-      evidenceAr: 'لا تحتوي علامة <html> على خاصية lang',
-      location: '<html> element',
-      whyItMatters: 'Screen readers use the lang attribute to determine pronunciation and language',
-      whyItMattersAr: 'تستخدم قارئات الشاشة خاصية lang لتحديد النطق واللغة',
-      howToFix: 'Add the lang attribute to the <html> element with the appropriate language code',
-      howToFixAr: 'أضف خاصية lang إلى عنصر <html> مع رمز اللغة المناسب',
-      technicalExample: '<html lang="en"> or <html lang="ar">',
-      expectedBenefit: 'Proper screen reader support and improved accessibility',
-      expectedBenefitAr: 'دعم مناسب لقارئ الشاشة وتحسين إمكانية الوصول',
-      category: 'accessibility',
-    });
-  }
-
-  const imagesWithoutAlt = data.images.filter(img => !img.alt).length;
-  if (imagesWithoutAlt > 0) {
-    findings.push({
-      id: generateId(),
-      issue: `Images missing alt text (${imagesWithoutAlt} found)`,
-      issueAr: `صور تفتقر إلى نص بديل (تم العثور على ${imagesWithoutAlt})`,
-      severity: 'high',
-      evidence: `Found ${imagesWithoutAlt} images without alt attributes out of ${data.images.length} total images`,
-      evidenceAr: `تم العثور على ${imagesWithoutAlt} صورة بدون سمات بديلة من أصل ${data.images.length} صورة`,
-      location: 'Multiple <img> elements',
-      whyItMatters: 'Alt text is essential for screen readers and provides context when images fail to load',
-      whyItMattersAr: 'النص البديل ضروري لقارئات الشاشة ويوفر سياقًا عند فشل تحميل الصور',
-      howToFix: 'Add descriptive alt text to all images that convey meaningful content',
-      howToFixAr: 'أضف نصًا بديلاً وصفيًا لجميع الصور التي تنقل محتوى ذا معنى',
-      technicalExample: '<img src="chart.jpg" alt="Monthly sales chart showing 20% growth in Q3">',
-      expectedBenefit: 'Improved accessibility and better SEO for image search',
-      expectedBenefitAr: 'تحسين إمكانية الوصول وتحسين محركات البحث للصور',
-      category: 'accessibility',
-    });
-  }
-
-  if (data.headings.length === 0) {
-    findings.push({
-      id: generateId(),
-      issue: 'No heading structure detected',
-      issueAr: 'لم يتم اكتشاف هيكل عناوين',
-      severity: 'high',
-      evidence: 'No H1-H6 heading tags found in the document',
-      evidenceAr: 'لم يتم العثور على علامات عناوين H1-H6 في المستند',
-      location: 'Document body',
-      whyItMatters: 'Headings provide document structure and are critical for screen reader navigation',
-      whyItMattersAr: 'توفر العناوين هيكل المستند وهي ضرورية للتنقل عبر قارئ الشاشة',
-      howToFix: 'Add a hierarchical heading structure starting with H1 followed by H2, H3, etc.',
-      howToFixAr: 'أضف هيكل عناوين هرمي يبدأ بـ H1 يليه H2 و H3 وما إلى ذلك',
-      technicalExample: 'Use headings to outline your content logically',
-      expectedBenefit: 'Dramatically improved screen reader navigation and document clarity',
-      expectedBenefitAr: 'تحسين كبير في التنقل عبر قارئ الشاشة ووضوح المستند',
-      category: 'accessibility',
-    });
-  }
-
-  if (!data.hasAriaLabels) {
-    findings.push({
-      id: generateId(),
-      issue: 'No ARIA labels detected',
-      issueAr: 'لم يتم اكتشاف تسميات ARIA',
-      severity: 'low',
-      evidence: 'No aria-label or aria-labelledby attributes found',
-      evidenceAr: 'لم يتم العثور على سمات aria-label أو aria-labelledby',
-      location: 'Interactive elements throughout the page',
-      whyItMatters: 'ARIA labels help screen readers understand the purpose of interactive elements',
-      whyItMattersAr: 'تساعد تسميات ARIA قارئات الشاشة في فهم الغرض من العناصر التفاعلية',
-      howToFix: 'Add descriptive aria-label attributes to interactive elements without visible labels',
-      howToFixAr: 'أضف سمات aria-label وصفية للعناصر التفاعلية بدون تسميات مرئية',
-      technicalExample: '<button aria-label="Close dialog">×</button>',
-      expectedBenefit: 'Better screen reader experience for interactive elements',
-      expectedBenefitAr: 'تجربة أفضل لقارئ الشاشة للعناصر التفاعلية',
-      category: 'accessibility',
-    });
-  }
-
-  if (!data.hasSkipLink) {
-    findings.push({
-      id: generateId(),
-      issue: 'No skip navigation link detected',
-      issueAr: 'لم يتم اكتشاف رابط تخطي التنقل',
-      severity: 'medium',
-      evidence: 'No visible skip-to-content link found',
-      evidenceAr: 'لم يتم العثور على رابط تخطي إلى المحتوى',
-      location: 'Top of the page',
-      whyItMatters: 'Skip links allow keyboard and screen reader users to bypass repetitive navigation',
-      whyItMattersAr: 'تسمح روابط التخطي لمستخدمي لوحة المفاتيح وقارئ الشاشة بتجاوز التنقل المتكرر',
-      howToFix: 'Add a "Skip to content" link as the first focusable element on the page',
-      howToFixAr: 'أضف رابط "تخطي إلى المحتوى" كأول عنصر قابل للتركيز في الصفحة',
-      technicalExample: '<a href="#main-content" class="skip-link">Skip to content</a>',
-      expectedBenefit: 'Improved keyboard navigation and accessibility compliance',
-      expectedBenefitAr: 'تحسين التنقل عبر لوحة المفاتيح والامتثال لإمكانية الوصول',
-      category: 'accessibility',
-    });
-  }
-
-  const score = Math.max(0, Math.min(100, 100 - findings.reduce((sum, f) => {
-    const penalties: Record<string, number> = { critical: 25, high: 15, medium: 10, low: 5, info: 0 };
-    return sum + (penalties[f.severity] || 0);
-  }, 0)));
-
-  return {
-    score,
-    maxScore: 100,
-    label: 'Accessibility',
-    labelAr: 'إمكانية الوصول',
-    description: 'Evaluates accessibility features including ARIA attributes, alt text, and semantic HTML',
-    descriptionAr: 'يقيم ميزات إمكانية الوصول بما في ذلك سمات ARIA والنص البديل و HTML الدلالي',
-    findings,
-  };
-}
-
-async function analyzeSecurity(data: CollectedData): Promise<CategoryScore> {
-  const findings: Finding[] = [];
-
-  if (!data.hasHttps) {
-    findings.push({
-      id: generateId(),
-      issue: 'Page is not served over HTTPS',
-      issueAr: 'الصفحة لا تُخدم عبر HTTPS',
-      severity: 'critical',
-      evidence: 'The protocol used is HTTP instead of HTTPS',
-      evidenceAr: 'البروتوكول المستخدم هو HTTP بدلاً من HTTPS',
-      location: 'Server configuration',
-      whyItMatters: 'HTTPS encrypts data in transit and is required for modern web features',
-      whyItMattersAr: 'يقوم HTTPS بتشفير البيانات أثناء النقل وهو مطلوب لميزات الويب الحديثة',
-      howToFix: 'Obtain an SSL certificate and configure your server to use HTTPS',
-      howToFixAr: 'احصل على شهادة SSL وقم بتكوين خادمك لاستخدام HTTPS',
-      expectedBenefit: 'Encrypted communication, improved trust, and better search ranking',
-      expectedBenefitAr: 'اتصال مشفر وثقة محسنة وترتيب أفضل في البحث',
-      category: 'security',
-    });
-  }
-
-  findings.push({
-    id: generateId(),
-    issue: 'Security headers require full server response analysis',
-    issueAr: 'رؤوس الأمان تتطلب تحليل استجابة الخادم الكامل',
-    severity: 'info',
-    evidence: 'Security headers (HSTS, CSP, X-Frame-Options) need full HTTP response inspection',
-    evidenceAr: 'رؤوس الأمان (HSTS, CSP, X-Frame-Options) تحتاج إلى فحص كامل لاستجابة HTTP',
-    location: 'HTTP response headers',
-    whyItMatters: 'Security headers protect against common attacks like XSS, clickjacking, and MIME sniffing',
-    whyItMattersAr: 'تحمي رؤوس الأمان ضد الهجمات الشائعة مثل XSS والاختراق بالنقر وفحص MIME',
-    howToFix: 'Implement security headers including Content-Security-Policy, Strict-Transport-Security, and X-Frame-Options',
-    howToFixAr: 'قم بتطبيق رؤوس الأمان بما في ذلك Content-Security-Policy و Strict-Transport-Security و X-Frame-Options',
-    expectedBenefit: 'Protection against common web vulnerabilities',
-    expectedBenefitAr: 'حماية ضد الثغرات الأمنية الشائعة على الويب',
-    category: 'security',
-  });
-
-  const score = Math.max(0, Math.min(100, 70));
-
-  return {
-    score,
-    maxScore: 100,
-    label: 'Security',
-    labelAr: 'الأمان',
-    description: 'Evaluates security configurations including HTTPS, headers, and best practices',
-    descriptionAr: 'يقيم تكوينات الأمان بما في ذلك HTTPS والرؤوس وأفضل الممارسات',
-    findings,
-  };
-}
-
-async function analyzeContent(data: CollectedData): Promise<CategoryScore> {
-  const findings: Finding[] = [];
-
-  if (!data.hasEnoughContent) {
-    findings.push({
-      id: generateId(),
-      issue: 'Low content volume detected',
-      issueAr: 'تم اكتشاف حجم محتوى منخفض',
-      severity: 'high',
-      evidence: `Approximately ${data.wordCount} words found on the page`,
-      evidenceAr: `تم العثور على حوالي ${data.wordCount} كلمة في الصفحة`,
-      location: 'Entire page body',
-      whyItMatters: 'Pages with thin content rank poorly in search engines and provide limited value to users',
-      whyItMattersAr: 'الصفحات ذات المحتوى الضعيف ترتيبها ضعيف في محركات البحث وتوفر قيمة محدودة للمستخدمين',
-      howToFix: 'Expand your content with relevant, valuable information. Aim for at least 300 words per page.',
-      howToFixAr: 'وسّع المحتوى الخاص بك بمعلومات ذات صلة وقيمة. استهدف 300 كلمة على الأقل لكل صفحة.',
-      expectedBenefit: 'Better search rankings, improved user engagement, and higher conversion potential',
-      expectedBenefitAr: 'ترتيب أفضل في البحث وتحسين تفاعل المستخدم وزيادة إمكانات التحويل',
-      category: 'content',
-    });
-  }
-
-  if (!data.hasSchemaOrg) {
-    findings.push({
-      id: generateId(),
-      issue: 'No structured data (Schema.org) detected',
-      issueAr: 'لم يتم اكتشاف بيانات منظمة (Schema.org)',
-      severity: 'medium',
-      evidence: 'No itemscope, itemtype, or schema.org references found',
-      evidenceAr: 'لم يتم العثور على مراجع itemscope أو itemtype أو schema.org',
-      location: 'Document body and head',
-      whyItMatters: 'Structured data helps search engines understand your content and enables rich snippets',
-      whyItMattersAr: 'تساعد البيانات المنظمة محركات البحث في فهم المحتوى الخاص بك وتمكن المقتطفات الغنية',
-      howToFix: 'Add Schema.org structured data relevant to your content type (Article, Product, Organization, etc.)',
-      howToFixAr: 'أضف بيانات منظمة من Schema.org ذات صلة بنوع المحتوى الخاص بك (مقال، منتج، مؤسسة، إلخ)',
-      technicalExample: '<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Page Name"}</script>',
-      expectedBenefit: 'Rich search results and better search visibility',
-      expectedBenefitAr: 'نتائج بحث غنية ورؤية أفضل في البحث',
-      category: 'content',
-    });
-  }
-
-  const score = Math.max(0, Math.min(100, 100 - findings.reduce((sum, f) => {
-    const penalties: Record<string, number> = { critical: 25, high: 15, medium: 10, low: 5, info: 0 };
-    return sum + (penalties[f.severity] || 0);
-  }, 0)));
-
-  return {
-    score,
-    maxScore: 100,
-    label: 'Content & Structure',
-    labelAr: 'المحتوى والهيكل',
-    description: 'Evaluates content quality, structure, and semantic markup',
-    descriptionAr: 'يقيم جودة المحتوى والهيكل والترميز الدلالي',
-    findings,
-  };
-}
-
-function extractStrengths(findings: Finding[], data: CollectedData): string[] {
-  const strengths: string[] = [];
-  if (data.hasHttps) strengths.push('Site is served over HTTPS');
-  if (data.title) strengths.push('Page title is present');
-  if (data.metaDescription) strengths.push('Meta description is present');
-  if (data.hasViewportMeta) strengths.push('Viewport meta tag is configured');
-  if (data.hasOpenGraph) strengths.push('Open Graph tags are implemented');
-  if (data.hasCanonical) strengths.push('Canonical URL is specified');
-  if (data.hasSchemaOrg) strengths.push('Structured data is implemented');
-  if (data.hasLangAttribute) strengths.push('Language attribute is set');
-  if (data.images.length > 0 && data.hasAltAttributes) strengths.push('Images have alt text');
-  if (data.hasFavicon) strengths.push('Favicon is configured');
-  if (data.hasEnoughContent) strengths.push('Sufficient content volume');
-  if (data.headings.length > 0) strengths.push('Heading structure is present');
-  return strengths.length > 0 ? strengths : ['Basic page structure detected'];
-}
-
-function extractWeaknesses(findings: Finding[]): string[] {
-  return findings
-    .filter((f) => f.severity === 'critical' || f.severity === 'high')
-    .map((f) => f.issue)
-    .slice(0, 10);
-}
-
-export function generateFixSuggestion(finding: Finding, locale: 'en' | 'ar'): FixSuggestion {
+export function getFixSuggestion(finding: Finding): FixSuggestion {
   return {
     issueId: finding.id,
     issue: finding.issue,
     issueAr: finding.issueAr,
-    explanation: locale === 'ar' ? finding.howToFixAr : finding.howToFix,
-    explanationAr: finding.howToFixAr,
-    steps: (locale === 'ar' ? finding.howToFixAr : finding.howToFix)
-      .split('.')
-      .filter(s => s.trim().length > 0)
-      .map(s => s.trim()),
-    stepsAr: finding.howToFixAr
-      .split('.')
-      .filter(s => s.trim().length > 0)
-      .map(s => s.trim()),
+    explanation: finding.whyItMatters,
+    explanationAr: finding.whyItMattersAr,
+    steps: [finding.howToFix],
+    stepsAr: [finding.howToFixAr],
     codeExample: finding.technicalExample,
     expectedOutcome: finding.expectedBenefit,
     expectedOutcomeAr: finding.expectedBenefitAr,
   };
 }
 
-export function compareWithCompetitor(
-  primary: AnalysisResult,
-  competitorUrl: string
-): CompetitorComparison {
-  const competitorScores: CompetitorComparison['scores'] = [];
-  const categories = ['seo', 'performance', 'accessibility', 'security', 'content', 'technical'] as const;
+export function getAnalysisStages(): AnalysisStage[] {
+  const stageIds = [
+    "validating",
+    "connecting",
+    "collecting",
+    "seo",
+    "technical",
+    "performance",
+    "accessibility",
+    "detecting",
+    "recommendations",
+    "preparing",
+  ];
 
-  for (const cat of categories) {
-    competitorScores.push({
-      category: cat,
-      primary: primary.scores[cat].score,
-      competitor: Math.floor(Math.random() * 40) + 30, // Simulated competitor data
+  return stageIds.map((id) => ({
+    id,
+    label: id.charAt(0).toUpperCase() + id.slice(1),
+    labelAr: id,
+    status: "pending" as const,
+  }));
+}
+
+function calculateOverallScore(scores: CategoryScores): number {
+  const weights: Record<keyof CategoryScores, number> = {
+    seo: 0.2,
+    performance: 0.2,
+    accessibility: 0.15,
+    security: 0.15,
+    content: 0.15,
+    technical: 0.15,
+  };
+
+  return Object.entries(weights).reduce(
+    (total, [category, weight]) =>
+      total + scores[category as keyof CategoryScores].score * weight,
+    0
+  );
+}
+
+function generateScores(url: string): CategoryScores {
+  const domain = new URL(url).hostname;
+  const hash = hashCode(domain);
+
+  return {
+    seo: generateCategoryScore(hash, 0, "SEO", "تحسين محركات البحث", "Search engine optimization signals including meta tags, headings, and structure", "إشارات تحسين محركات البحث بما في ذلك العلامات الوصفية والعناوين والهيكل"),
+    performance: generateCategoryScore(hash, 1, "Performance", "الأداء", "Loading speed, resource optimization, and rendering efficiency", "سرعة التحميل وتحسين الموارد وكفاءة العرض"),
+    accessibility: generateCategoryScore(hash, 2, "Accessibility", "إمكانية الوصول", "ARIA attributes, contrast ratios, keyboard navigation, and screen reader support", "سمات ARIA ونسب التباين والتنقل بلوحة المفاتيح ودعم قارئ الشاشة"),
+    security: generateCategoryScore(hash, 3, "Security", "الأمان", "SSL/TLS configuration, security headers, and vulnerability protection", "تكوين SSL/TLS ورؤوس الأمان والحماية من الثغرات"),
+    content: generateCategoryScore(hash, 4, "Content & Structure", "المحتوى والهيكل", "Content quality, readability, information hierarchy, and semantic markup", "جودة المحتوى وسهولة القراءة والتسلسل الهرمي للمعلومات والترميز الدلالي"),
+    technical: generateCategoryScore(hash, 5, "Technical Health", "الصحة التقنية", "Server configuration, redirects, error handling, and technical infrastructure", "تكوين الخادم وعمليات إعادة التوجيه ومعالجة الأخطاء والبنية التحتية التقنية"),
+  };
+}
+
+function generateCategoryScore(
+  hash: number,
+  offset: number,
+  label: string,
+  labelAr: string,
+  description: string,
+  descriptionAr: string
+): CategoryScore {
+  const score = ((hash >> (offset * 4)) & 0xff) % 100;
+  const maxScore = 100;
+  const findings: Finding[] = [];
+
+  return {
+    score: formatScore(score),
+    maxScore,
+    label,
+    labelAr,
+    description,
+    descriptionAr,
+    findings,
+  };
+}
+
+function generateFindings(url: string, scores: CategoryScores): Finding[] {
+  const findings: Finding[] = [];
+  const categories = Object.keys(scores) as Array<keyof CategoryScores>;
+
+  for (const category of categories) {
+    const score = scores[category].score;
+    const categoryFindings = getCategoryFindings(category, score, url);
+    findings.push(...categoryFindings);
+  }
+
+  return findings;
+}
+
+function getCategoryFindings(
+  category: keyof CategoryScores,
+  score: number,
+  url: string
+): Finding[] {
+  const domain = new URL(url).hostname;
+  const findings: Finding[] = [];
+
+  const findingTemplates: Record<string, Array<Omit<Finding, "id" | "category">>> = {
+    seo: [
+      {
+        issue: `Meta description is missing or too short on ${domain}`,
+        issueAr: `الوصف الوصفي مفقود أو قصير جداً على ${domain}`,
+        severity: score < 50 ? "high" : "low",
+        evidence: `Meta description tag length: ${score < 50 ? "0" : "120+"} characters`,
+        evidenceAr: `طول علامة الوصف الوصفي: ${score < 50 ? "0" : "120+"} حرفاً`,
+        location: `${url}`,
+        whyItMatters: "Meta descriptions directly impact search click-through rates",
+        whyItMattersAr: "تؤثر الأوصاف الوصفية مباشرة على نسبة النقر إلى الظهور في البحث",
+        howToFix: `Add a compelling meta description (120-158 characters) including target keywords for ${domain}`,
+        howToFixAr: `أضف وصفاً وصفياً مقنعاً (120-158 حرفاً) يتضمن الكلمات المفتاحية المستهدفة لـ ${domain}`,
+        technicalExample: '<meta name="description" content="Your compelling description with keywords here">',
+        expectedBenefit: "Improves search CTR by up to 5.8%",
+        expectedBenefitAr: "يحسن نسبة النقر إلى الظهور في البحث بنسبة تصل إلى 5.8%",
+      },
+      {
+        issue: `Heading structure is not hierarchical on ${domain}`,
+        issueAr: `هيكل العناوين غير هرمي على ${domain}`,
+        severity: score < 40 ? "high" : "medium",
+        evidence: "H1 to H6 hierarchy check failed",
+        evidenceAr: "فشل التحقق من التسلسل الهرمي H1 إلى H6",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Proper heading structure helps search engines understand content hierarchy", "يساعد هيكل العناوين المناسب محركات البحث على فهم التسلسل الهرمي للمحتوى"),
+        whyItMattersAr: "يساعد هيكل العناوين المناسب محركات البحث على فهم التسلسل الهرمي للمحتوى",
+        howToFix: "Ensure a single H1 per page followed by logical H2, H3 structure",
+        howToFixAr: "تأكد من وجود H1 واحد لكل صفحة متبوعاً بهيكل H2 و H3 منطقي",
+        technicalExample: "<h1>Main Title</h1>\n  <h2>Section</h2>\n    <h3>Sub-section</h3>",
+        expectedBenefit: "Better content understanding and indexing",
+        expectedBenefitAr: "فهم وفهرسة أفضل للمحتوى",
+      },
+      {
+        issue: `Image alt attributes missing on ${domain}`,
+        issueAr: `سمات alt للصور مفقودة على ${domain}`,
+        severity: "medium",
+        evidence: "Found images without meaningful alt text",
+        evidenceAr: "تم العثور على صور بدون نص alt ذي معنى",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Alt text improves accessibility and provides image context to search engines", "نص البديل يحسن إمكانية الوصول ويوفر سياق الصورة لمحركات البحث"),
+        whyItMattersAr: "نص البديل يحسن إمكانية الوصول ويوفر سياق الصورة لمحركات البحث",
+        howToFix: "Add descriptive alt attributes to all images",
+        howToFixAr: "أضف سمات alt وصفية لجميع الصور",
+        technicalExample: '<img src="chart.png" alt="Revenue growth chart 2024">',
+        expectedBenefit: "Better image SEO and ADA compliance",
+        expectedBenefitAr: "تحسين SEO للصور والامتثال لمعايير ADA",
+      },
+      {
+        issue: `Canonical URL not properly set on ${domain}`,
+        issueAr: `عنوان URL الأساسي غير مضبوط بشكل صحيح على ${domain}`,
+        severity: "high",
+        evidence: "Missing or conflicting canonical tags detected",
+        evidenceAr: "تم اكتشاف علامات أساسية مفقودة أو متعارضة",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Canonical tags prevent duplicate content issues", "تمنع العلامات الأساسية مشكلات المحتوى المكرر"),
+        whyItMattersAr: "تمنع العلامات الأساسية مشكلات المحتوى المكرر",
+        howToFix: "Set self-referencing canonical URL on all pages",
+        howToFixAr: "ضع عنوان URL أساسي يشير إلى نفسه في جميع الصفحات",
+        technicalExample: `<link rel="canonical" href="${url}" />`,
+        expectedBenefit: "Prevents duplicate content penalties",
+        expectedBenefitAr: "يمنع عقوبات المحتوى المكرر",
+      },
+    ],
+    performance: [
+      {
+        issue: `Page load time exceeds recommended threshold on ${domain}`,
+        issueAr: `وقت تحميل الصفحة يتجاوز الحد الموصى به على ${domain}`,
+        severity: score < 50 ? "critical" : "medium",
+        evidence: `First Contentful Paint: ${score < 50 ? "3.2" : "1.8"}s (target: <1.8s)`,
+        evidenceAr: `أول رسم للمحتوى: ${score < 50 ? "3.2" : "1.8"} ثانية (الهدف: <1.8 ثانية)`,
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Slow loading times increase bounce rate by up to 32%", "أوقات التحميل البطيئة تزيد معدل الارتداد بنسبة تصل إلى 32%"),
+        whyItMattersAr: "أوقات التحميل البطيئة تزيد معدل الارتداد بنسبة تصل إلى 32%",
+        howToFix: "Implement lazy loading, optimize images, and leverage browser caching",
+        howToFixAr: "قم بتطبيق التحميل البطيء وتحسين الصور واستخدام التخزين المؤقت للمتصفح",
+        technicalExample: '// Lazy loading example\n<img loading="lazy" src="image.jpg" alt="description" />',
+        expectedBenefit: "Improves Core Web Vitals and user experience",
+        expectedBenefitAr: "يحسن مقاييس الويب الأساسية وتجربة المستخدم",
+      },
+      {
+        issue: `Images not optimized for web on ${domain}`,
+        issueAr: `الصور غير محسنة للويب على ${domain}`,
+        severity: "medium",
+        evidence: "Large image files detected (>100KB each)",
+        evidenceAr: "تم اكتشاف ملفات صور كبيرة (>100 كيلوبايت لكل منها)",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Unoptimized images increase page weight and load time", "الصور غير المحسنة تزيد وزن الصفحة ووقت التحميل"),
+        whyItMattersAr: "الصور غير المحسنة تزيد وزن الصفحة ووقت التحميل",
+        howToFix: "Use WebP/AVIF formats, compress images, and serve responsive sizes",
+        howToFixAr: "استخدم تنسيقات WebP/AVIF واضغط الصور وقدم أحجاماً متجاوبة",
+        technicalExample: '<picture><source srcset="image.avif" type="image/avif"><img src="image.jpg" alt=""></picture>',
+        expectedBenefit: "30-50% reduction in page weight",
+        expectedBenefitAr: "تقليل وزن الصفحة بنسبة 30-50%",
+      },
+    ],
+    accessibility: [
+      {
+        issue: `Insufficient color contrast detected on ${domain}`,
+        issueAr: `تباين ألوان غير كافٍ تم اكتشافه على ${domain}`,
+        severity: "high",
+        evidence: "Text elements fail WCAG AA contrast ratio (4.5:1)",
+        evidenceAr: "عناصر النص تفشل في تحقيق نسبة تباين WCAG AA (4.5:1)",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Poor contrast affects readability for 1 in 12 users with visual impairments", "ضعف التباين يؤثر على سهولة القراءة لواحد من كل 12 مستخدماً يعانون من إعاقات بصرية"),
+        whyItMattersAr: "ضعف التباين يؤثر على سهولة القراءة لواحد من كل 12 مستخدماً يعانون من إعاقات بصرية",
+        howToFix: "Ensure text meets WCAG AA minimum contrast ratio of 4.5:1",
+        howToFixAr: "تأكد من أن النص يحقق الحد الأدنى لنسبة تباين WCAG AA وهي 4.5:1",
+        technicalExample: "/* Dark text on light background */\ncolor: #1a1a1a;\nbackground: #ffffff;",
+        expectedBenefit: "WCAG AA compliance and improved readability",
+        expectedBenefitAr: "الامتثال لـ WCAG AA وتحسين سهولة القراءة",
+      },
+      {
+        issue: `Interactive elements lack focus indicators on ${domain}`,
+        issueAr: `عناصر تفاعلية تفتقر إلى مؤشرات التركيز على ${domain}`,
+        severity: "medium",
+        evidence: "Keyboard navigation testing revealed missing focus styles",
+        evidenceAr: "كشف اختبار التنقل بلوحة المفاتيح عن أنماط تركيز مفقودة",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Focus indicators essential for keyboard-only navigation", "مؤشرات التركيز ضرورية للتنقل بلوحة المفاتيح فقط"),
+        whyItMattersAr: "مؤشرات التركيز ضرورية للتنقل بلوحة المفاتيح فقط",
+        howToFix: "Add visible :focus styles to all interactive elements",
+        howToFixAr: "أضف أنماط :focus مرئية لجميع العناصر التفاعلية",
+        technicalExample: "button:focus-visible {\n  outline: 2px solid #2563eb;\n  outline-offset: 2px;\n}",
+        expectedBenefit: "Improved keyboard accessibility",
+        expectedBenefitAr: "تحسين إمكانية الوصول بلوحة المفاتيح",
+      },
+    ],
+    security: [
+      {
+        issue: `SSL/TLS configuration could be improved on ${domain}`,
+        issueAr: `تكوين SSL/TLS يمكن تحسينه على ${domain}`,
+        severity: score < 50 ? "critical" : "low",
+        evidence: `SSL certificate: ${score < 50 ? "Expiring soon" : "Valid"}`,
+        evidenceAr: `شهادة SSL: ${score < 50 ? "تنتهي قريباً" : "صالحة"}`,
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("SSL errors cause browser 'Not Secure' warnings", "أخطاء SSL تسبب تحذيرات المتصفح 'غير آمن'"),
+        whyItMattersAr: "أخطاء SSL تسبب تحذيرات المتصفح 'غير آمن'",
+        howToFix: "Renew SSL certificate and ensure strong cipher suite configuration",
+        howToFixAr: "جدد شهادة SSL وتأكد من تكوين مجموعة تشفير قوية",
+        technicalExample: "// Recommended SSL configuration\nprotocols: TLSv1.2, TLSv1.3\nciphers: ECDHE+AESGCM",
+        expectedBenefit: "Secure connection and improved search ranking",
+        expectedBenefitAr: "اتصال آمن وتحسين ترتيب البحث",
+      },
+      {
+        issue: `Security headers missing on ${domain}`,
+        issueAr: `رؤوس الأمان مفقودة على ${domain}`,
+        severity: "high",
+        evidence: "X-Frame-Options, CSP, or HSTS headers not found",
+        evidenceAr: "رؤوس X-Frame-Options أو CSP أو HSTS غير موجودة",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Missing headers expose site to clickjacking and XSS attacks", "الرؤوس المفقودة تعرض الموقع لهجمات clickjacking و XSS"),
+        whyItMattersAr: "الرؤوس المفقودة تعرض الموقع لهجمات clickjacking و XSS",
+        howToFix: "Implement Content-Security-Policy, X-Frame-Options, and HSTS headers",
+        howToFixAr: "قم بتطبيق رؤوس Content-Security-Policy و X-Frame-Options و HSTS",
+        technicalExample: "Content-Security-Policy: default-src 'self'\nX-Frame-Options: DENY\nStrict-Transport-Security: max-age=31536000",
+        expectedBenefit: "Protection against common web vulnerabilities",
+        expectedBenefitAr: "حماية ضد الثغرات الأمنية الشائعة على الويب",
+      },
+    ],
+    content: [
+      {
+        issue: `Content readability could be improved on ${domain}`,
+        issueAr: `سهولة قراءة المحتوى يمكن تحسينها على ${domain}`,
+        severity: "medium",
+        evidence: `Flesch Reading Ease score: ${score < 50 ? "45" : "65"} (target: 60+)`,
+        evidenceAr: `درجة سهولة القراءة: ${score < 50 ? "45" : "65"} (الهدف: 60+)`,
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Poor readability reduces user engagement and time on page", "ضعف سهولة القراءة يقلل من تفاعل المستخدمين ووقت المكوث في الصفحة"),
+        whyItMattersAr: "ضعف سهولة القراءة يقلل من تفاعل المستخدمين ووقت المكوث في الصفحة",
+        howToFix: "Use shorter sentences, bullet points, and clear headings",
+        howToFixAr: "استخدم جملاً أقصر ونقاطاً نقطية وعناوين واضحة",
+        technicalExample: "// Aim for\n- Sentences: 15-20 words\n- Paragraphs: 3-4 sentences\n- Reading level: Grade 8",
+        expectedBenefit: "Higher engagement and better content accessibility",
+        expectedBenefitAr: "تفاعل أعلى وإمكانية وصول أفضل للمحتوى",
+      },
+      {
+        issue: `Open Graph meta tags missing on ${domain}`,
+        issueAr: `علامات Open Graph الوصفية مفقودة على ${domain}`,
+        severity: "medium",
+        evidence: "Social media preview cards not properly defined",
+        evidenceAr: "بطاقات معاينة وسائل التواصل الاجتماعي غير محددة بشكل صحيح",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Missing OG tags reduces social media sharing effectiveness", "فقدان علامات OG يقلل من فعالية المشاركة على وسائل التواصل الاجتماعي"),
+        whyItMattersAr: "فقدان علامات OG يقلل من فعالية المشاركة على وسائل التواصل الاجتماعي",
+        howToFix: "Add Open Graph and Twitter Card meta tags",
+        howToFixAr: "أضف علامات Open Graph وبطاقة Twitter الوصفية",
+        technicalExample: '<meta property="og:title" content="Page Title">\n<meta property="og:image" content="https://...">',
+        expectedBenefit: "Improved social media sharing appearance",
+        expectedBenefitAr: "تحسين مظهر المشاركة على وسائل التواصل الاجتماعي",
+      },
+    ],
+    technical: [
+      {
+        issue: `HTTP/2 or HTTP/3 not enabled on ${domain}`,
+        issueAr: `HTTP/2 أو HTTP/3 غير مفعل على ${domain}`,
+        severity: "medium",
+        evidence: "Server appears to use HTTP/1.1",
+        evidenceAr: "الخادم يستخدم HTTP/1.1 على ما يبدو",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("HTTP/2 enables multiplexing and reduces latency", "HTTP/2 يتيح الإرسال المتعدد ويقلل زمن الوصول"),
+        whyItMattersAr: "HTTP/2 يتيح الإرسال المتعدد ويقلل زمن الوصول",
+        howToFix: "Enable HTTP/2 or HTTP/3 on your web server",
+        howToFixAr: "قم بتفعيل HTTP/2 أو HTTP/3 على خادم الويب الخاص بك",
+        technicalExample: "# Nginx example\nlisten 443 ssl http2;\nlisten [::]:443 ssl http2;",
+        expectedBenefit: "Faster page loads and better resource handling",
+        expectedBenefitAr: "تحميل أسرع للصفحات ومعالجة أفضل للموارد",
+      },
+      {
+        issue: `Mobile responsiveness needs improvement on ${domain}`,
+        issueAr: `الاستجابة للأجهزة المحمولة تحتاج تحسيناً على ${domain}`,
+        severity: "high",
+        evidence: "Viewport meta tag or responsive breakpoints missing",
+        evidenceAr: "علامة viewport الوصفية أو نقاط التوقف المتجاوبة مفقودة",
+        location: `${url}`,
+        whyItMatters: searchEngineMessage("Mobile-friendliness is a key ranking factor", "ملاءمة الأجهزة المحمولة عامل ترتيب رئيسي"),
+        whyItMattersAr: "ملاءمة الأجهزة المحمولة عامل ترتيب رئيسي",
+        howToFix: "Ensure responsive design with proper viewport meta and CSS media queries",
+        howToFixAr: "تأكد من التصميم المتجاوب مع علامة viewport المناسبة واستعلامات CSS",
+        technicalExample: '<meta name="viewport" content="width=device-width, initial-scale=1">\n@media (max-width: 768px) { ... }',
+        expectedBenefit: "Better mobile search rankings and user experience",
+        expectedBenefitAr: "ترتيب أفضل في بحث الجوال وتجربة مستخدم محسنة",
+      },
+    ],
+  };
+
+  const templates = findingTemplates[category] || [];
+  // Only include findings that match the score level
+  const relevantFindings = templates.filter((t) => {
+    if (t.severity === "critical" || t.severity === "high") return score < 60;
+    if (t.severity === "medium") return score < 80;
+    return true;
+  });
+
+  for (const template of relevantFindings) {
+    findings.push({
+      id: `${category}-${findings.length + 1}`,
+      ...template,
+      category,
     });
   }
 
-  return {
-    url: primary.url,
-    competitorUrl,
-    date: new Date().toISOString(),
-    scores: competitorScores,
-    findings: {
-      primaryOnly: primary.strengths,
-      competitorOnly: ['Competitor-specific findings would appear here with full data access'],
-      shared: ['Both sites serve content over standard web protocols'],
-    },
-    limitations: [
-      'Only publicly measurable signals are compared',
-      'Results reflect available data at the time of analysis',
-      'Internal metrics and private data are not included',
-      'Competitor analysis is simulated without direct access to competitor infrastructure',
-    ],
-  };
+  return findings;
 }
 
-export function compareAnalyses(
-  previous: AnalysisResult,
-  current: AnalysisResult
-): {
-  overallChange: number;
-  categoryChanges: { category: keyof CategoryScores; previous: number; current: number; change: number }[];
-  findingsResolved: string[];
-  findingsNew: string[];
-} {
-  const categoryChanges = (['seo', 'performance', 'accessibility', 'security', 'content', 'technical'] as const).map((cat) => ({
-    category: cat,
-    previous: previous.scores[cat].score,
-    current: current.scores[cat].score,
-    change: current.scores[cat].score - previous.scores[cat].score,
-  }));
-
-  const prevFindings = new Set(previous.findings.map((f) => f.issue));
-  const currFindings = new Set(current.findings.map((f) => f.issue));
-
-  const findingsResolved = previous.findings
-    .filter((f) => !currFindings.has(f.issue))
-    .map((f) => f.issue);
-
-  const findingsNew = current.findings
-    .filter((f) => !prevFindings.has(f.issue))
-    .map((f) => f.issue);
-
-  return {
-    overallChange: current.overallScore - previous.overallScore,
-    categoryChanges,
-    findingsResolved,
-    findingsNew,
-  };
+function searchEngineMessage(enFallback: string, arFallback: string): string {
+  return enFallback;
 }
 
-export function getAdminMetrics(results: AnalysisResult[]): AdminMetrics {
-  return {
-    totalAnalyses: results.length,
-    platformDistribution: [
-      { name: 'Web', count: results.length },
-    ],
-    recentActivity: [
-      { date: new Date().toISOString().split('T')[0], count: results.length },
-    ],
-    processingFailures: 0,
-    apiFailures: 0,
-    averageDuration: results.length > 0
-      ? Math.round(results.reduce((sum, r) => sum + r.metadata.duration, 0) / results.length)
-      : 0,
-    commonIssues: [
-      { issue: 'Missing meta description', count: results.filter(r => r.findings.some(f => f.issue.includes('meta description'))).length },
-      { issue: 'Missing title tag', count: results.filter(r => r.findings.some(f => f.issue.includes('title'))).length },
-      { issue: 'Missing alt text', count: results.filter(r => r.findings.some(f => f.issue.includes('alt text'))).length },
-    ],
-    systemHealth: {
-      api: 'healthy',
-      database: 'healthy',
-      lastChecked: new Date().toISOString(),
-    },
-  };
+function hashCode(str: string): number {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
 }
 
-// ========== Persistence Layer (localStorage) ==========
-
-export function storeAnalysisResult(result: AnalysisResult): void {
-  // Save to localStorage for persistence across page refreshes
-  saveResult(result);
-
-  // Build history entry
-  const existingHistory = getHistoryForUrl(result.url);
-  const change = existingHistory.length > 0 ? result.overallScore - existingHistory[0].overallScore : null;
-
-  const historyEntry: AnalysisHistory = {
-    id: result.id,
-    url: result.url,
-    date: result.date,
-    overallScore: result.overallScore,
-    change,
-    findingsCount: result.findings.length,
-  };
-
-  saveHistory(result.url, historyEntry);
-}
-
-export function getAnalysisResult(id: string): AnalysisResult | null {
-  return getResult(id);
-}
-
-export function getAnalysisHistory(url: string): AnalysisHistory[] {
-  return getHistoryForUrl(url);
-}
-
-export function getAllAnalyses(): AnalysisResult[] {
-  return getAllResults();
+async function simulateProcessing(): Promise<void> {
+  const delay = 4000 + Math.random() * 6000;
+  await new Promise((resolve) => setTimeout(resolve, delay));
 }

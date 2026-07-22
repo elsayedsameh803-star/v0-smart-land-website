@@ -1,112 +1,102 @@
-// ============================================
-// Smart Land - Client-Side Storage Utility
-// Uses localStorage for data persistence
-// ============================================
+import type { AnalysisResult, AnalysisHistory, CompetitorComparison } from "./types";
 
-import type { AnalysisResult, AnalysisHistory } from './types';
+const STORAGE_PREFIX = "smart-land-";
 
-const STORAGE_KEYS = {
-  results: 'smartland_results',
-  history: 'smartland_history',
-  adminAuth: 'smartland_admin_auth',
-} as const;
-
-// ========== Analysis Results ==========
-
-export function saveResult(result: AnalysisResult): void {
+export function saveAnalysis(result: AnalysisResult): void {
   try {
-    const results = getResults();
-    results[result.id] = result;
-    localStorage.setItem(STORAGE_KEYS.results, JSON.stringify(results));
+    const key = `${STORAGE_PREFIX}analysis-${result.id}`;
+    localStorage.setItem(key, JSON.stringify(result));
+    saveToHistory(result);
   } catch (error) {
-    console.warn('Failed to save result to localStorage:', error);
+    console.error("Failed to save analysis:", error);
   }
 }
 
-export function getResult(id: string): AnalysisResult | null {
+export function getAnalysis(id: string): AnalysisResult | null {
   try {
-    const results = getResults();
-    return results[id] || null;
+    const key = `${STORAGE_PREFIX}analysis-${id}`;
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
   } catch {
     return null;
   }
 }
 
-export function getResults(): Record<string, AnalysisResult> {
+export function getAllAnalyses(): AnalysisResult[] {
   try {
-    const data = localStorage.getItem(STORAGE_KEYS.results);
-    return data ? JSON.parse(data) : {};
+    const analyses: AnalysisResult[] = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith(`${STORAGE_PREFIX}analysis-`)) {
+        const data = localStorage.getItem(key);
+        if (data) {
+          analyses.push(JSON.parse(data));
+        }
+      }
+    }
+    return analyses.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
   } catch {
-    return {};
+    return [];
   }
 }
 
-export function getAllResults(): AnalysisResult[] {
-  return Object.values(getResults());
-}
-
-// ========== Analysis History ==========
-
-export function saveHistory(url: string, entry: AnalysisHistory): void {
+export function getAnalysisHistory(): AnalysisHistory[] {
   try {
-    const history = getHistoryForUrl(url);
-    history.unshift(entry);
-    localStorage.setItem(`${STORAGE_KEYS.history}_${url}`, JSON.stringify(history));
-  } catch (error) {
-    console.warn('Failed to save history to localStorage:', error);
-  }
-}
-
-export function getHistoryForUrl(url: string): AnalysisHistory[] {
-  try {
-    const data = localStorage.getItem(`${STORAGE_KEYS.history}_${url}`);
+    const historyKey = `${STORAGE_PREFIX}history`;
+    const data = localStorage.getItem(historyKey);
     return data ? JSON.parse(data) : [];
   } catch {
     return [];
   }
 }
 
-// ========== Admin Auth ==========
-
-export function saveAdminAuth(token: string): void {
+export function saveComparison(comparison: CompetitorComparison): void {
   try {
-    localStorage.setItem(STORAGE_KEYS.adminAuth, token);
-  } catch {
-    // Silently fail
+    const key = `${STORAGE_PREFIX}comparison-${Date.now()}`;
+    localStorage.setItem(key, JSON.stringify(comparison));
+  } catch (error) {
+    console.error("Failed to save comparison:", error);
   }
 }
-
-export function getAdminAuth(): string | null {
-  try {
-    return localStorage.getItem(STORAGE_KEYS.adminAuth);
-  } catch {
-    return null;
-  }
-}
-
-export function clearAdminAuth(): void {
-  try {
-    localStorage.removeItem(STORAGE_KEYS.adminAuth);
-  } catch {
-    // Silently fail
-  }
-}
-
-// ========== Utility ==========
 
 export function clearAllData(): void {
   try {
-    localStorage.removeItem(STORAGE_KEYS.results);
-    // Clear all history entries
     const keysToRemove: string[] = [];
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
-      if (key && key.startsWith(STORAGE_KEYS.history)) {
+      if (key?.startsWith(STORAGE_PREFIX)) {
         keysToRemove.push(key);
       }
     }
-    keysToRemove.forEach(key => localStorage.removeItem(key));
-  } catch {
-    // Silently fail
+    keysToRemove.forEach((key) => localStorage.removeItem(key));
+  } catch (error) {
+    console.error("Failed to clear data:", error);
   }
+}
+
+function saveToHistory(result: AnalysisResult): void {
+  const history = getAnalysisHistory();
+  const existingIndex = history.findIndex((h) => h.url === result.url);
+
+  const historyEntry: AnalysisHistory = {
+    id: result.id,
+    url: result.url,
+    date: result.date,
+    overallScore: result.overallScore,
+    change: null,
+    findingsCount: result.findings.length,
+  };
+
+  if (existingIndex >= 0) {
+    const previous = history[existingIndex];
+    historyEntry.change = result.overallScore - previous.overallScore;
+    history[existingIndex] = historyEntry;
+  } else {
+    history.unshift(historyEntry);
+  }
+
+  const historyKey = `${STORAGE_PREFIX}history`;
+  localStorage.setItem(historyKey, JSON.stringify(history.slice(0, 50)));
 }
