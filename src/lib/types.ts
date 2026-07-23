@@ -169,3 +169,108 @@ export interface NavItem {
   labelAr: string;
   icon?: string;
 }
+
+// ============================================
+// Real Analysis Engine v3.0 Types
+// ============================================
+
+export interface TechStack {
+  cms: string | null;
+  framework: string | null;
+  analytics: string[];
+  cdn: string | null;
+  server: string | null;
+  javascriptLibraries: string[];
+  cssFramework: string | null;
+  hosting: string | null;
+  sslProvider: string | null;
+  paymentProcessor: string[];
+}
+
+export interface SocialPresence {
+  facebook: boolean;
+  twitter: boolean;
+  linkedin: boolean;
+  instagram: boolean;
+  youtube: boolean;
+  tiktok: boolean;
+  snapchat: boolean;
+  pinterest: boolean;
+  github: boolean;
+  threads: boolean;
+  twitterCards: boolean;
+  openGraph: boolean;
+  ogImage: string | null;
+  ogTitle: string | null;
+  ogDescription: string | null;
+  twitterCard: string | null;
+  twitterSite: string | null;
+  twitterCreator: string | null;
+  facebookAppId: string | null;
+  socialLinks: string[];
+}
+
+export interface SSLAnalysis {
+  issuer: string;
+  subject: string;
+  expiryDate: string | null;
+  daysRemaining: number;
+  tlsVersion: string;
+  hstsEnabled: boolean;
+  hstsMaxAge: number;
+  hstsIncludesSubdomains: boolean;
+  hstsPreload: boolean;
+  score: number;
+  isExpired: boolean;
+  isAboutToExpire: boolean;
+}
+
+export interface DNSSummary {
+  hostname: string;
+  aRecords: string[];
+  aaaaRecords: string[];
+  mxRecords: string[];
+  nsRecords: string[];
+  txtRecords: string[];
+  cnameRecord: string | null;
+  hasSPF: boolean;
+  hasDMARC: boolean;
+  hasDKIM: boolean;
+  ttl: number | null;
+}
+
+export interface SecurityVulnerability {
+  type: string;
+  severity: "critical" | "high" | "medium" | "low" | "info";
+  title: string;
+  titleAr: string;
+  description: string;
+  descriptionAr: string;
+}
+
+export interface AIPoweredRecommendation {
+  priorityActions: Array<{
+    area: string;
+    areaAr: string;
+    action: string;
+    actionAr: string;
+    impact: "critical" | "high" | "medium" | "low";
+    estimatedTime: string;
+  }>;
+  quickWins: Array<{
+    action: string;
+    actionAr: string;
+    timeToImplement: string;
+  }>;
+  longTermStrategy: Array<{
+    strategy: string;
+    strategyAr: string;
+    description: string;
+    descriptionAr: string;
+    timeline: string;
+  }>;
+  estimatedImprovement: number;
+  estimatedTimeToImplement: string;
+  competitiveContext: string;
+  marketReadiness: string;
+}

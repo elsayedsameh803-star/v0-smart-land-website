@@ -1,0 +1,60 @@
+  ▲ Next.js 14.2.35
+  - Experiments (use with caution):
+    · scrollRestoration
+
+   Creating an optimized production build ...
+request to https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap failed, reason: socket hang up
+
+Retrying 1/3...
+request to https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&display=swap failed, reason: socket hang up
+
+Retrying 1/3...
+request to https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap failed, reason: socket hang up
+
+Retrying 1/3...
+request to https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap failed, reason: socket hang up
+
+Retrying 1/3...
+request to https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7W0Q5n-wU.woff2 failed, reason: socket hang up
+
+Retrying 1/3...
+request to https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2 failed, reason: socket hang up
+
+Retrying 1/3...
+request to https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7W0Q5n-wU.woff2 failed, reason: socket hang up
+
+Retrying 1/3...
+request to https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa25L7W0Q5n-wU.woff2 failed, reason: socket hang up
+
+Retrying 1/3...
+request to https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7W0Q5n-wU.woff2 failed, reason: read ECONNRESET
+
+Retrying 1/3...
+request to https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2 failed, reason: read ECONNRESET
+
+Retrying 1/3...
+request to https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7W0Q5n-wU.woff2 failed, reason: Client network socket disconnected before secure TLS connection was established
+
+Retrying 1/3...
+request to https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1pL7W0Q5n-wU.woff2 failed, reason: Client network socket disconnected before secure TLS connection was established
+
+Retrying 1/3...
+request to https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2pL7W0Q5n-wU.woff2 failed, reason: Client network socket disconnected before secure TLS connection was established
+
+Retrying 1/3...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/app/api/analyze/route.ts:113:15
+Type error: Cannot find name 'response'. Did you mean 'Response'?
+
+[0m [90m 111 |[39m   [90m// --- Technical ---[39m[0m
+[0m [90m 112 |[39m   [36mif[39m (statusCode [33m>=[39m [35m400[39m) { s[33m.[39mtech [33m-=[39m [35m20[39m[33m;[39m f[33m.[39mtech[33m.[39mpush([32m`HTTP error: ${statusCode}`[39m)[33m;[39m }[0m
+[0m[31m[1m>[22m[39m[90m 113 |[39m   [36mif[39m (url [33m!==[39m response[33m?[39m[33m.[39murl) { s[33m.[39mtech [33m-=[39m [35m5[39m[33m;[39m f[33m.[39mtech[33m.[39mpush([32m`Redirect: ${url} -> ${response?.url}`[39m)[33m;[39m }[0m
+[0m [90m     |[39m               [31m[1m^[22m[39m[0m
+[0m [90m 114 |[39m   [36mif[39m ([33m![39mhtml[33m.[39mmatch([35m/<!DOCTYPE/i[39m)) { s[33m.[39mtech [33m-=[39m [35m5[39m[33m;[39m f[33m.[39mtech[33m.[39mpush([32m"Missing DOCTYPE"[39m)[33m;[39m }[0m
+[0m [90m 115 |[39m   [36mif[39m ([33m![39mhtml[33m.[39mmatch([35m/charset=/i[39m)) { s[33m.[39mtech [33m-=[39m [35m5[39m[33m;[39m f[33m.[39mtech[33m.[39mpush([32m"Missing charset"[39m)[33m;[39m }[0m
+[0m [90m 116 |[39m   [36mconst[39m robots [33m=[39m html[33m.[39mmatch([35m/<meta[^>]+name=["']robots["'][^>]*>/i[39m)[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null
+\n
