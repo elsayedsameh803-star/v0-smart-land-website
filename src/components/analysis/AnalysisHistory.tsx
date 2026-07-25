@@ -16,9 +16,9 @@ export function AnalysisHistory({ history, locale, onReAnalyze, currentResult }:
 
   if (history.length === 0) {
     return (
-      <div className="p-6 rounded-xl bg-white/5 border border-white/10 text-center">
-        <Clock className="w-8 h-8 text-surface-400 mx-auto mb-2" />
-        <p className="text-sm text-surface-400">
+      <div className="p-6 rounded-xl bg-dark-800/60 border border-gold-500/10 text-center">
+        <Clock className="w-8 h-8 text-dark-400 mx-auto mb-2" />
+        <p className="text-sm text-dark-400">
           {isRtl ? "لم يتم العثور على تحليلات سابقة" : "No previous analyses found"}
         </p>
       </div>
@@ -37,13 +37,13 @@ export function AnalysisHistory({ history, locale, onReAnalyze, currentResult }:
       {previousResult && (
         <div className={cn(
           "p-4 rounded-xl border flex items-center gap-3",
-          change > 0 ? "bg-accent-500/10 border-accent-500/20" : 
+          change > 0 ? "bg-gold-500/10 border-gold-500/20" : 
           change < 0 ? "bg-red-500/10 border-red-500/20" : 
-          "bg-surface-500/10 border-surface-500/20"
+          "bg-dark-800 border-dark-700"
         )}>
-          {change > 0 ? <TrendingUp className="w-5 h-5 text-accent-500" /> : 
-           change < 0 ? <TrendingDown className="w-5 h-5 text-red-500" /> : 
-           <Minus className="w-5 h-5 text-surface-400" />}
+          {change > 0 ? <TrendingUp className="w-5 h-5 text-gold-500" /> : 
+           change < 0 ? <TrendingDown className="w-5 h-5 text-red-400" /> : 
+           <Minus className="w-5 h-5 text-dark-400" />}
           <div>
             <p className="text-sm font-medium text-white">
               {isRtl ? "التغيير عن التحليل السابق" : "Change from previous analysis"}
@@ -61,17 +61,17 @@ export function AnalysisHistory({ history, locale, onReAnalyze, currentResult }:
             key={entry.id}
             className={cn(
               "p-4 rounded-xl border transition-all",
-              index === 0 ? "bg-primary-500/10 border-primary-500/30" : "bg-white/5 border-white/10"
+              index === 0 ? "bg-gold-500/10 border-gold-500/30" : "bg-dark-800/60 border-gold-500/10"
             )}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <BarChart3 className={cn("w-4 h-4", index === 0 ? "text-primary-400" : "text-surface-400")} />
+                <BarChart3 className={cn("w-4 h-4", index === 0 ? "text-gold-400" : "text-dark-400")} />
                 <div>
-                  <p className={cn("text-sm font-medium", index === 0 ? "text-primary-300" : "text-white")}>
+                  <p className={cn("text-sm font-medium", index === 0 ? "text-gold-300" : "text-white")}>
                     {formatDate(entry.date, locale)}
                   </p>
-                  <p className="text-xs text-surface-400">
+                  <p className="text-xs text-dark-400">
                     {entry.findingsCount} {isRtl ? "نتيجة" : "findings"}
                   </p>
                 </div>
@@ -81,7 +81,7 @@ export function AnalysisHistory({ history, locale, onReAnalyze, currentResult }:
                   {entry.overallScore}
                 </p>
                 {entry.change !== null && (
-                  <p className={cn("text-xs", entry.change > 0 ? "text-accent-500" : entry.change < 0 ? "text-red-500" : "text-surface-400")}>
+                  <p className={cn("text-xs", entry.change > 0 ? "text-gold-500" : entry.change < 0 ? "text-red-400" : "text-dark-400")}>
                     {entry.change > 0 ? "+" : ""}{entry.change}
                   </p>
                 )}
@@ -93,7 +93,7 @@ export function AnalysisHistory({ history, locale, onReAnalyze, currentResult }:
 
       <button
         onClick={onReAnalyze}
-        className="w-full py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-medium transition-colors text-sm"
+        className="w-full py-3 rounded-xl bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-950 font-bold transition-all text-sm shadow-lg shadow-gold-500/25"
       >
         {isRtl ? "إعادة التحليل" : "Re-Analyze"}
       </button>

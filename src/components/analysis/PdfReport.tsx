@@ -73,17 +73,17 @@ export function PdfReport({ result, locale }: PdfReportProps) {
     <div className="flex flex-wrap gap-3">
       <button
         onClick={handleDownload}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium transition-colors"
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-950 text-sm font-bold transition-all shadow-lg shadow-gold-500/25"
       >
         <FileDown className="w-4 h-4" />
         {isRtl ? "تحميل PDF" : "Download PDF"}
       </button>
       <button
         onClick={handleCopyLink}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white text-sm font-medium transition-colors"
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark-800/80 border border-gold-500/20 hover:bg-dark-700 text-gold-300 text-sm font-medium transition-all"
       >
         {copied ? (
-          <><CheckCircle2 className="w-4 h-4 text-accent-500" />{isRtl ? "تم النسخ!" : "Copied!"}</>
+          <><CheckCircle2 className="w-4 h-4 text-gold-500" />{isRtl ? "تم النسخ!" : "Copied!"}</>
         ) : (
           <><Copy className="w-4 h-4" />{isRtl ? "نسخ الرابط" : "Copy Link"}</>
         )}

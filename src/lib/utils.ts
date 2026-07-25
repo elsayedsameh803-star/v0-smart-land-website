@@ -10,18 +10,18 @@ export function formatScore(score: number): number {
 }
 
 export function getScoreColor(score: number): string {
-  if (score >= 90) return "text-accent-500";
-  if (score >= 70) return "text-primary-500";
-  if (score >= 50) return "text-yellow-500";
-  if (score >= 30) return "text-orange-500";
-  return "text-red-500";
+  if (score >= 90) return "text-gold-400";
+  if (score >= 70) return "text-gold-500";
+  if (score >= 50) return "text-gold-600";
+  if (score >= 30) return "text-gold-700";
+  return "text-red-400";
 }
 
 export function getScoreBgColor(score: number): string {
-  if (score >= 90) return "bg-accent-500";
-  if (score >= 70) return "bg-primary-500";
-  if (score >= 50) return "bg-yellow-500";
-  if (score >= 30) return "bg-orange-500";
+  if (score >= 90) return "bg-gold-500";
+  if (score >= 70) return "bg-gold-600";
+  if (score >= 50) return "bg-gold-600";
+  if (score >= 30) return "bg-gold-700";
   return "bg-red-500";
 }
 
@@ -36,15 +36,15 @@ export function getScoreRating(score: number, locale: string = "en"): string {
 export function getSeverityColor(severity: string): string {
   switch (severity) {
     case "critical":
-      return "text-red-500 bg-red-50 border-red-200";
+      return "text-red-400 bg-red-500/10 border-red-500/20";
     case "high":
-      return "text-orange-500 bg-orange-50 border-orange-200";
+      return "text-orange-400 bg-orange-500/10 border-orange-500/20";
     case "medium":
-      return "text-yellow-500 bg-yellow-50 border-yellow-200";
+      return "text-gold-400 bg-gold-500/10 border-gold-500/20";
     case "low":
-      return "text-blue-500 bg-blue-50 border-blue-200";
+      return "text-blue-400 bg-blue-500/10 border-blue-500/20";
     default:
-      return "text-surface-500 bg-surface-50 border-surface-200";
+      return "text-dark-300 bg-dark-800 border-dark-700";
   }
 }
 
@@ -55,11 +55,11 @@ export function getSeverityBg(severity: string): string {
     case "high":
       return "bg-orange-500";
     case "medium":
-      return "bg-yellow-500";
+      return "bg-gold-500";
     case "low":
       return "bg-blue-500";
     default:
-      return "bg-surface-500";
+      return "bg-dark-500";
   }
 }
 

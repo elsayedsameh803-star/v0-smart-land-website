@@ -19,7 +19,16 @@ export default async function LocaleLayout({
       <Header locale={locale} dictionary={dict} />
       <main>{children}</main>
       <Footer />
-      <Toaster position={locale === "ar" ? "top-left" : "top-right"} />
+      <Toaster 
+        position={locale === "ar" ? "top-left" : "top-right"} 
+        toastOptions={{
+          style: {
+            background: '#1e293b',
+            color: '#facc15',
+            border: '1px solid rgba(234, 179, 8, 0.2)',
+          },
+        }}
+      />
     </div>
   );
 }
