@@ -16,9 +16,9 @@ const Card = ({
   ...props
 }: CardProps) => {
   const variants = {
-    default: "bg-white shadow-sm border border-surface-200",
-    elevated: "bg-white shadow-lg border border-surface-100",
-    bordered: "bg-white border-2 border-surface-200",
+    default: "bg-dark-800 border border-gold-500/10 shadow-lg",
+    elevated: "bg-dark-800 shadow-xl shadow-gold-500/5 border border-gold-500/15",
+    bordered: "bg-dark-800 border-2 border-gold-500/20",
   };
 
   const paddings = {
@@ -59,7 +59,7 @@ const CardTitle = ({
   ...props
 }: HTMLAttributes<HTMLHeadingElement>) => (
   <h3
-    className={cn("text-lg font-semibold text-surface-900", className)}
+    className={cn("text-lg font-semibold text-gold-300", className)}
     {...props}
   >
     {children}
@@ -71,7 +71,7 @@ const CardDescription = ({
   children,
   ...props
 }: HTMLAttributes<HTMLParagraphElement>) => (
-  <p className={cn("text-sm text-surface-500 mt-1", className)} {...props}>
+  <p className={cn("text-sm text-dark-400 mt-1", className)} {...props}>
     {children}
   </p>
 );
@@ -92,7 +92,7 @@ const CardFooter = ({
   ...props
 }: HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn("mt-4 pt-4 border-t border-surface-200", className)}
+    className={cn("mt-4 pt-4 border-t border-gold-500/10", className)}
     {...props}
   >
     {children}

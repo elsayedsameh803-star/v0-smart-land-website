@@ -3,3 +3,34 @@
     ┬╖ scrollRestoration
 
    Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/8) ...
+   Generating static pages (2/8) 
+   Generating static pages (4/8) 
+   Generating static pages (6/8) 
+ Γ£ô Generating static pages (8/8)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+Γöî Γùï /_not-found                          138 B          87.6 kB
+Γö£ ΓùÅ /[locale]                            26.2 kB         114 kB
+Γö£   Γö£ /en
+Γö£   Γöö /ar
+Γö£ ╞Æ /api/analyze                         0 B                0 B
+Γö£ ╞Æ /api/analyze-url                     0 B                0 B
+Γöö ╞Æ /api/analyze/youtube                 0 B                0 B
++ First Load JS shared by all            87.5 kB
+  Γö£ chunks/117-1e0683bc7f4a88b0.js       31.7 kB
+  Γö£ chunks/fd9d1056-cf48984c1108c87a.js  53.6 kB
+  Γöö other shared chunks (total)          2.13 kB
+
+
+╞Æ Middleware                             26.6 kB
+
+Γùï  (Static)   prerendered as static content
+ΓùÅ  (SSG)      prerendered as static HTML (uses getStaticProps)
+╞Æ  (Dynamic)  server-rendered on demand
+

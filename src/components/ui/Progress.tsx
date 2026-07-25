@@ -30,10 +30,10 @@ const Progress = ({
   };
 
   const variants = {
-    default: "bg-primary-500",
-    success: "bg-accent-500",
-    warning: "bg-yellow-500",
-    danger: "bg-red-500",
+    default: "bg-gradient-to-r from-gold-500 to-gold-600",
+    success: "bg-gradient-to-r from-gold-500 to-gold-600",
+    warning: "bg-gradient-to-r from-gold-400 to-gold-500",
+    danger: "bg-gradient-to-r from-red-500 to-red-600",
   };
 
   return (
@@ -41,16 +41,16 @@ const Progress = ({
       {(showLabel || label) && (
         <div className="flex justify-between mb-1">
           {label && (
-            <span className="text-sm font-medium text-surface-700">{label}</span>
+            <span className="text-sm font-medium text-gold-300">{label}</span>
           )}
-          <span className="text-sm text-surface-500">
+          <span className="text-sm text-dark-400">
             {Math.round(percentage)}%
           </span>
         </div>
       )}
       <div
         className={cn(
-          "w-full bg-surface-200 rounded-full overflow-hidden",
+          "w-full bg-dark-700 rounded-full overflow-hidden",
           sizes[size]
         )}
         role="progressbar"

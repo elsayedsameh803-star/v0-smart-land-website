@@ -95,7 +95,7 @@ export default function HomePage({ params }: PageProps) {
   const history = url ? getAnalysisHistory() : [];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-dark-950">
       {currentView === "home" && (
         <>
           <HeroSection onAnalyze={handleAnalyze} locale={locale} />
@@ -106,7 +106,7 @@ export default function HomePage({ params }: PageProps) {
       )}
 
       {currentView === "analyzing" && (
-        <div className="pt-24 pb-16 px-4">
+        <div className="pt-24 pb-16 px-4 bg-dark-950 min-h-screen">
           <div className="max-w-4xl mx-auto">
             <AnalysisProgress stages={stages} url={url} error={error} locale={locale} />
           </div>
@@ -114,20 +114,20 @@ export default function HomePage({ params }: PageProps) {
       )}
 
       {currentView === "results" && analysisResult && (
-        <div className="pt-24 pb-16 px-4 bg-surface-900 min-h-screen">
+        <div className="pt-24 pb-16 px-4 bg-dark-950 min-h-screen">
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold text-white">
                   {locale === "ar" ? "نتائج التحليل" : "Analysis Results"}
                 </h1>
-                <p className="text-surface-400 text-sm mt-1">{analysisResult.url}</p>
+                <p className="text-dark-400 text-sm mt-1">{analysisResult.url}</p>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={handleReAnalyze} className="px-4 py-2 rounded-lg border border-white/10 text-white text-sm hover:bg-white/5 transition-colors">
+                <button onClick={handleReAnalyze} className="px-4 py-2 rounded-lg border border-gold-500/20 text-gold-300 text-sm hover:bg-gold-500/10 transition-colors">
                   {locale === "ar" ? "إعادة التحليل" : "Re-Analyze"}
                 </button>
-                <button onClick={handleNewAnalysis} className="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm hover:bg-primary-700 transition-colors">
+                <button onClick={handleNewAnalysis} className="px-4 py-2 rounded-lg bg-gradient-to-r from-gold-600 to-gold-500 text-dark-950 text-sm font-bold hover:from-gold-500 hover:to-gold-400 transition-all shadow-lg shadow-gold-500/25">
                   {locale === "ar" ? "تحليل جديد" : "New Analysis"}
                 </button>
               </div>
@@ -136,29 +136,29 @@ export default function HomePage({ params }: PageProps) {
             <ScoreBreakdown overallScore={analysisResult.overallScore} scores={analysisResult.scores} locale={locale} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="rounded-xl p-6 bg-white/5 border border-white/10">
-                <h3 className="text-lg font-semibold text-accent-400 mb-4">{locale === "ar" ? "نقاط القوة" : "Strengths"}</h3>
+              <div className="rounded-xl p-6 bg-dark-800/60 border border-gold-500/10">
+                <h3 className="text-lg font-semibold text-gold-400 mb-4">{locale === "ar" ? "نقاط القوة" : "Strengths"}</h3>
                 <ul className="space-y-2">
                   {analysisResult.strengths.map((s, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-surface-300">
-                      <span className="text-accent-400 mt-0.5">✓</span>{s}
+                    <li key={i} className="flex items-start gap-2 text-sm text-dark-300">
+                      <span className="text-gold-500 mt-0.5">✓</span>{s}
                     </li>
                   ))}
                   {analysisResult.strengths.length === 0 && (
-                    <li className="text-sm text-surface-500">{locale === "ar" ? "لم يتم اكتشاف نقاط قوة محددة" : "No specific strengths detected"}</li>
+                    <li className="text-sm text-dark-500">{locale === "ar" ? "لم يتم اكتشاف نقاط قوة محددة" : "No specific strengths detected"}</li>
                   )}
                 </ul>
               </div>
-              <div className="rounded-xl p-6 bg-white/5 border border-white/10">
+              <div className="rounded-xl p-6 bg-dark-800/60 border border-gold-500/10">
                 <h3 className="text-lg font-semibold text-red-400 mb-4">{locale === "ar" ? "نقاط الضعف" : "Weaknesses"}</h3>
                 <ul className="space-y-2">
                   {analysisResult.weaknesses.map((w, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm text-surface-300">
+                    <li key={i} className="flex items-start gap-2 text-sm text-dark-300">
                       <span className="text-red-400 mt-0.5">✗</span>{w}
                     </li>
                   ))}
                   {analysisResult.weaknesses.length === 0 && (
-                    <li className="text-sm text-surface-500">{locale === "ar" ? "لم يتم اكتشاف نقاط ضعف كبيرة" : "No major weaknesses detected"}</li>
+                    <li className="text-sm text-dark-500">{locale === "ar" ? "لم يتم اكتشاف نقاط ضعف كبيرة" : "No major weaknesses detected"}</li>
                   )}
                 </ul>
               </div>

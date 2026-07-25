@@ -16,11 +16,11 @@ const Badge = ({
   ...props
 }: BadgeProps) => {
   const variants = {
-    default: "bg-surface-100 text-surface-700",
-    success: "bg-accent-100 text-accent-700",
-    warning: "bg-yellow-100 text-yellow-700",
-    danger: "bg-red-100 text-red-700",
-    info: "bg-blue-100 text-blue-700",
+    default: "bg-dark-800 text-gold-300 border border-gold-500/20",
+    success: "bg-gold-500/10 text-gold-400 border border-gold-500/20",
+    warning: "bg-gold-500/10 text-gold-400 border border-gold-500/20",
+    danger: "bg-red-500/10 text-red-400 border border-red-500/20",
+    info: "bg-gold-500/5 text-gold-300 border border-gold-500/10",
   };
 
   const sizes = {

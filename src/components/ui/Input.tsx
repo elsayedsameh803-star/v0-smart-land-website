@@ -11,42 +11,36 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, helperText, id, ...props }, ref) => {
-    const inputId = id || label?.toLowerCase().replace(/\s+/g, "-");
-
     return (
       <div className="w-full">
         {label && (
           <label
-            htmlFor={inputId}
-            className="block text-sm font-medium text-surface-700 mb-1.5"
+            htmlFor={id}
+            className="block text-sm font-medium text-gold-300 mb-1.5"
           >
             {label}
           </label>
         )}
         <input
           ref={ref}
-          id={inputId}
+          id={id}
           className={cn(
-            "w-full px-4 py-2.5 rounded-lg border transition-all duration-200",
-            "text-surface-900 placeholder-surface-400",
-            "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500",
+            "w-full px-4 py-2.5 rounded-lg bg-dark-800 border text-white placeholder-dark-400",
+            "transition-all duration-200",
+            "focus:outline-none focus:ring-2 focus:ring-gold-500/50",
             error
-              ? "border-red-300 focus:ring-red-500 focus:border-red-500"
-              : "border-surface-300 hover:border-surface-400",
-            "disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-surface-50",
+              ? "border-red-500 focus:border-red-500 focus:ring-red-500/50"
+              : "border-gold-500/20 focus:border-gold-500",
+            "disabled:opacity-50 disabled:cursor-not-allowed",
             className
           )}
-          aria-invalid={error ? "true" : "false"}
-          aria-describedby={error ? `${inputId}-error` : undefined}
           {...props}
         />
         {error && (
-          <p id={`${inputId}-error`} className="mt-1.5 text-sm text-red-600" role="alert">
-            {error}
-          </p>
+          <p className="mt-1.5 text-sm text-red-400">{error}</p>
         )}
         {helperText && !error && (
-          <p className="mt-1.5 text-sm text-surface-500">{helperText}</p>
+          <p className="mt-1.5 text-sm text-dark-400">{helperText}</p>
         )}
       </div>
     );
