@@ -2,7 +2,7 @@
   "app": {
     "name": "Smart Land",
     "tagline": "AI Digital Audit Platform",
-    "description": "Analyze, understand, and improve your digital presence with evidence-based AI-powered audits."
+    "description": "Analyze, understand, and improve your digital presence across websites and social media platforms with evidence-based AI-powered audits."
   },
   "nav": {
     "home": "Home",
@@ -14,17 +14,32 @@
   },
   "hero": {
     "title": "Your Digital Presence, Intelligently Analyzed",
-    "subtitle": "Submit your website URL. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems.",
-    "cta": "Analyze Your Site",
+    "subtitle": "Submit your website or social media profile URL. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems.",
+    "cta": "Analyze Your Digital Presence",
     "placeholder": "Enter your website URL (e.g., example.com)",
+    "placeholderWebsite": "Enter your website URL (e.g., example.com)",
+    "placeholderYoutube": "Enter YouTube channel or video URL",
+    "placeholderFacebook": "Enter Facebook page or profile URL",
+    "placeholderInstagram": "Enter Instagram profile URL",
+    "placeholderTiktok": "Enter TikTok profile URL",
+    "placeholderSnapchat": "Enter Snapchat profile URL",
+    "placeholderLinkedin": "Enter LinkedIn profile or company URL",
     "analyzing": "Analyzing...",
-    "trusted": "Trusted by digital teams worldwide"
+    "trusted": "Trusted by digital teams worldwide",
+    "platformLabel": "Select Platform",
+    "website": "Website",
+    "youtube": "YouTube",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "snapchat": "Snapchat",
+    "linkedin": "LinkedIn"
   },
   "onboarding": {
     "step1": "Submit your link",
-    "step1Desc": "Enter any public website URL to begin the analysis.",
+    "step1Desc": "Enter any public website or social media profile URL to begin the analysis.",
     "step2": "Smart Land analyzes real data",
-    "step2Desc": "Our AI examines available public signals across multiple dimensions.",
+    "step2Desc": "Our AI examines available public signals across multiple dimensions for websites and social platforms.",
     "step3": "Discover strengths & weaknesses",
     "step3Desc": "Get a transparent breakdown with evidence for every finding.",
     "step4": "Understand how to fix problems",
@@ -120,8 +135,8 @@
   "report": {
     "title": "Audit Report",
     "download": "Download PDF",
-    "share": "Share Report",
     "print": "Print Report",
+    "share": "Share Report",
     "generated": "Report Generated",
     "url": "Analyzed URL",
     "date": "Analysis Date",
@@ -147,11 +162,11 @@
     "title": "Methodology & Trust",
     "subtitle": "How Smart Land analyzes and scores digital presence",
     "whatWeAnalyze": "What We Analyze",
-    "whatWeAnalyzeDesc": "Smart Land examines publicly available signals from your website including HTML structure, HTTP headers, performance metrics, accessibility attributes, security configurations, and content quality indicators.",
+    "whatWeAnalyzeDesc": "Smart Land examines publicly available signals from your website or social media profile including HTML structure, HTTP headers, performance metrics, accessibility attributes, security configurations, and content quality indicators.",
     "signalsMeasured": "Signals Measured",
-    "signalsDesc": "We measure over 100 individual signals across six categories. Each signal is verified where possible through direct observation of the public website.",
+    "signalsDesc": "We measure over 100 individual signals across six categories. Each signal is verified where possible through direct observation of the public website or social profile.",
     "verifiedVsInferred": "Verified Data vs. Inferred Insights",
-    "verifiedDesc": "Where possible, Smart Land directly observes and verifies data from the public website. Some insights are inferred based on established best practices and industry standards. We clearly label which is which.",
+    "verifiedDesc": "Where possible, Smart Land directly observes and verifies data from the public website or social profile. Some insights are inferred based on established best practices and industry standards. We clearly label which is which.",
     "scoring": "How Scoring Works",
     "scoringDesc": "Each category is scored from 0-100 based on the proportion of positive signals detected. The overall score is a weighted average. Every deduction is traceable to specific evidence.",
     "limitations": "Data Limitations",
@@ -163,8 +178,8 @@
     "title": "See Smart Land in Action",
     "play": "Play Video",
     "transcript": "Video Transcript",
-    "transcriptEn": "Smart Land is an AI-powered digital audit platform. Submit your website or supported public page. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems. Get a professional audit report with actionable recommendations. Track your improvement over time with re-analysis.",
-    "transcriptAr": "سمارت لاند هي منصة تدقيق رقمي مدعومة بالذكاء الاصطناعي. أرسل موقعك الإلكتروني أو صفحتك العامة المدعومة. تقوم سمارت لاند بتحليل الإشارات المتاحة الفعلية، وتكتشف نقاط القوة والضعف، وتظهر الأدلة، وتشرح كيفية إصلاح المشكلات المكتشفة. احصل على تقرير تدقيق احترافي مع توصيات قابلة للتنفيذ. تابع تحسنك بمرور الوقت من خلال إعادة التحليل."
+    "transcriptEn": "Smart Land is an AI-powered digital audit platform for websites and social media. Submit your website or social media profile. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems. Get a professional audit report with actionable recommendations. Track your improvement over time with re-analysis.",
+    "transcriptAr": "سمارت لاند هي منصة تدقيق رقمي مدعومة بالذكاء الاصطناعي للمواقع ومنصات التواصل الاجتماعي. أرسل موقعك الإلكتروني أو صفحتك على التواصل الاجتماعي. تقوم سمارت لاند بتحليل الإشارات المتاحة الفعلية، وتكتشف نقاط القوة والضعف، وتظهر الأدلة، وتشرح كيفية إصلاح المشكلات المكتشفة. احصل على تقرير تدقيق احترافي مع توصيات قابلة للتنفيذ. تابع تحسنك بمرور الوقت من خلال إعادة التحليل."
   },
   "admin": {
     "title": "Intelligence Center",
@@ -185,7 +200,7 @@
   "footer": {
     "rights": "All rights reserved.",
     "madeWith": "Made with",
-    "description": "AI Digital Audit Platform — Evidence-driven digital presence analysis.",
+    "description": "AI Digital Audit Platform for websites & social media — Evidence-driven digital presence analysis.",
     "product": "Product",
     "resources": "Resources",
     "company": "Company",

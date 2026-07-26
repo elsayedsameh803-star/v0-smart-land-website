@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FileDown, Share2, Printer, CheckCircle2, Copy } from "lucide-react";
+import { FileDown, Printer, CheckCircle2, Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AnalysisResult } from "@/lib/types";
 
@@ -63,6 +63,10 @@ export function PdfReport({ result, locale }: PdfReportProps) {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     setCopied(true);
@@ -77,6 +81,13 @@ export function PdfReport({ result, locale }: PdfReportProps) {
       >
         <FileDown className="w-4 h-4" />
         {isRtl ? "تحميل PDF" : "Download PDF"}
+      </button>
+      <button
+        onClick={handlePrint}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark-800/80 border border-gold-500/20 hover:bg-dark-700 text-gold-300 text-sm font-medium transition-all"
+      >
+        <Printer className="w-4 h-4" />
+        {isRtl ? "طباعة التقرير" : "Print Report"}
       </button>
       <button
         onClick={handleCopyLink}

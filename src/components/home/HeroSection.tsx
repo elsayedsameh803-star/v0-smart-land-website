@@ -1,17 +1,40 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Sparkles, Loader2, Globe, Shield, Zap, BarChart3 } from "lucide-react";
+import { ArrowRight, Sparkles, Globe, Shield, Zap, BarChart3, Youtube, Facebook, Instagram, Music2, Camera, Linkedin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HeroSectionProps {
-  onAnalyze: (url: string) => void;
+  onAnalyze: (url: string, platform?: string) => void;
   locale: string;
 }
+
+type Platform = "website" | "youtube" | "facebook" | "instagram" | "tiktok" | "snapchat" | "linkedin";
+
+const platformIcons: Record<Platform, React.ElementType> = {
+  website: Globe,
+  youtube: Youtube,
+  facebook: Facebook,
+  instagram: Instagram,
+  tiktok: Music2,
+  snapchat: Camera,
+  linkedin: Linkedin,
+};
+
+const platformColors: Record<Platform, string> = {
+  website: "from-gold-500 to-gold-600",
+  youtube: "from-red-500 to-red-600",
+  facebook: "from-blue-600 to-blue-700",
+  instagram: "from-pink-500 to-purple-600",
+  tiktok: "from-cyan-400 to-cyan-600",
+  snapchat: "from-yellow-400 to-yellow-500",
+  linkedin: "from-blue-500 to-blue-600",
+};
 
 export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
   const [url, setUrl] = useState("");
   const [isValid, setIsValid] = useState(true);
+  const [selectedPlatform, setSelectedPlatform] = useState<Platform>("website");
   const isRtl = locale === "ar";
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -22,8 +45,66 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
       return;
     }
     setIsValid(true);
-    onAnalyze(trimmedUrl);
+    onAnalyze(trimmedUrl, selectedPlatform);
   };
+
+  const getPlaceholder = () => {
+    if (isRtl) {
+      switch (selectedPlatform) {
+        case "website": return "أدخل رابط موقعك (مثال: example.com)";
+        case "youtube": return "أدخل رابط قناة أو فيديو يوتيوب";
+        case "facebook": return "أدخل رابط صفحة أو بروفايل فيسبوك";
+        case "instagram": return "أدخل رابط بروفايل إنستغرام";
+        case "tiktok": return "أدخل رابط بروفايل تيك توك";
+        case "snapchat": return "أدخل رابط بروفايل سناب شات";
+        case "linkedin": return "أدخل رابط بروفايل أو شركة لينكد إن";
+      }
+    } else {
+      switch (selectedPlatform) {
+        case "website": return "Enter your website URL (e.g., example.com)";
+        case "youtube": return "Enter YouTube channel or video URL";
+        case "facebook": return "Enter Facebook page or profile URL";
+        case "instagram": return "Enter Instagram profile URL";
+        case "tiktok": return "Enter TikTok profile URL";
+        case "snapchat": return "Enter Snapchat profile URL";
+        case "linkedin": return "Enter LinkedIn profile or company URL";
+      }
+    }
+  };
+
+  const getButtonText = () => {
+    if (isRtl) {
+      switch (selectedPlatform) {
+        case "website": return "حلل موقعك الآن";
+        case "youtube": return "حلل قناتك الآن";
+        case "facebook": return "حلل صفحتك الآن";
+        case "instagram": return "حلل حسابك الآن";
+        case "tiktok": return "حلل حسابك الآن";
+        case "snapchat": return "حلل حسابك الآن";
+        case "linkedin": return "حلل بروفايلك الآن";
+      }
+    } else {
+      switch (selectedPlatform) {
+        case "website": return "Analyze Your Site";
+        case "youtube": return "Analyze Your Channel";
+        case "facebook": return "Analyze Your Page";
+        case "instagram": return "Analyze Your Profile";
+        case "tiktok": return "Analyze Your Profile";
+        case "snapchat": return "Analyze Your Profile";
+        case "linkedin": return "Analyze Your Profile";
+      }
+    }
+  };
+
+  const platforms: { id: Platform; label: string }[] = [
+    { id: "website", label: isRtl ? "موقع" : "Website" },
+    { id: "youtube", label: "YouTube" },
+    { id: "facebook", label: "Facebook" },
+    { id: "instagram", label: "Instagram" },
+    { id: "tiktok", label: "TikTok" },
+    { id: "snapchat", label: "Snapchat" },
+    { id: "linkedin", label: "LinkedIn" },
+  ];
 
   const features = [
     { icon: BarChart3, label: isRtl ? "تحليل SEO" : "SEO Analysis", color: "from-gold-500 to-gold-600" },
@@ -77,30 +158,58 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-dark-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-dark-300 mb-8 max-w-2xl mx-auto leading-relaxed">
             {isRtl
-              ? "أرسل رابط موقعك الإلكتروني. تقوم سمارت لاند بتحليل الإشارات المتاحة الفعلية، وتكتشف نقاط القوة والضعف، وتظهر الأدلة، وتشرح كيفية إصلاح المشكلات المكتشفة."
-              : "Submit your website URL. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems."}
+              ? "أرسل رابط موقعك الإلكتروني أو صفحتك على التواصل الاجتماعي. تقوم سمارت لاند بتحليل الإشارات المتاحة الفعلية، وتكتشف نقاط القوة والضعف، وتظهر الأدلة، وتشرح كيفية إصلاح المشكلات المكتشفة."
+              : "Submit your website or social media profile URL. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems."}
           </p>
 
+          {/* Platform Selector */}
+          <div className="max-w-2xl mx-auto mb-6">
+            <p className="text-sm text-dark-400 mb-3 text-center">
+              {isRtl ? "اختر نوع المنصة التي تريد تحليلها:" : "Select the platform you want to analyze:"}
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {platforms.map((platform) => {
+                const Icon = platformIcons[platform.id];
+                const isSelected = selectedPlatform === platform.id;
+                return (
+                  <button
+                    key={platform.id}
+                    onClick={() => setSelectedPlatform(platform.id)}
+                    className={cn(
+                      "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 border",
+                      isSelected
+                        ? `bg-gradient-to-br ${platformColors[platform.id]} text-white border-transparent shadow-lg`
+                        : "bg-dark-800/60 text-dark-300 border-gold-500/10 hover:border-gold-500/30 hover:text-gold-300"
+                    )}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span>{platform.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {/* URL Input */}
-          <form onSubmit={handleSubmit} className="max-w-2xl mx-auto mb-12">
+          <form onSubmit={handleSubmit} className="max-w-2xl mx-auto mb-8">
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex-1 relative">
                 <input
                   type="text"
                   value={url}
                   onChange={(e) => { setUrl(e.target.value); setIsValid(true); }}
-                  placeholder={isRtl ? "أدخل رابط موقعك (مثال: example.com)" : "Enter your website URL (e.g., example.com)"}
+                  placeholder={getPlaceholder()}
                   className={`w-full px-6 py-4 rounded-xl bg-dark-800/80 border ${isValid ? 'border-gold-500/30 focus:border-gold-500' : 'border-red-500'} text-white placeholder-dark-400 text-lg focus:outline-none focus:ring-2 focus:ring-gold-500/50 transition-all backdrop-blur-sm`}
                   dir={isRtl ? "rtl" : "ltr"}
                 />
               </div>
               <button
                 type="submit"
-                className="px-8 py-4 bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-950 font-bold rounded-xl transition-all duration-200 shadow-lg shadow-gold-500/25 hover:shadow-gold-500/40 flex items-center justify-center gap-2 text-lg"
+                className="px-8 py-4 bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-950 font-bold rounded-xl transition-all duration-200 shadow-lg shadow-gold-500/25 hover:shadow-gold-500/40 flex items-center justify-center gap-2 text-lg whitespace-nowrap"
               >
-                {isRtl ? "حلل موقعك الآن" : "Analyze Your Site"}
+                {getButtonText()}
                 <ArrowRight className={`w-5 h-5 ${isRtl ? 'rotate-180' : ''}`} />
               </button>
             </div>
@@ -110,6 +219,39 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
               </p>
             )}
           </form>
+
+          {/* Social Media Icons Bar */}
+          <div className="max-w-3xl mx-auto mb-8">
+            <div className="flex items-center justify-center gap-6 flex-wrap">
+              {platforms.slice(1).map((platform) => {
+                const Icon = platformIcons[platform.id];
+                return (
+                  <button
+                    key={platform.id}
+                    onClick={() => setSelectedPlatform(platform.id)}
+                    className={cn(
+                      "flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all duration-200 group",
+                      selectedPlatform === platform.id
+                        ? `bg-gradient-to-br ${platformColors[platform.id]} text-white shadow-lg scale-110`
+                        : "bg-dark-800/40 border border-gold-500/5 hover:bg-dark-800/80 hover:border-gold-500/20"
+                    )}
+                    title={platform.label}
+                  >
+                    <Icon className={cn(
+                      "w-6 h-6 transition-all",
+                      selectedPlatform === platform.id ? "text-white" : "text-dark-400 group-hover:text-gold-400"
+                    )} />
+                    <span className={cn(
+                      "text-[10px] font-medium",
+                      selectedPlatform === platform.id ? "text-white" : "text-dark-500 group-hover:text-gold-400"
+                    )}>
+                      {platform.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Features Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">

@@ -24,6 +24,7 @@ export default function HomePage({ params }: PageProps) {
   const locale = params.locale || "en";
   const [currentView, setCurrentView] = useState<"home" | "analyzing" | "results">("home");
   const [url, setUrl] = useState("");
+  const [platform, setPlatform] = useState<string>("website");
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [stages, setStages] = useState<AnalysisStage[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -31,8 +32,9 @@ export default function HomePage({ params }: PageProps) {
   const [showFixAssistant, setShowFixAssistant] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleAnalyze = async (submittedUrl: string) => {
+  const handleAnalyze = async (submittedUrl: string, selectedPlatform?: string) => {
     setUrl(submittedUrl);
+    setPlatform(selectedPlatform || "website");
     setCurrentView("analyzing");
     setIsAnalyzing(true);
     setError(null);
@@ -74,7 +76,7 @@ export default function HomePage({ params }: PageProps) {
   };
 
   const handleReAnalyze = () => {
-    if (url) handleAnalyze(url);
+    if (url) handleAnalyze(url, platform);
   };
 
   const handleHelpFix = (finding: Finding) => {
@@ -87,6 +89,7 @@ export default function HomePage({ params }: PageProps) {
     setAnalysisResult(null);
     setStages([]);
     setUrl("");
+    setPlatform("website");
     setError(null);
     setShowFixAssistant(false);
     setActiveFinding(null);
@@ -122,6 +125,11 @@ export default function HomePage({ params }: PageProps) {
                   {locale === "ar" ? "نتائج التحليل" : "Analysis Results"}
                 </h1>
                 <p className="text-dark-400 text-sm mt-1">{analysisResult.url}</p>
+                {platform !== "website" && (
+                  <span className="inline-block mt-1 px-2 py-0.5 rounded text-xs font-medium bg-gold-500/20 text-gold-300">
+                    {platform}
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-3">
                 <button onClick={handleReAnalyze} className="px-4 py-2 rounded-lg border border-gold-500/20 text-gold-300 text-sm hover:bg-gold-500/10 transition-colors">
