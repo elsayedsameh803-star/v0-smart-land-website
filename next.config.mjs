@@ -9,6 +9,10 @@ const nextConfig = {
     optimizePackageImports: ['lucide-react', 'recharts'],
     scrollRestoration: true,
   },
+  // Disable Google Font optimization to avoid socket hang up issues
+  optimizeFonts: false,
+  // Allow serving static fonts locally
+  transpilePackages: [],
 };
 
 export default nextConfig;

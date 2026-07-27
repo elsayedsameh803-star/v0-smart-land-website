@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, Sparkles, Globe, Shield, Zap, BarChart3, Youtube, Facebook, Instagram, Music2, Camera, Linkedin } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { ArrowRight, Sparkles, Globe, Shield, Zap, BarChart3, Youtube, Facebook, Instagram, Music2, Camera, Linkedin, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HeroSectionProps {
@@ -35,7 +35,28 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
   const [url, setUrl] = useState("");
   const [isValid, setIsValid] = useState(true);
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>("website");
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const sectionRef = useRef<HTMLDivElement>(null);
   const isRtl = locale === "ar";
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (sectionRef.current) {
+        const rect = sectionRef.current.getBoundingClientRect();
+        setMousePosition({
+          x: ((e.clientX - rect.left) / rect.width) * 100,
+          y: ((e.clientY - rect.top) / rect.height) * 100,
+        });
+      }
+    };
+
+    const section = sectionRef.current;
+    if (section) {
+      section.addEventListener("mousemove", handleMouseMove);
+      return () => section.removeEventListener("mousemove", handleMouseMove);
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,35 +135,70 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
   ];
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-dark-950 via-dark-900 to-dark-950" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gold-500/10 via-transparent to-transparent" />
+    <section 
+      ref={sectionRef}
+      className="relative min-h-[100vh] flex items-center justify-center overflow-hidden"
+      onMouseEnter={() => setIsHovering(true)}
+      onMouseLeave={() => setIsHovering(false)}
+    >
+      {/* Animated Background */}
+      <div className="absolute inset-0 bg-dark-950" />
+      <div 
+        className="absolute inset-0 transition-opacity duration-1000"
+        style={{
+          background: `radial-gradient(ellipse at ${mousePosition.x}% ${mousePosition.y}%, rgba(234, 179, 8, 0.12), transparent 60%)`,
+        }}
+      />
       
-      {/* Animated grid */}
+      {/* Gradient Orbs */}
+      <div className="absolute top-20 left-10 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl animate-float" />
+      <div className="absolute bottom-20 right-10 w-[30rem] h-[30rem] bg-gold-600/8 rounded-full blur-3xl animate-float-delayed" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[40rem] h-[40rem] bg-gold-500/5 rounded-full blur-3xl animate-pulse-slow" />
+
+      {/* Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(234,179,8,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(234,179,8,0.03)_1px,transparent_1px)] bg-[size:64px_64px]" />
+      
+      {/* Animated gradient line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold-500/30 to-transparent" />
 
-      {/* Floating orbs */}
-      <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-gold-500/20 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gold-600/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+      {/* Floating Particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-gold-500/20 rounded-full"
+            style={{
+              top: `${20 + i * 15}%`,
+              left: `${10 + i * 20}%`,
+              animation: `float ${4 + i * 2}s ease-in-out ${i * 0.5}s infinite`,
+            }}
+          />
+        ))}
+      </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      {/* Scroll Indicator */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce-slow">
+        <span className="text-xs text-dark-500">{isRtl ? "اسفل" : "Scroll"}</span>
+        <ChevronDown className="w-4 h-4 text-gold-500/50" />
+      </div>
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 md:py-40">
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/20 backdrop-blur-sm mb-8 gold-glow">
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold-500/10 border border-gold-500/20 backdrop-blur-sm mb-8 gold-glow animate-fade-in-up">
             <Sparkles className="w-4 h-4 text-gold-400" />
-            <span className="text-sm text-gold-300">
+            <span className="text-sm text-gold-300 font-medium">
               {isRtl ? "مدعوم بالذكاء الاصطناعي" : "AI-Powered Digital Audit"}
             </span>
           </div>
 
           {/* Title */}
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
             {isRtl ? (
               <>
                 حضورك الرقمي،
                 <br />
-                <span className="bg-gradient-to-r from-gold-400 via-gold-500 to-gold-300 text-transparent bg-clip-text">
+                <span className="bg-gradient-to-r from-gold-400 via-gold-500 to-gold-300 text-transparent bg-clip-text text-glow">
                   يُحلل بذكاء
                 </span>
               </>
@@ -150,7 +206,7 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
               <>
                 Your Digital Presence,
                 <br />
-                <span className="bg-gradient-to-r from-gold-400 via-gold-500 to-gold-300 text-transparent bg-clip-text">
+                <span className="bg-gradient-to-r from-gold-400 via-gold-500 to-gold-300 text-transparent bg-clip-text text-glow">
                   Intelligently Analyzed
                 </span>
               </>
@@ -158,15 +214,15 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-dark-300 mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg sm:text-xl text-dark-300 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
             {isRtl
               ? "أرسل رابط موقعك الإلكتروني أو صفحتك على التواصل الاجتماعي. تقوم سمارت لاند بتحليل الإشارات المتاحة الفعلية، وتكتشف نقاط القوة والضعف، وتظهر الأدلة، وتشرح كيفية إصلاح المشكلات المكتشفة."
               : "Submit your website or social media profile URL. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems."}
           </p>
 
           {/* Platform Selector */}
-          <div className="max-w-2xl mx-auto mb-6">
-            <p className="text-sm text-dark-400 mb-3 text-center">
+          <div className="max-w-3xl mx-auto mb-8 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+            <p className="text-sm text-dark-400 mb-4 text-center font-medium">
               {isRtl ? "اختر نوع المنصة التي تريد تحليلها:" : "Select the platform you want to analyze:"}
             </p>
             <div className="flex flex-wrap justify-center gap-2">
@@ -178,10 +234,10 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
                     key={platform.id}
                     onClick={() => setSelectedPlatform(platform.id)}
                     className={cn(
-                      "flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 border",
+                      "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border",
                       isSelected
-                        ? `bg-gradient-to-br ${platformColors[platform.id]} text-white border-transparent shadow-lg`
-                        : "bg-dark-800/60 text-dark-300 border-gold-500/10 hover:border-gold-500/30 hover:text-gold-300"
+                        ? `bg-gradient-to-br ${platformColors[platform.id]} text-white border-transparent shadow-lg scale-105 neon-gold`
+                        : "bg-dark-800/60 text-dark-300 border-gold-500/10 hover:border-gold-500/30 hover:text-gold-300 hover:bg-dark-800/80"
                     )}
                   >
                     <Icon className="w-4 h-4" />
@@ -193,57 +249,73 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
           </div>
 
           {/* URL Input */}
-          <form onSubmit={handleSubmit} className="max-w-2xl mx-auto mb-8">
+          <form onSubmit={handleSubmit} className="max-w-2xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
             <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1 relative">
+              <div className="flex-1 relative group">
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-gold-500/20 via-gold-500/10 to-gold-500/20 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 blur-xl" />
                 <input
                   type="text"
                   value={url}
                   onChange={(e) => { setUrl(e.target.value); setIsValid(true); }}
                   placeholder={getPlaceholder()}
-                  className={`w-full px-6 py-4 rounded-xl bg-dark-800/80 border ${isValid ? 'border-gold-500/30 focus:border-gold-500' : 'border-red-500'} text-white placeholder-dark-400 text-lg focus:outline-none focus:ring-2 focus:ring-gold-500/50 transition-all backdrop-blur-sm`}
+                  className={cn(
+                    "relative w-full px-6 py-4 rounded-xl bg-dark-800/80 border text-white placeholder-dark-400 text-lg transition-all duration-200 backdrop-blur-sm",
+                    "focus:outline-none focus:ring-2 focus:ring-gold-500/30",
+                    isValid ? 'border-gold-500/30 focus:border-gold-500' : 'border-red-500 focus:border-red-500'
+                  )}
                   dir={isRtl ? "rtl" : "ltr"}
                 />
               </div>
               <button
                 type="submit"
-                className="px-8 py-4 bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-950 font-bold rounded-xl transition-all duration-200 shadow-lg shadow-gold-500/25 hover:shadow-gold-500/40 flex items-center justify-center gap-2 text-lg whitespace-nowrap"
+                className="relative px-8 py-4 rounded-xl font-bold transition-all duration-200 text-lg whitespace-nowrap group overflow-hidden"
               >
-                {getButtonText()}
-                <ArrowRight className={`w-5 h-5 ${isRtl ? 'rotate-180' : ''}`} />
+                <span className="absolute inset-0 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 bg-size-200 animate-gradient-shift" />
+                <span className="absolute inset-0 bg-gradient-to-r from-gold-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <span className="relative flex items-center justify-center gap-2 text-dark-950">
+                  {getButtonText()}
+                  <ArrowRight className={`w-5 h-5 transition-transform group-hover:translate-x-1 ${isRtl ? 'rotate-180' : ''}`} />
+                </span>
               </button>
             </div>
             {!isValid && (
-              <p className="text-red-400 text-sm mt-2 text-right">
+              <p className="text-red-400 text-sm mt-2 text-right animate-fade-in">
                 {isRtl ? "يرجى إدخال رابط صحيح" : "Please enter a valid URL"}
               </p>
             )}
           </form>
 
           {/* Social Media Icons Bar */}
-          <div className="max-w-3xl mx-auto mb-8">
-            <div className="flex items-center justify-center gap-6 flex-wrap">
+          <div className="max-w-3xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
+            <p className="text-xs text-dark-500 mb-3 text-center font-medium uppercase tracking-wider">
+              {isRtl ? "أو اختر منصة للتحليل" : "Or choose a platform to analyze"}
+            </p>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
               {platforms.slice(1).map((platform) => {
                 const Icon = platformIcons[platform.id];
+                const isSelected = selectedPlatform === platform.id;
                 return (
                   <button
                     key={platform.id}
                     onClick={() => setSelectedPlatform(platform.id)}
                     className={cn(
-                      "flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all duration-200 group",
-                      selectedPlatform === platform.id
+                      "flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all duration-200 group relative",
+                      isSelected
                         ? `bg-gradient-to-br ${platformColors[platform.id]} text-white shadow-lg scale-110`
                         : "bg-dark-800/40 border border-gold-500/5 hover:bg-dark-800/80 hover:border-gold-500/20"
                     )}
                     title={platform.label}
                   >
+                    {isSelected && (
+                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-gold-500 rounded-full animate-ping-slow" />
+                    )}
                     <Icon className={cn(
-                      "w-6 h-6 transition-all",
-                      selectedPlatform === platform.id ? "text-white" : "text-dark-400 group-hover:text-gold-400"
+                      "w-5 h-5 transition-all duration-200",
+                      isSelected ? "text-white" : "text-dark-400 group-hover:text-gold-400"
                     )} />
                     <span className={cn(
-                      "text-[10px] font-medium",
-                      selectedPlatform === platform.id ? "text-white" : "text-dark-500 group-hover:text-gold-400"
+                      "text-[10px] font-medium transition-all duration-200",
+                      isSelected ? "text-white" : "text-dark-500 group-hover:text-gold-400"
                     )}>
                       {platform.label}
                     </span>
@@ -254,14 +326,14 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
           </div>
 
           {/* Features Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.6s" }}>
             {features.map((feature, index) => (
               <div
                 key={index}
-                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-dark-800/60 border border-gold-500/10 backdrop-blur-sm hover:bg-dark-800/80 hover:border-gold-500/30 transition-all gold-glow-hover"
+                className="group flex items-center gap-3 px-4 py-3 rounded-xl bg-dark-800/60 border border-gold-500/10 backdrop-blur-sm hover:bg-dark-800/80 hover:border-gold-500/30 transition-all duration-200 gold-glow-hover card-hover-effect"
               >
-                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${feature.color} flex items-center justify-center`}>
-                  <feature.icon className="w-4 h-4 text-dark-950" />
+                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center shadow-lg shadow-gold-500/20 group-hover:scale-110 transition-transform duration-200`}>
+                  <feature.icon className="w-5 h-5 text-dark-950" />
                 </div>
                 <span className="text-sm text-dark-200 font-medium">{feature.label}</span>
               </div>
@@ -269,10 +341,18 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
           </div>
 
           {/* Trust indicator */}
-          <p className="text-dark-500 text-sm mt-8 flex items-center justify-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-pulse" />
-            {isRtl ? "موثوق من فرق رقمية حول العالم" : "Trusted by digital teams worldwide"}
-          </p>
+          <div className="animate-fade-in-up" style={{ animationDelay: "0.7s" }}>
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-dark-800/40 border border-gold-500/5 mt-8">
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping-slow" />
+                <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping-slow" style={{ animationDelay: "0.5s" }} />
+                <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping-slow" style={{ animationDelay: "1s" }} />
+              </span>
+              <span className="text-dark-500 text-sm">
+                {isRtl ? "موثوق من فرق رقمية حول العالم" : "Trusted by digital teams worldwide"}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
