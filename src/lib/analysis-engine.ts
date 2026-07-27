@@ -14,7 +14,7 @@ import { generateId, normalizeUrl, formatScore } from "./utils";
 // REAL ANALYSIS ENGINE - Fetches & analyzes actual web pages + social media
 // =============================================================================
 
-export async function analyzeUrl(url: string): Promise<AnalysisResult> {
+export async function analyzeUrl(url: string, locale: string = "en"): Promise<AnalysisResult> {
   const normalizedUrl = normalizeUrl(url);
   const startTime = Date.now();
 
@@ -25,13 +25,13 @@ export async function analyzeUrl(url: string): Promise<AnalysisResult> {
 
   switch (platform) {
     case "youtube":
-      analysisData = await analyzeYouTube(normalizedUrl);
+      analysisData = await analyzeYouTube(normalizedUrl, locale);
       break;
     case "snapchat":
-      analysisData = await analyzeSnapchat(normalizedUrl);
+      analysisData = await analyzeSnapchat(normalizedUrl, locale);
       break;
     default:
-      analysisData = await analyzeWebsite(normalizedUrl);
+      analysisData = await analyzeWebsite(normalizedUrl, locale);
   }
 
   const duration = Math.round((Date.now() - startTime) / 1000);
@@ -148,20 +148,20 @@ function detectPlatform(url: string): Platform {
 // WEBSITE ANALYSIS (Real fetch from backend API)
 // =============================================================================
 
-async function analyzeWebsite(url: string): Promise<AnalysisResult> {
+async function analyzeWebsite(url: string, locale: string = "en"): Promise<AnalysisResult> {
   try {
     // Try calling our backend API for real analysis
     const apiUrl = `/api/analyze`;
     const res = await fetch(apiUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url }),
+      body: JSON.stringify({ url, locale }),
     });
 
     if (res.ok) {
       const json = await res.json();
       if (json.success && json.data) {
-        return mapApiResponseToResult(json.data, url);
+        return mapApiResponseToResult(json.data, url, locale);
       }
     }
   } catch {
@@ -169,10 +169,10 @@ async function analyzeWebsite(url: string): Promise<AnalysisResult> {
   }
 
   // Client-side fallback analysis
-  return clientSideAnalysis(url);
+  return clientSideAnalysis(url, locale);
 }
 
-function mapApiResponseToResult(data: any, url: string): AnalysisResult {
+function mapApiResponseToResult(data: any, url: string, locale: string = "en"): AnalysisResult {
   const scores: CategoryScores = {
     seo: { score: data.scores?.seo?.score ?? 70, maxScore: 100, label: "SEO", labelAr: "تحسين محركات البحث", description: "Search engine optimization signals", descriptionAr: "إشارات تحسين محركات البحث", findings: [] },
     performance: { score: data.scores?.performance?.score ?? 70, maxScore: 100, label: "Performance", labelAr: "الأداء", description: "Loading speed and efficiency", descriptionAr: "سرعة التحميل والكفاءة", findings: [] },
@@ -210,8 +210,8 @@ function mapApiResponseToResult(data: any, url: string): AnalysisResult {
           expectedBenefit: "Improved site performance and user experience",
           expectedBenefitAr: "تحسين أداء الموقع وتجربة المستخدم",
         });
-        if (isStrength) strengths.push(findingText);
-        else weaknesses.push(findingText);
+        if (isStrength) strengths.push(locale === "ar" ? findingText : findingText);
+        else weaknesses.push(locale === "ar" ? findingText : findingText);
       }
     }
   }
@@ -241,7 +241,7 @@ function mapApiResponseToResult(data: any, url: string): AnalysisResult {
 // CLIENT-SIDE FALLBACK (Basic fetch & parse from browser)
 // =============================================================================
 
-async function clientSideAnalysis(url: string): Promise<AnalysisResult> {
+async function clientSideAnalysis(url: string, locale: string = "en"): Promise<AnalysisResult> {
   const findings: Finding[] = [];
   let seoScore = 80, perfScore = 75, accScore = 75, secScore = 70, contScore = 75, techScore = 70;
 
@@ -262,52 +262,52 @@ async function clientSideAnalysis(url: string): Promise<AnalysisResult> {
     // SEO checks
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
     if (!titleMatch) { seoScore -= 15; findings.push(createFinding("seo", "high", url, "Missing <title> tag", "علامة العنوان مفقودة", "Search engines cannot properly index this page without a title", "محركات البحث لا تستطيع فهرسة الصفحة بدون عنوان")); }
-    else { findings.push(createFinding("seo", "info", url, "✓ Title tag found: " + titleMatch[1].slice(0, 50), "✓ تم العثور على علامة العنوان")); }
+    else { findings.push(createFinding("seo", "info", url, "✓ Title tag found: " + titleMatch[1].slice(0, 50), "✓ تم العثور على علامة العنوان: " + titleMatch[1].slice(0, 50))); }
 
     const metaDesc = html.match(/<meta[^>]+name=["']description["'][^>]*>/i);
-    if (!metaDesc) { seoScore -= 12; findings.push(createFinding("seo", "high", url, "Missing meta description", "الوصف الوصفي مفقود")); }
+    if (!metaDesc) { seoScore -= 12; findings.push(createFinding("seo", "high", url, "Missing meta description", "الوصف الوصفي مفقود", "Meta descriptions influence click-through rates from search results", "الأوصاف الوصفية تؤثر على نسبة النقر من نتائج البحث")); }
 
     const h1Count = (html.match(/<h1[^>]*>/gi) || []).length;
-    if (h1Count === 0) { seoScore -= 10; findings.push(createFinding("seo", "high", url, "Missing H1 heading", "عنوان H1 مفقود")); }
-    else { findings.push(createFinding("seo", "info", url, `✓ H1 heading found (${h1Count})`)); }
+    if (h1Count === 0) { seoScore -= 10; findings.push(createFinding("seo", "high", url, "Missing H1 heading", "عنوان H1 مفقود", "H1 helps search engines understand page topic", "H1 يساعد محركات البحث على فهم موضوع الصفحة")); }
+    else { findings.push(createFinding("seo", "info", url, `✓ H1 heading found (${h1Count})`, `✓ تم العثور على عنوان H1 (${h1Count})`)); }
 
     const imgs = html.match(/<img[^>]*>/gi) || [];
     const noAlt = imgs.filter(i => !i.match(/alt=/i)).length;
-    if (noAlt > 0) { seoScore -= Math.min(noAlt * 3, 10); findings.push(createFinding("seo", "medium", url, `${noAlt} images missing alt attributes`, `${noAlt} صور بدون نص بديل`)); }
+    if (noAlt > 0) { seoScore -= Math.min(noAlt * 3, 10); findings.push(createFinding("seo", "medium", url, `${noAlt} images missing alt attributes`, `${noAlt} صور بدون نص بديل`, "Alt text helps search engines understand images and improves accessibility", "النص البديل يساعد محركات البحث على فهم الصور وتحسين إمكانية الوصول")); }
 
     // Performance
     if (statusCode >= 400) { perfScore -= 20; techScore -= 15; }
     const scripts = (html.match(/<script[^>]*>/gi) || []).length;
-    if (scripts > 20) { perfScore -= 10; findings.push(createFinding("performance", "medium", url, `High script count (${scripts})`, `عدد كبير من السكريبتات (${scripts})`)); }
-    if (!headers["content-encoding"]) { perfScore -= 10; findings.push(createFinding("performance", "medium", url, "No compression (gzip/brotli) detected", "لا يوجد ضغط للمحتوى")); }
+    if (scripts > 20) { perfScore -= 10; findings.push(createFinding("performance", "medium", url, `High script count (${scripts})`, `عدد كبير من السكريبتات (${scripts})`, "Too many scripts slow down page load", "الكثير من السكريبتات يبطئ تحميل الصفحة")); }
+    if (!headers["content-encoding"]) { perfScore -= 10; findings.push(createFinding("performance", "medium", url, "No compression (gzip/brotli) detected", "لا يوجد ضغط للمحتوى (gzip/brotli)", "Compression reduces bandwidth and speeds up loading", "الضغط يقلل استخدام النطاق ويسرع التحميل")); }
 
     // Accessibility
-    if (!html.match(/<html[^>]+lang=/i)) { accScore -= 10; findings.push(createFinding("accessibility", "high", url, "Missing lang attribute on <html>", "خاصية اللغة مفقودة في وسم HTML")); }
-    if (!html.match(/<meta[^>]+name=["']viewport["'][^>]*>/i)) { accScore -= 10; findings.push(createFinding("accessibility", "high", url, "Missing viewport meta tag for mobile", "علامة viewport مفقودة للجوال")); }
+    if (!html.match(/<html[^>]+lang=/i)) { accScore -= 10; findings.push(createFinding("accessibility", "high", url, "Missing lang attribute on <html>", "خاصية اللغة مفقودة في وسم HTML", "Screen readers need lang attribute for correct pronunciation", "قارئات الشاشة تحتاج خاصية اللغة للنطق الصحيح")); }
+    if (!html.match(/<meta[^>]+name=["']viewport["'][^>]*>/i)) { accScore -= 10; findings.push(createFinding("accessibility", "high", url, "Missing viewport meta tag for mobile", "علامة viewport مفقودة للجوال", "Viewport ensures proper rendering on mobile devices", "Viewport يضمن العرض المناسب على الأجهزة المحمولة")); }
 
     // Security
-    if (!url.startsWith("https://")) { secScore -= 30; findings.push(createFinding("security", "critical", url, "Site not using HTTPS", "الموقع لا يستخدم HTTPS")); }
-    if (!headers["strict-transport-security"]) { secScore -= 10; }
-    if (!headers["content-security-policy"]) { secScore -= 8; }
-    if (!headers["x-frame-options"]) { secScore -= 8; }
-    if (!headers["x-content-type-options"]) { secScore -= 5; }
+    if (!url.startsWith("https://")) { secScore -= 30; findings.push(createFinding("security", "critical", url, "Site not using HTTPS", "الموقع لا يستخدم HTTPS", "HTTPS encrypts data between user and server", "HTTPS يشفر البيانات بين المستخدم والخادم")); }
+    if (!headers["strict-transport-security"]) { secScore -= 10; findings.push(createFinding("security", "medium", url, "Missing HSTS header", "رأس HSTS مفقود", "HSTS forces browsers to use HTTPS connections", "HSTS يجبر المتصفحات على استخدام اتصالات HTTPS")); }
+    if (!headers["content-security-policy"]) { secScore -= 8; findings.push(createFinding("security", "medium", url, "Missing CSP header", "سياسة أمان المحتوى (CSP) مفقودة", "CSP helps prevent XSS attacks", "CSP يساعد في منع هجمات XSS")); }
+    if (!headers["x-frame-options"]) { secScore -= 8; findings.push(createFinding("security", "medium", url, "Missing X-Frame-Options header", "رأس X-Frame-Options مفقود", "Prevents clickjacking attacks", "يمنع هجمات clickjacking")); }
+    if (!headers["x-content-type-options"]) { secScore -= 5; findings.push(createFinding("security", "low", url, "Missing X-Content-Type-Options header", "رأس X-Content-Type-Options مفقود", "Prevents MIME-type sniffing", "يمنع تخمين نوع MIME")); }
 
     // Content
     const text = html.replace(/<[^>]+>/g, "").trim();
     const words = text.split(/\s+/).length;
-    if (words < 300) { contScore -= 15; findings.push(createFinding("content", "medium", url, `Thin content: ~${words} words`, `محتوى ضعيف: ~${words} كلمة`)); }
-    else { findings.push(createFinding("content", "info", url, `✓ Content volume: ~${words} words`)); }
-    if (!html.match(/schema\.org|application\/ld\+json|itemscope|itemtype=/gi)) { contScore -= 10; findings.push(createFinding("content", "medium", url, "No structured data (Schema.org) detected", "لا توجد بيانات منظمة")); }
+    if (words < 300) { contScore -= 15; findings.push(createFinding("content", "medium", url, `Thin content: ~${words} words`, `محتوى ضعيف: ~${words} كلمة`, "Thin content ranks poorly in search engines", "المحتوى الضعيف يحصل على ترتيب سيء في محركات البحث")); }
+    else { findings.push(createFinding("content", "info", url, `✓ Content volume: ~${words} words`, `✓ حجم المحتوى: ~${words} كلمة`)); }
+    if (!html.match(/schema\.org|application\/ld\+json|itemscope|itemtype=/gi)) { contScore -= 10; findings.push(createFinding("content", "medium", url, "No structured data (Schema.org) detected", "لا توجد بيانات منظمة (Schema.org)", "Structured data helps search engines understand your content", "البيانات المنظمة تساعد محركات البحث على فهم المحتوى")); }
 
     // Technical
-    if (statusCode >= 400) { techScore -= 20; findings.push(createFinding("technical", "critical", url, `HTTP error status: ${statusCode}`)); }
-    if (!html.match(/<!DOCTYPE/i)) { techScore -= 5; }
-    if (!html.match(/charset=/i)) { techScore -= 5; }
+    if (statusCode >= 400) { techScore -= 20; findings.push(createFinding("technical", "critical", url, `HTTP error status: ${statusCode}`, `حالة خطأ HTTP: ${statusCode}`, "HTTP errors prevent proper page loading", "أخطاء HTTP تمنع تحميل الصفحة بشكل صحيح")); }
+    if (!html.match(/<!DOCTYPE/i)) { techScore -= 5; findings.push(createFinding("technical", "low", url, "Missing DOCTYPE declaration", "إعلان DOCTYPE مفقود", "DOCTYPE is required for proper browser rendering", "إعلان DOCTYPE مطلوب لعرض المتصفح بشكل صحيح")); }
+    if (!html.match(/charset=/i)) { techScore -= 5; findings.push(createFinding("technical", "low", url, "Missing charset declaration", "إعلان ترميز الأحرف مفقود", "Charset declaration ensures proper text rendering", "إعلان الترميز يضمن عرض النص بشكل صحيح")); }
 
   } catch {
     // Can't fetch - return estimated scores
     seoScore = 60; perfScore = 60; accScore = 60; secScore = 50; contScore = 60; techScore = 55;
-    findings.push(createFinding("technical", "high", url, "Cannot fetch the URL for detailed analysis", "لا يمكن جلب الرابط للتحليل التفصيلي"));
+    findings.push(createFinding("technical", "high", url, "Cannot fetch the URL for detailed analysis", "لا يمكن جلب الرابط للتحليل التفصيلي", "The server may be blocking requests or the URL is invalid", "قد يكون الخادم يحظر الطلبات أو الرابط غير صالح"));
   }
 
   const clamp = (n: number) => Math.max(0, Math.round(n));
@@ -322,8 +322,10 @@ async function clientSideAnalysis(url: string): Promise<AnalysisResult> {
 
   const overallScore = clamp((seoScore + perfScore + accScore + secScore + contScore + techScore) / 6);
   const criticalIssues = findings.filter(f => f.severity === "critical" || f.severity === "high");
-  const strengths = findings.filter(f => f.severity === "info" || f.severity === "low").slice(0, 5).map(f => f.issue);
-  const weaknesses = criticalIssues.slice(0, 5).map(f => f.issue);
+
+  // Use locale-aware text for strengths and weaknesses
+  const strengths = findings.filter(f => f.severity === "info" || f.severity === "low").slice(0, 5).map(f => locale === "ar" ? f.issueAr : f.issue);
+  const weaknesses = criticalIssues.slice(0, 5).map(f => locale === "ar" ? f.issueAr : f.issue);
 
   return {
     id: generateId(),
@@ -350,7 +352,7 @@ async function clientSideAnalysis(url: string): Promise<AnalysisResult> {
 // YOUTUBE ANALYSIS
 // =============================================================================
 
-async function analyzeYouTube(url: string): Promise<AnalysisResult> {
+async function analyzeYouTube(url: string, locale: string = "en"): Promise<AnalysisResult> {
   try {
     const apiRes = await fetch("/api/analyze/youtube", {
       method: "POST",
@@ -367,17 +369,17 @@ async function analyzeYouTube(url: string): Promise<AnalysisResult> {
         const findings: Finding[] = [
           createFinding("seo", d.scores?.titleOptimization?.score > 80 ? "info" : "medium", url,
             `YouTube Title: "${d.title?.slice(0, 60)}" (${d.title?.length || 0} chars)`,
-            `عنوان يوتيوب: "${d.title?.slice(0, 60)}"`,
+            `عنوان يوتيوب: "${d.title?.slice(0, 60)}" (${d.title?.length || 0} حرف)`,
             "Title optimization affects search ranking and click-through rate",
             "تحسين العنوان يؤثر على ترتيب البحث ونسبة النقر"),
           createFinding("content", d.scores?.descriptionQuality?.score > 80 ? "info" : "medium", url,
-            `Description: ${d.description?.slice(0, 100)}... (${d.description?.length || 0} chars)`,
-            `الوصف: ${d.description?.slice(0, 100)}...`,
+            `Description: ${(d.description || "").slice(0, 100)}... (${d.description?.length || 0} chars)`,
+            `الوصف: ${(d.description || "").slice(0, 100)}... (${d.description?.length || 0} حرف)`,
             "Description quality impacts SEO and viewer engagement",
             "جودة الوصف تؤثر على تحسين محركات البحث وتفاعل المشاهدين"),
           createFinding("content", d.scores?.engagement?.score > 80 ? "info" : "medium", url,
-            `Views: ${formatNumber(d.views)} | Likes: ${formatNumber(d.likes)} | Subscribers: ${d.subscribers}`,
-            `المشاهدات: ${formatNumber(d.views)} | الإعجابات: ${formatNumber(d.likes)} | المشتركون: ${d.subscribers}`,
+            `Views: ${formatNumber(d.views || 0)} | Likes: ${formatNumber(d.likes || 0)} | Subscribers: ${d.subscribers || "N/A"}`,
+            `المشاهدات: ${formatNumber(d.views || 0)} | الإعجابات: ${formatNumber(d.likes || 0)} | المشتركون: ${d.subscribers || "غير متاح"}`,
             "Engagement metrics indicate content performance and audience reach",
             "مقاييس التفاعل تشير إلى أداء المحتوى ومدى وصول الجمهور"),
         ];
@@ -393,8 +395,8 @@ async function analyzeYouTube(url: string): Promise<AnalysisResult> {
 
         const overallScore = formatScore(Math.round((Object.values(scores).reduce((a, s) => a + s.score, 0)) / 6));
         const criticalIssues = findings.filter(f => f.severity === "critical" || f.severity === "high");
-        const strengths = findings.filter(f => f.severity === "info").map(f => f.issue);
-        const weaknesses = criticalIssues.map(f => f.issue);
+        const strengths = findings.filter(f => f.severity === "info").map(f => locale === "ar" ? f.issueAr : f.issue);
+        const weaknesses = criticalIssues.map(f => locale === "ar" ? f.issueAr : f.issue);
 
         return {
           id: generateId(),
@@ -422,14 +424,14 @@ async function analyzeYouTube(url: string): Promise<AnalysisResult> {
   }
 
   // Fallback
-  return createFallbackResult(url);
+  return createFallbackResult(url, locale);
 }
 
 // =============================================================================
 // SNAPCHAT ANALYSIS
 // =============================================================================
 
-async function analyzeSnapchat(url: string): Promise<AnalysisResult> {
+async function analyzeSnapchat(url: string, locale: string = "en"): Promise<AnalysisResult> {
   const username = extractSnapchatUsername(url);
   const scores: CategoryScores = {
     seo: { score: 75, maxScore: 100, label: "SEO", labelAr: "تحسين محركات البحث", description: "Snapchat discoverability", descriptionAr: "قابلية الاكتشاف في سناب شات", findings: [] },
@@ -446,7 +448,9 @@ async function analyzeSnapchat(url: string): Promise<AnalysisResult> {
       `✓ حساب سناب شات: @${username || "غير معروف"}`),
     createFinding("content", "medium", url,
       "Snapchat content is ephemeral (24h), consistent posting recommended",
-      "محتوى سناب شات مؤقت (24 ساعة)، يُنصح بالنشر المنتظم"),
+      "محتوى سناب شات مؤقت (24 ساعة)، يُنصح بالنشر المنتظم",
+      "Ephemeral content requires consistent posting to maintain engagement",
+      "المحتوى المؤقت يتطلب نشراً منتظماً للحفاظ على التفاعل"),
     createFinding("performance", "info", url,
       "✓ Snapchat platform handles performance automatically",
       "✓ منصة سناب شات تدير الأداء تلقائياً"),
@@ -454,8 +458,8 @@ async function analyzeSnapchat(url: string): Promise<AnalysisResult> {
 
   const overallScore = formatScore(Math.round((Object.values(scores).reduce((a, s) => a + s.score, 0)) / 6));
   const criticalIssues = findings.filter(f => f.severity === "critical" || f.severity === "high");
-  const strengths = findings.filter(f => f.severity === "info").map(f => f.issue);
-  const weaknesses = criticalIssues.map(f => f.issue);
+  const strengths = findings.filter(f => f.severity === "info").map(f => locale === "ar" ? f.issueAr : f.issue);
+  const weaknesses = criticalIssues.map(f => locale === "ar" ? f.issueAr : f.issue);
 
   return {
     id: generateId(),
@@ -492,7 +496,7 @@ function createFinding(
   severity: "critical" | "high" | "medium" | "low" | "info",
   url: string,
   issue: string,
-  issueAr?: string,
+  issueAr: string,
   whyItMatters?: string,
   whyItMattersAr?: string,
 ): Finding {
@@ -514,7 +518,7 @@ function createFinding(
   };
 }
 
-function createFallbackResult(url: string): AnalysisResult {
+function createFallbackResult(url: string, locale: string = "en"): AnalysisResult {
   const scores: CategoryScores = {
     seo: { score: 65, maxScore: 100, label: "SEO", labelAr: "تحسين محركات البحث", description: "SEO analysis", descriptionAr: "تحليل تحسين محركات البحث", findings: [] },
     performance: { score: 65, maxScore: 100, label: "Performance", labelAr: "الأداء", description: "Performance analysis", descriptionAr: "تحليل الأداء", findings: [] },
@@ -534,7 +538,7 @@ function createFallbackResult(url: string): AnalysisResult {
     scores,
     findings,
     strengths: [],
-    weaknesses: ["Unable to complete analysis"],
+    weaknesses: locale === "ar" ? ["غير قادر على إكمال التحليل"] : ["Unable to complete analysis"],
     criticalIssues: findings,
     metadata: {
       analyzedUrl: url,

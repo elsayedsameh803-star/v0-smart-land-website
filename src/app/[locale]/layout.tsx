@@ -18,7 +18,7 @@ export default async function LocaleLayout({
     <div dir={dir} className="locale-wrapper">
       <Header locale={locale} dictionary={dict} />
       <main>{children}</main>
-      <Footer />
+      <Footer locale={locale} />
       <Toaster 
         position={locale === "ar" ? "top-left" : "top-right"} 
         toastOptions={{

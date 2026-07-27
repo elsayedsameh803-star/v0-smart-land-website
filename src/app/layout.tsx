@@ -17,9 +17,9 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
-  title: "Smart Land - AI Digital Audit Platform",
-  description: "Analyze, understand, and improve your digital presence with evidence-based AI-powered audits.",
-  keywords: ["digital audit", "SEO analysis", "website analyzer", "AI audit"],
+  title: "Smart Land - AI Digital Audit Platform | سمارت لاند - منصة التدقيق الرقمي",
+  description: "Analyze, understand, and improve your digital presence with evidence-based AI-powered audits. حلل، افهم، وحسّن حضورك الرقمي بتدقيقات مدعومة بالذكاء الاصطناعي.",
+  keywords: ["digital audit", "SEO analysis", "website analyzer", "AI audit", "تدقيق رقمي", "تحليل مواقع"],
 };
 
 export default function RootLayout({
@@ -29,6 +29,9 @@ export default function RootLayout({
 }) {
   return (
     <html className={`${inter.variable} ${cairo.variable}`}>
+      <head>
+        <meta charSet="utf-8" />
+      </head>
       <body className="min-h-screen bg-dark-950 text-gold-100 antialiased">
         {children}
       </body>

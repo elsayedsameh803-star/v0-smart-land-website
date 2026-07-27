@@ -1,7 +1,13 @@
 import Link from 'next/link';
 import { Sparkles, Github, Twitter, Linkedin, Mail, Heart } from 'lucide-react';
 
-export function Footer() {
+interface FooterProps {
+  locale?: string;
+}
+
+export function Footer({ locale = "en" }: FooterProps) {
+  const isRtl = locale === "ar";
+
   return (
     <footer className="relative border-t border-gold-500/10 bg-dark-950 overflow-hidden">
       {/* Background effects */}
@@ -13,7 +19,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand - wider column */}
           <div className="lg:col-span-2">
-            <Link href="/" className="inline-flex items-center gap-2.5 mb-5 group">
+            <Link href={`/${locale}`} className="inline-flex items-center gap-2.5 mb-5 group">
               <div className="relative">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center shadow-lg shadow-gold-500/20 group-hover:shadow-gold-500/40 transition-all duration-300 group-hover:scale-105">
                   <Sparkles className="w-5 h-5 text-dark-950" />
@@ -22,9 +28,10 @@ export function Footer() {
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-gold-400 to-gold-600 text-transparent bg-clip-text">Smart Land</span>
             </Link>
-            <p className="text-sm text-dark-400 max-w-md leading-relaxed mb-6">
-              AI Digital Audit Platform — Evidence-driven digital presence analysis.
-              Analyze, understand, and improve your digital presence with actionable insights.
+            <p className="text-sm text-dark-400 max-w-md leading-relaxed mb-6" dir={isRtl ? "rtl" : "ltr"}>
+              {isRtl
+                ? "منصة التدقيق الرقمي بالذكاء الاصطناعي — تحليل الحضور الرقمي القائم على الأدلة. حلل، افهم، وحسّن حضورك الرقمي برؤى قابلة للتنفيذ."
+                : "AI Digital Audit Platform — Evidence-driven digital presence analysis. Analyze, understand, and improve your digital presence with actionable insights."}
             </p>
             
             {/* Social links */}
@@ -58,21 +65,21 @@ export function Footer() {
                   </div>
                 ))}
               </div>
-              <span className="text-xs text-dark-500">Trusted globally</span>
+              <span className="text-xs text-dark-500">{isRtl ? "موثوق عالمياً" : "Trusted globally"}</span>
             </div>
           </div>
 
           {/* Product */}
           <div>
             <h3 className="text-sm font-semibold text-gold-400 mb-5 relative inline-block">
-              Product
+              {isRtl ? "المنتج" : "Product"}
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-gold-500 to-transparent rounded-full" />
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "/", label: "URL Analyzer" },
-                { href: "/methodology", label: "Methodology" },
-                { href: "/admin", label: "Admin Dashboard" },
+                { href: `/${locale}`, label: isRtl ? "محلل الروابط" : "URL Analyzer" },
+                { href: `/${locale}/methodology`, label: isRtl ? "المنهجية" : "Methodology" },
+                { href: `/${locale}/admin`, label: isRtl ? "لوحة الإدارة" : "Admin Dashboard" },
               ].map((item) => (
                 <li key={item.href}>
                   <Link 
@@ -90,14 +97,14 @@ export function Footer() {
           {/* Resources */}
           <div>
             <h3 className="text-sm font-semibold text-gold-400 mb-5 relative inline-block">
-              Resources
+              {isRtl ? "الموارد" : "Resources"}
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-gold-500 to-transparent rounded-full" />
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "#", label: "Documentation" },
-                { href: "#", label: "API Reference" },
-                { href: "#", label: "Blog" },
+                { href: "#", label: isRtl ? "الوثائق" : "Documentation" },
+                { href: "#", label: isRtl ? "مرجع API" : "API Reference" },
+                { href: "#", label: isRtl ? "المدونة" : "Blog" },
               ].map((item) => (
                 <li key={item.label}>
                   <a 
@@ -115,14 +122,14 @@ export function Footer() {
           {/* Company */}
           <div>
             <h3 className="text-sm font-semibold text-gold-400 mb-5 relative inline-block">
-              Company
+              {isRtl ? "الشركة" : "Company"}
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-gold-500 to-transparent rounded-full" />
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "#", label: "Privacy Policy" },
-                { href: "#", label: "Terms of Service" },
-                { href: "#", label: "Contact" },
+                { href: "#", label: isRtl ? "سياسة الخصوصية" : "Privacy Policy" },
+                { href: "#", label: isRtl ? "شروط الخدمة" : "Terms of Service" },
+                { href: "#", label: isRtl ? "اتصل بنا" : "Contact" },
               ].map((item) => (
                 <li key={item.label}>
                   <a 
@@ -144,10 +151,10 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-dark-500 flex items-center gap-1">
-            © {new Date().getFullYear()} Smart Land. All rights reserved.
+            © {new Date().getFullYear()} Smart Land. {isRtl ? "جميع الحقوق محفوظة." : "All rights reserved."}
           </p>
           <p className="text-xs text-dark-500 flex items-center gap-1">
-            Made with <Heart className="w-3 h-3 text-gold-500 fill-gold-500" /> precision — AI Digital Audit Platform
+            {isRtl ? "صُنع بـ" : "Made with"} <Heart className="w-3 h-3 text-gold-500 fill-gold-500" /> {isRtl ? "دقة — منصة التدقيق الرقمي بالذكاء الاصطناعي" : "precision — AI Digital Audit Platform"}
           </p>
         </div>
       </div>

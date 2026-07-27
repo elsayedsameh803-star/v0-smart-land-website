@@ -64,7 +64,7 @@ export default function HomePage({ params }: PageProps) {
         setStages([...updatedStages]);
       }
 
-      const result = await analyzeUrl(submittedUrl);
+      const result = await analyzeUrl(submittedUrl, locale);
       saveAnalysis(result);
       setAnalysisResult(result);
       setCurrentView("results");
