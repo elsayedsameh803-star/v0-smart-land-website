@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FileDown, Printer, CheckCircle2, Copy } from "lucide-react";
+import { FileDown, Printer, CheckCircle2, Copy, FileJson, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AnalysisResult } from "@/lib/types";
 
@@ -13,54 +13,176 @@ interface PdfReportProps {
 export function PdfReport({ result, locale }: PdfReportProps) {
   const isRtl = locale === "ar";
   const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
-  const handleDownload = async () => {
+  const handleDownloadPdf = async () => {
+    setExporting(true);
     try {
       const { jsPDF } = await import("jspdf");
       const doc = new jsPDF();
       
-      doc.setFontSize(24);
-      doc.text("Smart Land - Audit Report", 20, 30);
+      // استخدام الخطوط العربية إذا كانت RTL
+      if (isRtl) {
+        doc.setFont("Helvetica", "normal");
+      }
+      
+      // Header
+      doc.setFontSize(28);
+      doc.setTextColor(234, 179, 8);
+      doc.text(isRtl ? "تقرير سمارت لاند" : "Smart Land - Audit Report", 105, 30, { align: "center" });
+      
+      // Divider
+      doc.setDrawColor(234, 179, 8);
+      doc.setLineWidth(0.5);
+      doc.line(20, 38, 190, 38);
+
+      // URL & Date
+      doc.setFontSize(11);
+      doc.setTextColor(100, 100, 100);
+      doc.text(isRtl ? `الرابط: ${result.url}` : `URL: ${result.url}`, 20, 50);
+      doc.text(isRtl ? `التاريخ: ${new Date(result.date).toLocaleDateString(isRtl ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}` : `Date: ${new Date(result.date).toLocaleDateString()}`, 20, 58);
+
+      // Overall Score
+      doc.setFontSize(36);
+      doc.setTextColor(result.overallScore >= 80 ? 34 : result.overallScore >= 60 ? 234 : 239, 
+                       result.overallScore >= 80 ? 197 : result.overallScore >= 60 ? 179 : 68, 
+                       result.overallScore >= 80 ? 94 : result.overallScore >= 60 ? 8 : 68);
+      doc.text(`${result.overallScore}/100`, 105, 80, { align: "center" });
       
       doc.setFontSize(12);
-      doc.text(`URL: ${result.url}`, 20, 50);
-      doc.text(`Date: ${new Date(result.date).toLocaleDateString()}`, 20, 60);
-      doc.text(`Overall Score: ${result.overallScore}/100`, 20, 70);
-      
+      doc.setTextColor(100, 100, 100);
+      doc.text(isRtl ? "النتيجة الإجمالية" : "Overall Score", 105, 90, { align: "center" });
+
+      // Score Breakdown
+      let yPos = 110;
       doc.setFontSize(16);
-      doc.text("Score Breakdown", 20, 90);
-      
-      let yPos = 100;
+      doc.setTextColor(234, 179, 8);
+      doc.text(isRtl ? "تفصيل النتائج" : "Score Breakdown", 20, yPos);
+      yPos += 12;
+
       const categories = Object.entries(result.scores);
       for (const [key, score] of categories) {
         doc.setFontSize(11);
-        doc.text(`${score.label}: ${score.score}/100`, 20, yPos);
-        yPos += 10;
+        doc.setTextColor(50, 50, 50);
+        const label = isRtl ? score.labelAr : score.label;
+        doc.text(`${label}: ${score.score}/100`, 20, yPos);
+        
+        // Progress bar background
+        doc.setFillColor(230, 230, 230);
+        doc.roundedRect(120, yPos - 4, 60, 6, 2, 2, "F");
+        
+        // Progress bar fill
+        const fillColor = score.score >= 80 ? [34, 197, 94] as const : score.score >= 60 ? [234, 179, 8] as const : [239, 68, 68] as const;
+        doc.setFillColor(fillColor[0], fillColor[1], fillColor[2]);
+        doc.roundedRect(120, yPos - 4, (score.score / 100) * 60, 6, 2, 2, "F");
+        
+        yPos += 12;
       }
 
+      // Strengths
+      yPos += 5;
       doc.setFontSize(16);
-      doc.text("Strengths", 20, yPos + 10);
-      yPos += 20;
-      result.strengths.slice(0, 3).forEach((s) => {
+      doc.setTextColor(34, 197, 94);
+      doc.text(isRtl ? "نقاط القوة" : "Strengths", 20, yPos);
+      yPos += 10;
+      
+      result.strengths.slice(0, 5).forEach((s) => {
         doc.setFontSize(10);
-        doc.text(`✓ ${s}`, 25, yPos);
-        yPos += 7;
-      });
-
-      doc.setFontSize(16);
-      doc.text("Action Items", 20, yPos + 10);
-      yPos += 20;
-      result.criticalIssues.slice(0, 3).forEach((issue) => {
-        doc.setFontSize(10);
-        const lines = doc.splitTextToSize(`• ${issue.issue}`, 170);
+        doc.setTextColor(80, 80, 80);
+        const lines = doc.splitTextToSize(`✓ ${s}`, 170);
         doc.text(lines, 25, yPos);
         yPos += lines.length * 5 + 3;
       });
 
+      // Critical Issues
+      if (result.criticalIssues.length > 0) {
+        yPos += 5;
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 30;
+        }
+        
+        doc.setFontSize(16);
+        doc.setTextColor(239, 68, 68);
+        doc.text(isRtl ? "المشكلات الحرجة" : "Critical Issues", 20, yPos);
+        yPos += 10;
+        
+        result.criticalIssues.slice(0, 5).forEach((issue) => {
+          doc.setFontSize(10);
+          doc.setTextColor(80, 80, 80);
+          const text = isRtl ? issue.issueAr : issue.issue;
+          const lines = doc.splitTextToSize(`• ${text}`, 170);
+          doc.text(lines, 25, yPos);
+          yPos += lines.length * 5 + 3;
+        });
+      }
+
+      // Footer
+      doc.setFontSize(8);
+      doc.setTextColor(150, 150, 150);
+      doc.text(isRtl ? "تم الإنشاء بواسطة سمارت لاند - منصة التدقيق الرقمي بالذكاء الاصطناعي" : "Generated by Smart Land - AI Digital Audit Platform", 105, 285, { align: "center" });
+
       doc.save(`smart-land-audit-${Date.now()}.pdf`);
     } catch (err) {
       console.error("PDF generation failed:", err);
+    } finally {
+      setExporting(false);
     }
+  };
+
+  const handleExportJson = () => {
+    const exportData = {
+      report: {
+        title: isRtl ? "تقرير سمارت لاند" : "Smart Land Audit Report",
+        url: result.url,
+        date: result.date,
+        overallScore: result.overallScore,
+        locale: locale,
+      },
+      scores: Object.fromEntries(
+        Object.entries(result.scores).map(([key, score]) => [
+          key,
+          {
+            score: score.score,
+            maxScore: score.maxScore,
+            label: isRtl ? score.labelAr : score.label,
+            description: isRtl ? score.descriptionAr : score.description,
+          },
+        ])
+      ),
+      strengths: result.strengths,
+      weaknesses: result.weaknesses,
+      criticalIssues: result.criticalIssues.map((issue) => ({
+        issue: isRtl ? issue.issueAr : issue.issue,
+        severity: issue.severity,
+        howToFix: isRtl ? issue.howToFixAr : issue.howToFix,
+        expectedBenefit: isRtl ? issue.expectedBenefitAr : issue.expectedBenefit,
+      })),
+      findings: result.findings.map((finding) => ({
+        issue: isRtl ? finding.issueAr : finding.issue,
+        severity: finding.severity,
+        category: finding.category,
+        evidence: isRtl ? finding.evidenceAr : finding.evidence,
+        howToFix: isRtl ? finding.howToFixAr : finding.howToFix,
+      })),
+      metadata: {
+        analyzedUrl: result.metadata.analyzedUrl,
+        analysisDate: result.metadata.analysisDate,
+        duration: result.metadata.duration,
+        dataSources: result.metadata.dataSources,
+        methodologyVersion: result.metadata.methodologyVersion,
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `smart-land-report-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handlePrint = () => {
@@ -76,12 +198,22 @@ export function PdfReport({ result, locale }: PdfReportProps) {
   return (
     <div className="flex flex-wrap gap-3">
       <button
-        onClick={handleDownload}
-        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-950 text-sm font-bold transition-all shadow-lg shadow-gold-500/25"
+        onClick={handleDownloadPdf}
+        disabled={exporting}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-gold-600 to-gold-500 hover:from-gold-500 hover:to-gold-400 text-dark-950 text-sm font-bold transition-all shadow-lg shadow-gold-500/25 disabled:opacity-50"
       >
-        <FileDown className="w-4 h-4" />
-        {isRtl ? "تحميل PDF" : "Download PDF"}
+        <FileDown className={`w-4 h-4 ${exporting ? "animate-bounce" : ""}`} />
+        {exporting ? (isRtl ? "جاري التحميل..." : "Downloading...") : (isRtl ? "تحميل PDF" : "Download PDF")}
       </button>
+      
+      <button
+        onClick={handleExportJson}
+        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white text-sm font-bold transition-all shadow-lg shadow-emerald-500/25"
+      >
+        <FileJson className="w-4 h-4" />
+        {isRtl ? "تصدير JSON" : "Export JSON"}
+      </button>
+
       <button
         onClick={handlePrint}
         className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark-800/80 border border-gold-500/20 hover:bg-dark-700 text-gold-300 text-sm font-medium transition-all"
@@ -89,6 +221,7 @@ export function PdfReport({ result, locale }: PdfReportProps) {
         <Printer className="w-4 h-4" />
         {isRtl ? "طباعة التقرير" : "Print Report"}
       </button>
+      
       <button
         onClick={handleCopyLink}
         className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark-800/80 border border-gold-500/20 hover:bg-dark-700 text-gold-300 text-sm font-medium transition-all"
