@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { Inter, Cairo } from "next/font/google";
 import "./globals.css";
 
@@ -22,13 +23,33 @@ export const metadata: Metadata = {
   keywords: ["digital audit", "SEO analysis", "website analyzer", "AI audit", "تدقيق رقمي", "تحليل مواقع"],
 };
 
+function detectLocaleFromHeaders(): string {
+  try {
+    const headersList = headers();
+    const acceptLanguage = headersList.get("accept-language") || "";
+    
+    // Check for Arabic first
+    if (acceptLanguage.includes("ar")) {
+      return "ar";
+    }
+    
+    // Default to English
+    return "en";
+  } catch {
+    return "en";
+  }
+}
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = detectLocaleFromHeaders();
+  const dir = locale === "ar" ? "rtl" : "ltr";
+
   return (
-    <html className={`${inter.variable} ${cairo.variable}`}>
+    <html lang={locale} dir={dir} className={`${inter.variable} ${cairo.variable}`}>
       <head>
         <meta charSet="utf-8" />
       </head>

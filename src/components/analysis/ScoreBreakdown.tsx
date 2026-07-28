@@ -2,13 +2,22 @@
 
 import { cn, getScoreColor, getScoreBgColor, getScoreRating } from "@/lib/utils";
 import type { CategoryScores } from "@/lib/types";
-import { Sparkles, TrendingUp, Target } from "lucide-react";
+import { Sparkles, TrendingUp, Target, Search, Zap, Eye, Shield, FileText, Wrench } from "lucide-react";
 
 interface ScoreBreakdownProps {
   overallScore: number;
   scores: CategoryScores;
   locale: string;
 }
+
+const categoryIcons: Record<string, React.ElementType> = {
+  seo: Search,
+  performance: Zap,
+  accessibility: Eye,
+  security: Shield,
+  content: FileText,
+  technical: Wrench,
+};
 
 export function ScoreBreakdown({ overallScore, scores, locale }: ScoreBreakdownProps) {
   const isRtl = locale === "ar";
@@ -19,12 +28,12 @@ export function ScoreBreakdown({ overallScore, scores, locale }: ScoreBreakdownP
   const offset = circumference - (overallScore / 100) * circumference;
 
   const categories = [
-    { key: "seo" as const, icon: "🔍" },
-    { key: "performance" as const, icon: "⚡" },
-    { key: "accessibility" as const, icon: "♿" },
-    { key: "security" as const, icon: "🔒" },
-    { key: "content" as const, icon: "📝" },
-    { key: "technical" as const, icon: "🛠️" },
+    { key: "seo" as const },
+    { key: "performance" as const },
+    { key: "accessibility" as const },
+    { key: "security" as const },
+    { key: "content" as const },
+    { key: "technical" as const },
   ];
 
   const getScoreColorGradient = (score: number) => {
@@ -97,9 +106,10 @@ export function ScoreBreakdown({ overallScore, scores, locale }: ScoreBreakdownP
 
       {/* Category Scores - Enhanced */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map(({ key, icon }) => {
+        {categories.map(({ key }) => {
           const score = scores[key];
           const gradientColor = getScoreColorGradient(score.score);
+          const Icon = categoryIcons[key];
           return (
             <div
               key={key}
@@ -111,7 +121,9 @@ export function ScoreBreakdown({ overallScore, scores, locale }: ScoreBreakdownP
               <div className="relative">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">{icon}</span>
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-gold-500/20 to-gold-600/20 flex items-center justify-center">
+                      <Icon className="w-4 h-4 text-gold-400" />
+                    </div>
                     <span className="text-sm font-medium text-gold-300 group-hover:text-gold-200 transition-colors">
                       {isRtl ? score.labelAr : score.label}
                     </span>
