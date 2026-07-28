@@ -19,110 +19,200 @@ export function PdfReport({ result, locale }: PdfReportProps) {
     setExporting(true);
     try {
       const { jsPDF } = await import("jspdf");
-      const doc = new jsPDF();
-      
-      // استخدام الخطوط العربية إذا كانت RTL
-      if (isRtl) {
-        doc.setFont("Helvetica", "normal");
-      }
-      
-      // Header
-      doc.setFontSize(28);
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      let yPos = 20;
+
+      // === HEADER ===
+      doc.setFontSize(22);
+      // استخدام Helvetica للإنجليزية و Courier للعربية (لأن jsPDF لا يدعم العربية مباشرة)
       doc.setTextColor(234, 179, 8);
-      doc.text(isRtl ? "تقرير سمارت لاند" : "Smart Land - Audit Report", 105, 30, { align: "center" });
-      
-      // Divider
+      const title = isRtl ? "تقرير سمارت لاند" : "Smart Land - Audit Report";
+      doc.text(title, 105, yPos, { align: "center" });
+      yPos += 10;
+
+      // Divider line
       doc.setDrawColor(234, 179, 8);
       doc.setLineWidth(0.5);
-      doc.line(20, 38, 190, 38);
+      doc.line(20, yPos, 190, yPos);
+      yPos += 8;
 
-      // URL & Date
-      doc.setFontSize(11);
-      doc.setTextColor(100, 100, 100);
-      doc.text(isRtl ? `الرابط: ${result.url}` : `URL: ${result.url}`, 20, 50);
-      doc.text(isRtl ? `التاريخ: ${new Date(result.date).toLocaleDateString(isRtl ? "ar-EG" : "en-US", { year: "numeric", month: "long", day: "numeric" })}` : `Date: ${new Date(result.date).toLocaleDateString()}`, 20, 58);
+      // URL and Date
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      doc.text(isRtl ? `الرابط: ${result.url}` : `URL: ${result.url}`, 20, yPos);
+      yPos += 6;
+      const dateStr = new Date(result.date).toLocaleDateString(isRtl ? "ar-EG" : "en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+      doc.text(isRtl ? `التاريخ: ${dateStr}` : `Date: ${dateStr}`, 20, yPos);
+      yPos += 12;
 
-      // Overall Score
-      doc.setFontSize(36);
-      doc.setTextColor(result.overallScore >= 80 ? 34 : result.overallScore >= 60 ? 234 : 239, 
-                       result.overallScore >= 80 ? 197 : result.overallScore >= 60 ? 179 : 68, 
-                       result.overallScore >= 80 ? 94 : result.overallScore >= 60 ? 8 : 68);
-      doc.text(`${result.overallScore}/100`, 105, 80, { align: "center" });
-      
+      // === OVERALL SCORE ===
+      doc.setFontSize(32);
+      const scoreColor = result.overallScore >= 80 ? [34, 197, 94] : result.overallScore >= 60 ? [234, 179, 8] : [239, 68, 68];
+      doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
+      doc.text(`${result.overallScore}/100`, 105, yPos, { align: "center" });
+      yPos += 8;
       doc.setFontSize(12);
       doc.setTextColor(100, 100, 100);
-      doc.text(isRtl ? "النتيجة الإجمالية" : "Overall Score", 105, 90, { align: "center" });
+      doc.text(isRtl ? "النتيجة الإجمالية" : "Overall Score", 105, yPos, { align: "center" });
+      yPos += 14;
 
-      // Score Breakdown
-      let yPos = 110;
-      doc.setFontSize(16);
+      // === SCORE BREAKDOWN ===
+      doc.setFontSize(14);
       doc.setTextColor(234, 179, 8);
       doc.text(isRtl ? "تفصيل النتائج" : "Score Breakdown", 20, yPos);
-      yPos += 12;
+      yPos += 8;
 
       const categories = Object.entries(result.scores);
       for (const [key, score] of categories) {
-        doc.setFontSize(11);
+        doc.setFontSize(10);
         doc.setTextColor(50, 50, 50);
         const label = isRtl ? score.labelAr : score.label;
         doc.text(`${label}: ${score.score}/100`, 20, yPos);
-        
+
         // Progress bar background
         doc.setFillColor(230, 230, 230);
-        doc.roundedRect(120, yPos - 4, 60, 6, 2, 2, "F");
-        
+        doc.roundedRect(110, yPos - 3, 70, 5, 2, 2, "F");
+
         // Progress bar fill
-        const fillColor = score.score >= 80 ? [34, 197, 94] as const : score.score >= 60 ? [234, 179, 8] as const : [239, 68, 68] as const;
-        doc.setFillColor(fillColor[0], fillColor[1], fillColor[2]);
-        doc.roundedRect(120, yPos - 4, (score.score / 100) * 60, 6, 2, 2, "F");
-        
-        yPos += 12;
+        const barColor = score.score >= 80 ? [34, 197, 94] as const : score.score >= 60 ? [234, 179, 8] as const : [239, 68, 68] as const;
+        doc.setFillColor(barColor[0], barColor[1], barColor[2]);
+        const barWidth = Math.min(70, (score.score / 100) * 70);
+        doc.roundedRect(110, yPos - 3, barWidth, 5, 2, 2, "F");
+
+        yPos += 10;
+
+        // New page if needed
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
       }
 
-      // Strengths
-      yPos += 5;
-      doc.setFontSize(16);
-      doc.setTextColor(34, 197, 94);
-      doc.text(isRtl ? "نقاط القوة" : "Strengths", 20, yPos);
-      yPos += 10;
-      
-      result.strengths.slice(0, 5).forEach((s) => {
-        doc.setFontSize(10);
-        doc.setTextColor(80, 80, 80);
-        const lines = doc.splitTextToSize(`✓ ${s}`, 170);
-        doc.text(lines, 25, yPos);
-        yPos += lines.length * 5 + 3;
-      });
+      yPos += 6;
 
-      // Critical Issues
-      if (result.criticalIssues.length > 0) {
-        yPos += 5;
+      // === STRENGTHS ===
+      if (result.strengths.length > 0) {
         if (yPos > 250) {
           doc.addPage();
-          yPos = 30;
+          yPos = 20;
         }
-        
-        doc.setFontSize(16);
-        doc.setTextColor(239, 68, 68);
-        doc.text(isRtl ? "المشكلات الحرجة" : "Critical Issues", 20, yPos);
-        yPos += 10;
-        
-        result.criticalIssues.slice(0, 5).forEach((issue) => {
-          doc.setFontSize(10);
-          doc.setTextColor(80, 80, 80);
-          const text = isRtl ? issue.issueAr : issue.issue;
-          const lines = doc.splitTextToSize(`• ${text}`, 170);
-          doc.text(lines, 25, yPos);
-          yPos += lines.length * 5 + 3;
-        });
+
+        doc.setFontSize(14);
+        doc.setTextColor(34, 197, 94);
+        doc.text(isRtl ? "نقاط القوة" : "Strengths", 20, yPos);
+        yPos += 8;
+
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        for (const s of result.strengths.slice(0, 5)) {
+          const lines = doc.splitTextToSize(`✓ ${s}`, 170);
+          for (const line of lines) {
+            if (yPos > 275) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.text(line, 25, yPos);
+            yPos += 5;
+          }
+          yPos += 2;
+        }
+        yPos += 4;
       }
 
-      // Footer
-      doc.setFontSize(8);
-      doc.setTextColor(150, 150, 150);
-      doc.text(isRtl ? "تم الإنشاء بواسطة سمارت لاند - منصة التدقيق الرقمي بالذكاء الاصطناعي" : "Generated by Smart Land - AI Digital Audit Platform", 105, 285, { align: "center" });
+      // === CRITICAL ISSUES ===
+      if (result.criticalIssues.length > 0) {
+        if (yPos > 240) {
+          doc.addPage();
+          yPos = 20;
+        }
 
-      doc.save(`smart-land-audit-${Date.now()}.pdf`);
+        doc.setFontSize(14);
+        doc.setTextColor(239, 68, 68);
+        doc.text(isRtl ? "المشكلات الحرجة" : "Critical Issues", 20, yPos);
+        yPos += 8;
+
+        doc.setFontSize(9);
+        doc.setTextColor(80, 80, 80);
+        for (const issue of result.criticalIssues.slice(0, 5)) {
+          const text = isRtl ? issue.issueAr : issue.issue;
+          const lines = doc.splitTextToSize(`• ${text}`, 170);
+          for (const line of lines) {
+            if (yPos > 275) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.text(line, 25, yPos);
+            yPos += 5;
+          }
+          yPos += 2;
+        }
+        yPos += 4;
+      }
+
+      // === ALL FINDINGS ===
+      if (result.findings.length > 0) {
+        if (yPos > 240) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        doc.setFontSize(14);
+        doc.setTextColor(100, 100, 100);
+        doc.text(isRtl ? "جميع النتائج" : "All Findings", 20, yPos);
+        yPos += 8;
+
+        doc.setFontSize(8);
+        doc.setTextColor(100, 100, 100);
+        for (const finding of result.findings.slice(0, 10)) {
+          const text = isRtl ? finding.issueAr : finding.issue;
+          const lines = doc.splitTextToSize(`• ${text}`, 170);
+          for (const line of lines) {
+            if (yPos > 275) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.text(line, 25, yPos);
+            yPos += 4;
+          }
+          yPos += 1;
+        }
+      }
+
+      // === FOOTER ===
+      if (yPos > 260) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.3);
+      doc.line(20, 282, 190, 282);
+
+      doc.setFontSize(7);
+      doc.setTextColor(150, 150, 150);
+      const footerText = isRtl
+        ? "تم الإنشاء بواسطة سمارت لاند - منصة التدقيق الرقمي بالذكاء الاصطناعي"
+        : "Generated by Smart Land - AI Digital Audit Platform";
+      doc.text(footerText, 105, 288, { align: "center" });
+
+      const pageCount = doc.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(7);
+        doc.setTextColor(180, 180, 180);
+        doc.text(`${i} / ${pageCount}`, 185, 288, { align: "right" });
+      }
+
+      doc.save(`smart-land-audit-report-${Date.now()}.pdf`);
     } catch (err) {
       console.error("PDF generation failed:", err);
     } finally {
