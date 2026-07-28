@@ -188,7 +188,7 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold-500/10 border border-gold-500/20 backdrop-blur-sm mb-8 gold-glow animate-fade-in-up">
             <Sparkles className="w-4 h-4 text-gold-400" />
             <span className="text-sm text-gold-300 font-medium">
-              {isRtl ? "مدعوم بالذكاء الاصطناعي" : "AI-Powered Digital Audit"}
+              {isRtl ? "سمارت لاند لتحليل المواقع والسوشيال ميديا" : "Smart Land - Analyze Websites & Social Media"}
             </span>
           </div>
 
@@ -196,18 +196,18 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
           <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
             {isRtl ? (
               <>
-                حضورك الرقمي،
+                سمارت لاند،
                 <br />
                 <span className="bg-gradient-to-r from-gold-400 via-gold-500 to-gold-300 text-transparent bg-clip-text text-glow">
-                  يُحلل بذكاء
+                  لتحليل مواقع الويب والسوشيال ميديا
                 </span>
               </>
             ) : (
               <>
-                Your Digital Presence,
+                Smart Land,
                 <br />
                 <span className="bg-gradient-to-r from-gold-400 via-gold-500 to-gold-300 text-transparent bg-clip-text text-glow">
-                  Intelligently Analyzed
+                  Analyze Websites & Social Media
                 </span>
               </>
             )}
@@ -284,46 +284,6 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
               </p>
             )}
           </form>
-
-          {/* Social Media Icons Bar */}
-          <div className="max-w-3xl mx-auto mb-10 animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
-            <p className="text-xs text-dark-500 mb-3 text-center font-medium uppercase tracking-wider">
-              {isRtl ? "أو اختر منصة للتحليل" : "Or choose a platform to analyze"}
-            </p>
-            <div className="flex items-center justify-center gap-3 flex-wrap">
-              {platforms.slice(1).map((platform) => {
-                const Icon = platformIcons[platform.id];
-                const isSelected = selectedPlatform === platform.id;
-                return (
-                  <button
-                    key={platform.id}
-                    onClick={() => setSelectedPlatform(platform.id)}
-                    className={cn(
-                      "flex flex-col items-center gap-1.5 p-3 rounded-xl transition-all duration-200 group relative",
-                      isSelected
-                        ? `bg-gradient-to-br ${platformColors[platform.id]} text-white shadow-lg scale-110`
-                        : "bg-dark-800/40 border border-gold-500/5 hover:bg-dark-800/80 hover:border-gold-500/20"
-                    )}
-                    title={platform.label}
-                  >
-                    {isSelected && (
-                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-gold-500 rounded-full animate-ping-slow" />
-                    )}
-                    <Icon className={cn(
-                      "w-5 h-5 transition-all duration-200",
-                      isSelected ? "text-white" : "text-dark-400 group-hover:text-gold-400"
-                    )} />
-                    <span className={cn(
-                      "text-[10px] font-medium transition-all duration-200",
-                      isSelected ? "text-white" : "text-dark-500 group-hover:text-gold-400"
-                    )}>
-                      {platform.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Features Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.6s" }}>
