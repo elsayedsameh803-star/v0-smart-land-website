@@ -7,8 +7,30 @@ interface VideoSectionProps {
   locale: string;
 }
 
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    badge: "DEMO VIDEO",
+    title: "See Smart Land in Action",
+    subtitle: "Watch how Smart Land transforms your digital audit experience",
+    overview: "Smart Land Overview",
+    duration: "2 min - Platform Introduction",
+    transcript: "Video Transcript",
+    transcriptText: "Smart Land is an AI-powered digital audit platform. Submit your website or supported public page. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems. Get a professional audit report with actionable recommendations. Track your improvement over time with re-analysis.",
+  },
+  ar: {
+    badge: "فيديو تعريفي",
+    title: "شاهد سمارت لاند في العمل",
+    subtitle: "شاهد كيف يمكن لسمارت لاند تحويل تحليلك الرقمي",
+    overview: "نظرة عامة على سمارت لاند",
+    duration: "دقيقتان - تعرف على المنصة",
+    transcript: "نص الفيديو",
+    transcriptText: "سمارت لاند هي منصة تدقيق رقمي مدعومة بالذكاء الاصطناعي. أرسل موقعك الإلكتروني أو صفحتك العامة المدعومة. تقوم سمارت لاند بتحليل الإشارات المتاحة الفعلية، وتكتشف نقاط القوة والضعف، وتظهر الأدلة، وتشرح كيفية إصلاح المشكلات المكتشفة. احصل على تقرير تدقيق احترافي مع توصيات قابلة للتنفيذ. تابع تحسنك بمرور الوقت من خلال إعادة التحليل.",
+  },
+};
+
 export function VideoSection({ locale }: VideoSectionProps) {
   const isRtl = locale === "ar";
+  const t = translations[locale] || translations.en;
   const [showTranscript, setShowTranscript] = useState(false);
 
   return (
@@ -23,14 +45,14 @@ export function VideoSection({ locale }: VideoSectionProps) {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20 mb-6">
             <Sparkles className="w-3.5 h-3.5 text-gold-400" />
             <span className="text-xs text-gold-400 font-medium uppercase tracking-wider">
-              {isRtl ? "فيديو تعريفي" : "DEMO VIDEO"}
+              {t.badge}
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-            {isRtl ? "شاهد سمارت لاند في العمل" : "See Smart Land in Action"}
+            {t.title}
           </h2>
           <p className="text-lg text-dark-400">
-            {isRtl ? "شاهد كيف يمكن لسمارت لاند تحويل تحليلك الرقمي" : "Watch how Smart Land transforms your digital audit experience"}
+            {t.subtitle}
           </p>
         </div>
 
@@ -56,11 +78,11 @@ export function VideoSection({ locale }: VideoSectionProps) {
           {/* Bottom info */}
           <div className="absolute bottom-6 left-6 right-6 z-20">
             <p className="text-white text-lg font-semibold text-glow">
-              {isRtl ? "نظرة عامة على سمارت لاند" : "Smart Land Overview"}
+              {t.overview}
             </p>
             <p className="text-dark-400 text-sm mt-1 flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-ping-slow" />
-              {isRtl ? "دقيقتان - تعرف على المنصة" : "2 min - Platform Introduction"}
+              {t.duration}
             </p>
           </div>
 
@@ -76,7 +98,7 @@ export function VideoSection({ locale }: VideoSectionProps) {
             onClick={() => setShowTranscript(!showTranscript)}
             className="flex items-center gap-2 text-dark-400 hover:text-gold-400 transition-colors mx-auto group"
           >
-            <span className="text-sm font-medium">{isRtl ? "نص الفيديو" : "Video Transcript"}</span>
+            <span className="text-sm font-medium">{t.transcript}</span>
             <ChevronDown className={`w-4 h-4 transition-all duration-300 ${showTranscript ? 'rotate-180' : ''} group-hover:text-gold-400`} />
           </button>
           
@@ -87,9 +109,7 @@ export function VideoSection({ locale }: VideoSectionProps) {
                   <Sparkles className="w-4 h-4 text-dark-950" />
                 </div>
                 <p className="text-sm text-dark-300 leading-relaxed">
-                  {isRtl
-                    ? "سمارت لاند هي منصة تدقيق رقمي مدعومة بالذكاء الاصطناعي. أرسل موقعك الإلكتروني أو صفحتك العامة المدعومة. تقوم سمارت لاند بتحليل الإشارات المتاحة الفعلية، وتكتشف نقاط القوة والضعف، وتظهر الأدلة، وتشرح كيفية إصلاح المشكلات المكتشفة. احصل على تقرير تدقيق احترافي مع توصيات قابلة للتنفيذ. تابع تحسنك بمرور الوقت من خلال إعادة التحليل."
-                    : "Smart Land is an AI-powered digital audit platform. Submit your website or supported public page. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems. Get a professional audit report with actionable recommendations. Track your improvement over time with re-analysis."}
+                  {t.transcriptText}
                 </p>
               </div>
             </div>

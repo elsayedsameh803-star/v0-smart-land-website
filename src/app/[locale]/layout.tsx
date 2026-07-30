@@ -1,5 +1,8 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import { GoogleAnalyticsTracker } from "@/components/GoogleAnalytics";
 import { getDictionary } from "@/lib/i18n";
 import { Toaster } from "sonner";
 
@@ -16,9 +19,13 @@ export default async function LocaleLayout({
 
   return (
     <div dir={dir} className="locale-wrapper">
+      <Suspense fallback={null}>
+        <GoogleAnalyticsTracker />
+      </Suspense>
       <Header locale={locale} dictionary={dict} />
       <main>{children}</main>
       <Footer locale={locale} />
+      <PwaInstallPrompt />
       <Toaster 
         position={locale === "ar" ? "top-left" : "top-right"} 
         toastOptions={{

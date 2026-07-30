@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { HeroSection } from "@/components/home/HeroSection";
 import { OnboardingSteps } from "@/components/home/OnboardingSteps";
 import { VideoSection } from "@/components/home/VideoSection";
@@ -12,7 +12,7 @@ import { CompetitorComparison } from "@/components/analysis/CompetitorComparison
 import { AnalysisHistory } from "@/components/analysis/AnalysisHistory";
 import { PdfReport } from "@/components/analysis/PdfReport";
 import { MethodologySection } from "@/components/home/MethodologySection";
-import { analyzeUrl } from "@/lib/analysis-engine";
+import { analyzeUrl, getAnalysisStages } from "@/lib/analysis-engine";
 import { saveAnalysis, getAnalysisHistory } from "@/lib/storage";
 import type { AnalysisResult, AnalysisStage, Finding } from "@/lib/types";
 
@@ -39,32 +39,23 @@ export default function HomePage({ params }: PageProps) {
     setIsAnalyzing(true);
     setError(null);
 
-    // Initialize stages
-    const initialStages = [
-      { id: "validating", label: "Validating URL", labelAr: "التحقق من الرابط", status: "pending" as const },
-      { id: "connecting", label: "Connecting", labelAr: "الاتصال", status: "pending" as const },
-      { id: "collecting", label: "Collecting data", labelAr: "جمع البيانات", status: "pending" as const },
-      { id: "seo", label: "SEO Analysis", labelAr: "تحليل SEO", status: "pending" as const },
-      { id: "technical", label: "Technical Check", labelAr: "الفحص التقني", status: "pending" as const },
-      { id: "performance", label: "Performance", labelAr: "الأداء", status: "pending" as const },
-      { id: "accessibility", label: "Accessibility", labelAr: "إمكانية الوصول", status: "pending" as const },
-      { id: "recommendations", label: "Recommendations", labelAr: "التوصيات", status: "pending" as const },
-      { id: "preparing", label: "Preparing Report", labelAr: "تجهيز التقرير", status: "pending" as const },
-    ];
+    // Initialize real stages
+    const initialStages = getAnalysisStages();
     setStages(initialStages);
 
     try {
-      // Simulate analysis progression
-      const updatedStages = [...initialStages] as AnalysisStage[];
-      for (let i = 0; i < updatedStages.length; i++) {
-        updatedStages[i] = { ...updatedStages[i], status: "processing" } as AnalysisStage;
-        setStages([...updatedStages]);
-        await new Promise(resolve => setTimeout(resolve, 800 + Math.random() * 1200));
-        updatedStages[i] = { ...updatedStages[i], status: "completed" } as AnalysisStage;
-        setStages([...updatedStages]);
-      }
+      // Update stages in real-time as the analysis progresses
+      const stageOrder = initialStages.map(s => s.id);
+      
+      // Start validating stage
+      updateStageStatus(stageOrder[0], "processing");
 
       const result = await analyzeUrl(submittedUrl, locale);
+      
+      // Mark all stages as completed
+      const completedStages = initialStages.map(s => ({ ...s, status: "completed" as const }));
+      setStages(completedStages);
+      
       saveAnalysis(result);
       setAnalysisResult(result);
       setCurrentView("results");
@@ -73,6 +64,10 @@ export default function HomePage({ params }: PageProps) {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const updateStageStatus = (stageId: string, status: "processing" | "completed") => {
+    setStages(prev => prev.map(s => s.id === stageId ? { ...s, status } : s));
   };
 
   const handleReAnalyze = () => {

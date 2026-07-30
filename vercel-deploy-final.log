@@ -1,0 +1,64 @@
+Vercel CLI 57.0.0 (Node.js 26.3.0)
+Retrieving projectΓÇª
+Deploying sameh-elkwaga-s-projects/smart-land
+Uploading [--------------------] (0.0B/13.9KB)
+Uploading [====================] (13.9KB/13.9KB)
+  Inspect         https://vercel.com/sameh-elkwaga-s-projects/smart-land/3CGyhwDtDi9bHWyVnoEDs2t3d7oH
+  Production      https://smart-land-9c7dy34ey-sameh-elkwaga-s-projects.vercel.app
+BuildingΓÇª
+Running build in Washington, D.C., USA (East) ΓÇô iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Downloading 71 deployment files...
+Downloading 71 deployment files...
+Restored build cache from previous deployment (HsdcQofzGniwMeLdVwJ1RSvuHqTD)
+Running "vercel build"
+Vercel CLI 56.5.0
+Installing dependencies...
+up to date in 901ms
+170 packages are looking for funding
+run `npm fund` for details
+Detected Next.js version: 14.2.35
+Running "npm run build"
+> smart-land@2.0.0 build
+> next build
+Γû▓ Next.js 14.2.35
+- Experiments (use with caution):
+┬╖ scrollRestoration
+Creating an optimized production build ...
+Γ£ô Compiled successfully
+Linting and checking validity of types ...
+Collecting page data ...
+Generating static pages (0/8) ...
+Generating static pages (2/8)
+Generating static pages (4/8)
+Generating static pages (6/8)
+Γ£ô Generating static pages (8/8)
+Finalizing page optimization ...
+Collecting build traces ...
+Route (app)                              Size     First Load JS
+Γöî ╞Æ /_not-found                          873 B          88.4 kB
+Γö£ ΓùÅ /[locale]                            25.1 kB         120 kB
+Γö£   Γö£ /en
+Γö£   Γöö /ar
+Γö£ ╞Æ /api/analyze                         0 B                0 B
+Γö£ ╞Æ /api/analyze-url                     0 B                0 B
+Γöö ╞Æ /api/analyze/youtube                 0 B                0 B
++ First Load JS shared by all            87.5 kB
+Γö£ chunks/117-f48404e42cb32be4.js       31.7 kB
+Γö£ chunks/fd9d1056-0807e69ea9c303ac.js  53.6 kB
+Γöö other shared chunks (total)          2.13 kB
+╞Æ Middleware                             26.8 kB
+ΓùÅ  (SSG)      prerendered as static HTML (uses getStaticProps)
+╞Æ  (Dynamic)  server-rendered on demand
+Traced Next.js server files in: 73.215ms
+Created all serverless functions in: 182.455ms
+Collected static files (public/, static/, .next/static): 4.984ms
+Build Completed in /vercel/output [24s]
+Deploying outputs...
+[2K[1A[2K[G  Production      https://smart-land-9c7dy34ey-sameh-elkwaga-s-projects.vercel.app
+CompletingΓÇª
+Γû▓ Aliased         https://smart-land-theta.vercel.app
+
+Γ£ô Ready in 42s
+https://smart-land-9c7dy34ey-sameh-elkwaga-s-projects.vercel.app

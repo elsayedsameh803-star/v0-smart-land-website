@@ -1,0 +1,15 @@
+# Smart Land - AI Digital Audit Platform
+# https://smart-land.vercel.app
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://smart-land.vercel.app/sitemap.xml
+
+# Disallow admin pages
+Disallow: /en/admin
+Disallow: /ar/admin
+
+# Crawl rules
+Crawl-Delay: 10

@@ -1,49 +1,85 @@
 "use client";
 
-import { Search, Brain, Target, Wrench, TrendingUp, ChevronRight } from "lucide-react";
+import { Search, Brain, Target, Wrench, TrendingUp, ChevronRight, Sparkles } from "lucide-react";
 
 interface OnboardingStepsProps {
   locale: string;
 }
 
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    badge: "HOW IT WORKS",
+    title: "How Smart Land Works",
+    subtitle: "Five simple steps to analyze and improve your digital presence",
+    step1: "Submit your link",
+    step1Desc: "Enter any public website or social media profile URL to begin the analysis.",
+    step2: "Smart Land analyzes real data",
+    step2Desc: "Our AI examines available public signals across multiple dimensions for websites and social platforms.",
+    step3: "Discover strengths & weaknesses",
+    step3Desc: "Get a transparent breakdown with evidence for every finding.",
+    step4: "Understand how to fix problems",
+    step4Desc: "Receive actionable fix recommendations with technical examples.",
+    step5: "Re-analyze & measure improvement",
+    step5Desc: "Track your progress over time with before/after comparisons.",
+    stepLabel: "Step",
+  },
+  ar: {
+    badge: "كيفية العمل",
+    title: "كيف تعمل سمارت لاند",
+    subtitle: "خمس خطوات بسيطة لتحليل وتحسين حضورك الرقمي",
+    step1: "أرسل الرابط",
+    step1Desc: "أدخل أي رابط موقع أو صفحة تواصل اجتماعي لبدء التحليل.",
+    step2: "سمارت لاند تحلل البيانات الفعلية",
+    step2Desc: "يقوم الذكاء الاصطناعي لدينا بفحص الإشارات العامة المتاحة عبر أبعاد متعددة للمواقع ومنصات التواصل.",
+    step3: "اكتشف نقاط القوة والضعف",
+    step3Desc: "احصل على تحليل شفاف مع أدلة لكل نتيجة.",
+    step4: "افهم كيفية إصلاح المشكلات",
+    step4Desc: "احصل على توصيات إصلاح قابلة للتنفيذ مع أمثلة تقنية.",
+    step5: "أعد التحليل وقياس التحسن",
+    step5Desc: "تتبع تقدمك بمرور الوقت مع مقارنات قبل/بعد.",
+    stepLabel: "الخطوة",
+  },
+};
+
 export function OnboardingSteps({ locale }: OnboardingStepsProps) {
   const isRtl = locale === "ar";
+  const t = translations[locale] || translations.en;
 
   const steps = [
     {
       icon: Search,
-      title: isRtl ? "أرسل الرابط" : "Submit your link",
-      description: isRtl ? "أدخل أي رابط موقع عام لبدء التحليل." : "Enter any public website URL to begin the analysis.",
+      title: t.step1,
+      description: t.step1Desc,
       gradient: "from-gold-500 to-gold-600",
-      stats: isRtl ? "الخطوة ١" : "Step 1",
+      stats: `${t.stepLabel} 1`,
     },
     {
       icon: Brain,
-      title: isRtl ? "سمارت لاند تحلل البيانات" : "Smart Land analyzes real data",
-      description: isRtl ? "يقوم الذكاء الاصطناعي لدينا بفحص الإشارات العامة المتاحة عبر أبعاد متعددة." : "Our AI examines available public signals across multiple dimensions.",
+      title: t.step2,
+      description: t.step2Desc,
       gradient: "from-gold-400 to-gold-600",
-      stats: isRtl ? "الخطوة ٢" : "Step 2",
+      stats: `${t.stepLabel} 2`,
     },
     {
       icon: Target,
-      title: isRtl ? "اكتشف نقاط القوة والضعف" : "Discover strengths & weaknesses",
-      description: isRtl ? "احصل على تحليل شفاف مع أدلة لكل نتيجة." : "Get a transparent breakdown with evidence for every finding.",
+      title: t.step3,
+      description: t.step3Desc,
       gradient: "from-gold-500 to-gold-700",
-      stats: isRtl ? "الخطوة ٣" : "Step 3",
+      stats: `${t.stepLabel} 3`,
     },
     {
       icon: Wrench,
-      title: isRtl ? "افهم كيفية إصلاح المشكلات" : "Understand how to fix problems",
-      description: isRtl ? "احصل على توصيات إصلاح قابلة للتنفيذ مع أمثلة تقنية." : "Receive actionable fix recommendations with technical examples.",
+      title: t.step4,
+      description: t.step4Desc,
       gradient: "from-gold-400 to-gold-500",
-      stats: isRtl ? "الخطوة ٤" : "Step 4",
+      stats: `${t.stepLabel} 4`,
     },
     {
       icon: TrendingUp,
-      title: isRtl ? "أعد التحليل وقياس التحسن" : "Re-analyze & measure improvement",
-      description: isRtl ? "تتبع تقدمك بمرور الوقت مع مقارنات قبل/بعد." : "Track your progress over time with before/after comparisons.",
+      title: t.step5,
+      description: t.step5Desc,
       gradient: "from-gold-500 to-gold-600",
-      stats: isRtl ? "الخطوة ٥" : "Step 5",
+      stats: `${t.stepLabel} 5`,
     },
   ];
 
@@ -60,16 +96,14 @@ export function OnboardingSteps({ locale }: OnboardingStepsProps) {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20 mb-6">
             <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping-slow" />
             <span className="text-xs text-gold-400 font-medium uppercase tracking-wider">
-              {isRtl ? "كيفية العمل" : "HOW IT WORKS"}
+              {t.badge}
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-            {isRtl ? "كيف تعمل سمارت لاند" : "How Smart Land Works"}
+            {t.title}
           </h2>
           <p className="text-lg text-dark-400 max-w-2xl mx-auto">
-            {isRtl
-              ? "خمس خطوات بسيطة لتحليل وتحسين حضورك الرقمي"
-              : "Five simple steps to analyze and improve your digital presence"}
+            {t.subtitle}
           </p>
         </div>
 

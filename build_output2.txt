@@ -1,0 +1,140 @@
+  Γû▓ Next.js 14.2.35
+  - Environments: .env.local
+  - Experiments (use with caution):
+    ┬╖ optimizeCss
+    ┬╖ scrollRestoration
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/14) ...
+ ΓÜá metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
+ Γ¿» useSearchParams() should be wrapped in a suspense boundary at page "/[locale]/dashboard". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:11223)
+    at c (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:22159)
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\app\_not-found\page.js:1:2063)
+    at nj (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:46252)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47572)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:61547)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64547)
+    at nB (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:67539)
+    at nD (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:66681)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64854)
+
+Error occurred prerendering page "/en/dashboard". Read more: https://nextjs.org/docs/messages/prerender-error
+
+   Generating static pages (3/14) 
+ Γ¿» useSearchParams() should be wrapped in a suspense boundary at page "/[locale]/dashboard". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:11223)
+    at c (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:22159)
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\app\_not-found\page.js:1:2063)
+    at nj (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:46252)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47572)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:61547)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64547)
+    at nB (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:67539)
+    at nD (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:66681)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64854)
+
+Error occurred prerendering page "/ar/dashboard". Read more: https://nextjs.org/docs/messages/prerender-error
+
+ Γ¿» useSearchParams() should be wrapped in a suspense boundary at page "/[locale]". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:11223)
+    at c (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:22159)
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\app\_not-found\page.js:1:2063)
+    at nj (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:46252)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47572)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:61547)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64547)
+    at nB (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:67539)
+    at nD (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:66681)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64854)
+
+Error occurred prerendering page "/en". Read more: https://nextjs.org/docs/messages/prerender-error
+
+   Generating static pages (6/14) 
+ Γ¿» useSearchParams() should be wrapped in a suspense boundary at page "/[locale]". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:11223)
+    at c (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:22159)
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\app\_not-found\page.js:1:2063)
+    at nj (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:46252)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47572)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:61547)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64547)
+    at nB (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:67539)
+    at nD (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:66681)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64854)
+
+Error occurred prerendering page "/ar". Read more: https://nextjs.org/docs/messages/prerender-error
+
+ Γ¿» useSearchParams() should be wrapped in a suspense boundary at page "/[locale]/offline". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:11223)
+    at c (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:22159)
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\app\_not-found\page.js:1:2063)
+    at nj (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:46252)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47572)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:61547)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64547)
+    at nB (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:67539)
+    at nD (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:66681)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64854)
+
+Error occurred prerendering page "/en/offline". Read more: https://nextjs.org/docs/messages/prerender-error
+
+ Γ¿» useSearchParams() should be wrapped in a suspense boundary at page "/[locale]/offline". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:11223)
+    at c (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:22159)
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\app\_not-found\page.js:1:2063)
+    at nj (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:46252)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47572)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:61547)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64547)
+    at nB (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:67539)
+    at nD (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:66681)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64854)
+
+Error occurred prerendering page "/ar/offline". Read more: https://nextjs.org/docs/messages/prerender-error
+
+Time 33.3423
+   Generating static pages (10/14) 
+ Γ¿» useSearchParams() should be wrapped in a suspense boundary at page "/[locale]/projects". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:11223)
+    at c (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:22159)
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\app\_not-found\page.js:1:2063)
+    at nj (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:46252)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47572)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:61547)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64547)
+    at nB (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:67539)
+    at nD (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:66681)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64854)
+
+Error occurred prerendering page "/en/projects". Read more: https://nextjs.org/docs/messages/prerender-error
+
+Time 3.7095
+ Γ¿» useSearchParams() should be wrapped in a suspense boundary at page "/[locale]/projects". Read more: https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:11223)
+    at c (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\chunks\493.js:1:22159)
+    at o (C:\Users\Fast\OneDrive\Desktop\new smart land\.next\server\app\_not-found\page.js:1:2063)
+    at nj (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:46252)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:47572)
+    at nM (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:61547)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64547)
+    at nB (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:67539)
+    at nD (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:66681)
+    at nL (C:\Users\Fast\OneDrive\Desktop\new smart land\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:64854)
+
+Error occurred prerendering page "/ar/projects". Read more: https://nextjs.org/docs/messages/prerender-error
+
+ Γ£ô Generating static pages (14/14)
+
+> Export encountered errors on following paths:
+	/[locale]/dashboard/page: /ar/dashboard
+	/[locale]/dashboard/page: /en/dashboard
+	/[locale]/offline/page: /ar/offline
+	/[locale]/offline/page: /en/offline
+	/[locale]/page: /ar
+	/[locale]/page: /en
+	/[locale]/projects/page: /ar/projects
+	/[locale]/projects/page: /en/projects

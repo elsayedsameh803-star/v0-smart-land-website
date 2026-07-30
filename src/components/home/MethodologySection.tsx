@@ -6,63 +6,101 @@ interface MethodologySectionProps {
   locale: string;
 }
 
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    badge: "OUR METHODOLOGY",
+    title: "Methodology & Trust",
+    subtitle: "How Smart Land transparently analyzes and evaluates digital presence",
+    tag1: "Analysis",
+    tag2: "Metrics",
+    tag3: "Accuracy",
+    tag4: "Scoring",
+    tag5: "Transparency",
+    tag6: "Privacy",
+    item1Title: "What We Analyze",
+    item1Desc: "We examine publicly available signals from your website including HTML structure, HTTP headers, performance metrics, accessibility attributes, and security configurations.",
+    item2Title: "Signals Measured",
+    item2Desc: "We measure over 100 individual signals across six categories. Each signal is verified where possible through direct observation.",
+    item3Title: "Verified vs. Inferred",
+    item3Desc: "Where possible, we directly observe and verify data. Some insights are inferred based on established best practices. We clearly label which is which.",
+    item4Title: "How Scoring Works",
+    item4Desc: "Each category is scored from 0-100 based on positive signal ratio. The overall score is a weighted average. Every deduction is traceable to specific evidence.",
+    item5Title: "Data Limitations",
+    item5Desc: "We only analyze publicly available data. We cannot access protected pages or internal systems. Results reflect the URL state at time of analysis.",
+    item6Title: "Privacy Principles",
+    item6Desc: "We only analyze URLs you submit. We don't store personal data. Results are stored securely and can be deleted on request. We don't share your data.",
+  },
+  ar: {
+    badge: "منهجيتنا",
+    title: "المنهجية والثقة",
+    subtitle: "كيف تقوم سمارت لاند بتحليل وتقييم الحضور الرقمي بشفافية",
+    tag1: "تحليل",
+    tag2: "قياس",
+    tag3: "دقة",
+    tag4: "تقييم",
+    tag5: "شفافية",
+    tag6: "خصوصية",
+    item1Title: "ماذا نحلل",
+    item1Desc: "نفحص الإشارات العامة المتاحة من موقعك بما في ذلك هيكل HTML، ورؤوس HTTP، ومقاييس الأداء، وسمات إمكانية الوصول، وتكوينات الأمان.",
+    item2Title: "الإشارات المقاسة",
+    item2Desc: "نقيس أكثر من 100 إشارة فردية عبر ست فئات. يتم التحقق من كل إشارة حيثما أمكن من خلال الملاحظة المباشرة.",
+    item3Title: "البيانات المؤكدة مقابل المستنتجة",
+    item3Desc: "حيثما أمكن، نراقب ونتحقق من البيانات مباشرة. بعض الرؤى تستنتج بناءً على أفضل الممارسات المعتمدة. نصنف بوضوح كل منهما.",
+    item4Title: "كيف تعمل آلية التسجيل",
+    item4Desc: "تُسجل كل فئة من 0-100 بناءً على نسبة الإشارات الإيجابية. النتيجة الإجمالية متوسط مرجح. كل خصم يمكن تتبعه إلى دليل محدد.",
+    item5Title: "حدود البيانات",
+    item5Desc: "نحلل البيانات العامة المتاحة فقط. لا نصل للصفحات المحمية أو الأنظمة الداخلية. النتائج تعبر عن حالة الرابط وقت التحليل.",
+    item6Title: "مبادئ الخصوصية",
+    item6Desc: "نحلل فقط الروابط التي ترسلها. لا نخزن بيانات شخصية. النتائج مخزنة بأمان ويمكن حذفها عند الطلب. لا نشارك بياناتك مع أطراف ثالثة.",
+  },
+};
+
 export function MethodologySection({ locale }: MethodologySectionProps) {
   const isRtl = locale === "ar";
+  const t = translations[locale] || translations.en;
 
   const items = [
     {
       icon: FileSearch,
-      title: isRtl ? "ماذا نحلل" : "What We Analyze",
-      description: isRtl
-        ? "نفحص الإشارات العامة المتاحة من موقعك بما في ذلك هيكل HTML، ورؤوس HTTP، ومقاييس الأداء، وسمات إمكانية الوصول، وتكوينات الأمان."
-        : "We examine publicly available signals from your website including HTML structure, HTTP headers, performance metrics, accessibility attributes, and security configurations.",
+      title: t.item1Title,
+      description: t.item1Desc,
       gradient: "from-gold-500 to-gold-600",
-      tag: isRtl ? "تحليل" : "Analysis",
+      tag: t.tag1,
     },
     {
       icon: BarChart3,
-      title: isRtl ? "الإشارات المقاسة" : "Signals Measured",
-      description: isRtl
-        ? "نقيس أكثر من 100 إشارة فردية عبر ست فئات. يتم التحقق من كل إشارة حيثما أمكن من خلال الملاحظة المباشرة."
-        : "We measure over 100 individual signals across six categories. Each signal is verified where possible through direct observation.",
+      title: t.item2Title,
+      description: t.item2Desc,
       gradient: "from-gold-400 to-gold-600",
-      tag: isRtl ? "قياس" : "Metrics",
+      tag: t.tag2,
     },
     {
       icon: Scale,
-      title: isRtl ? "البيانات المؤكدة مقابل المستنتجة" : "Verified vs. Inferred",
-      description: isRtl
-        ? "حيثما أمكن، نراقب ونتحقق من البيانات مباشرة. بعض الرؤى تستنتج بناءً على أفضل الممارسات المعتمدة. نصنف بوضوح كل منهما."
-        : "Where possible, we directly observe and verify data. Some insights are inferred based on established best practices. We clearly label which is which.",
+      title: t.item3Title,
+      description: t.item3Desc,
       gradient: "from-gold-500 to-gold-700",
-      tag: isRtl ? "دقة" : "Accuracy",
+      tag: t.tag3,
     },
     {
       icon: Shield,
-      title: isRtl ? "كيف تعمل آلية التسجيل" : "How Scoring Works",
-      description: isRtl
-        ? "تُسجل كل فئة من 0-100 بناءً على نسبة الإشارات الإيجابية. النتيجة الإجمالية متوسط مرجح. كل خصم يمكن تتبعه إلى دليل محدد."
-        : "Each category is scored from 0-100 based on positive signal ratio. The overall score is a weighted average. Every deduction is traceable to specific evidence.",
+      title: t.item4Title,
+      description: t.item4Desc,
       gradient: "from-gold-400 to-gold-500",
-      tag: isRtl ? "تقييم" : "Scoring",
+      tag: t.tag4,
     },
     {
       icon: AlertTriangle,
-      title: isRtl ? "حدود البيانات" : "Data Limitations",
-      description: isRtl
-        ? "نحلل البيانات العامة المتاحة فقط. لا نصل للصفحات المحمية أو الأنظمة الداخلية. النتائج تعبر عن حالة الرابط وقت التحليل."
-        : "We only analyze publicly available data. We cannot access protected pages or internal systems. Results reflect the URL state at time of analysis.",
+      title: t.item5Title,
+      description: t.item5Desc,
       gradient: "from-gold-500 to-gold-600",
-      tag: isRtl ? "شفافية" : "Transparency",
+      tag: t.tag5,
     },
     {
       icon: Lock,
-      title: isRtl ? "مبادئ الخصوصية" : "Privacy Principles",
-      description: isRtl
-        ? "نحلل فقط الروابط التي ترسلها. لا نخزن بيانات شخصية. النتائج مخزنة بأمان ويمكن حذفها عند الطلب. لا نشارك بياناتك مع أطراف ثالثة."
-        : "We only analyze URLs you submit. We don't store personal data. Results are stored securely and can be deleted on request. We don't share your data.",
+      title: t.item6Title,
+      description: t.item6Desc,
       gradient: "from-gold-400 to-gold-500",
-      tag: isRtl ? "خصوصية" : "Privacy",
+      tag: t.tag6,
     },
   ];
 
@@ -79,16 +117,14 @@ export function MethodologySection({ locale }: MethodologySectionProps) {
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20 mb-6">
             <CheckCircle className="w-3.5 h-3.5 text-gold-400" />
             <span className="text-xs text-gold-400 font-medium uppercase tracking-wider">
-              {isRtl ? "منهجيتنا" : "OUR METHODOLOGY"}
+              {t.badge}
             </span>
           </div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
-            {isRtl ? "المنهجية والثقة" : "Methodology & Trust"}
+            {t.title}
           </h2>
           <p className="text-lg text-dark-400 max-w-2xl mx-auto">
-            {isRtl
-              ? "كيف تقوم سمارت لاند بتحليل وتقييم الحضور الرقمي بشفافية"
-              : "How Smart Land transparently analyzes and evaluates digital presence"}
+            {t.subtitle}
           </p>
         </div>
 

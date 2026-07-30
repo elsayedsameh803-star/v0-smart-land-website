@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { ArrowRight, Sparkles, Globe, Shield, Zap, BarChart3, Youtube, Facebook, Instagram, Music2, Camera, Linkedin, ChevronDown } from "lucide-react";
+import { ArrowRight, Sparkles, Globe, Shield, Zap, BarChart3, Youtube, Facebook, Instagram, Music2, Camera, Linkedin, ChevronDown, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface HeroSectionProps {
@@ -31,14 +31,79 @@ const platformColors: Record<Platform, string> = {
   linkedin: "from-blue-500 to-blue-600",
 };
 
+// Translations for this component
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    badge: "Smart Land - Analyze Websites & Social Media",
+    title1: "Smart Land,",
+    title2: "Analyze Websites & Social Media",
+    subtitle: "Submit your website or social media URL. Get instant AI-powered analysis with evidence-based insights and actionable recommendations.",
+    platformLabel: "Select the platform you want to analyze:",
+    placeholderWebsite: "Enter your website URL (e.g., example.com)",
+    placeholderYoutube: "Enter YouTube channel or video URL",
+    placeholderFacebook: "Enter Facebook page or profile URL",
+    placeholderInstagram: "Enter Instagram profile URL",
+    placeholderTiktok: "Enter TikTok profile URL",
+    placeholderSnapchat: "Enter Snapchat profile URL",
+    placeholderLinkedin: "Enter LinkedIn profile or company URL",
+    btnWebsite: "Analyze Your Site",
+    btnYoutube: "Analyze Your Channel",
+    btnFacebook: "Analyze Your Page",
+    btnInstagram: "Analyze Your Profile",
+    btnTiktok: "Analyze Your Profile",
+    btnSnapchat: "Analyze Your Profile",
+    btnLinkedin: "Analyze Your Profile",
+    errorEmpty: "Please enter a valid URL to analyze",
+    errorInvalid: "Please enter a valid URL (e.g., example.com)",
+    trusted: "Trusted by digital teams worldwide",
+    scroll: "Scroll",
+    featureSeo: "SEO Analysis",
+    featurePerf: "Performance",
+    featureSec: "Security Check",
+    featureFull: "Full Audit",
+    platformWebsite: "Website",
+  },
+  ar: {
+    badge: "سمارت لاند لتحليل المواقع والسوشيال ميديا",
+    title1: "سمارت لاند،",
+    title2: "لتحليل المواقع والسوشيال ميديا",
+    subtitle: "أرسل رابط موقعك أو صفحتك على التواصل الاجتماعي. احصل على تحليل فوري بالذكاء الاصطناعي مع رؤى قائمة على الأدلة وتوصيات قابلة للتنفيذ.",
+    platformLabel: "اختر نوع المنصة التي تريد تحليلها:",
+    placeholderWebsite: "أدخل رابط موقعك (مثال: example.com)",
+    placeholderYoutube: "أدخل رابط قناة أو فيديو يوتيوب",
+    placeholderFacebook: "أدخل رابط صفحة أو بروفايل فيسبوك",
+    placeholderInstagram: "أدخل رابط بروفايل إنستغرام",
+    placeholderTiktok: "أدخل رابط بروفايل تيك توك",
+    placeholderSnapchat: "أدخل رابط بروفايل سناب شات",
+    placeholderLinkedin: "أدخل رابط بروفايل أو شركة لينكد إن",
+    btnWebsite: "حلل موقعك الآن",
+    btnYoutube: "حلل قناتك الآن",
+    btnFacebook: "حلل صفحتك الآن",
+    btnInstagram: "حلل حسابك الآن",
+    btnTiktok: "حلل حسابك الآن",
+    btnSnapchat: "حلل حسابك الآن",
+    btnLinkedin: "حلل بروفايلك الآن",
+    errorEmpty: "يرجى إدخال رابط للتحليل",
+    errorInvalid: "يرجى إدخال رابط صحيح (مثال: example.com)",
+    trusted: "موثوق من فرق رقمية حول العالم",
+    scroll: "اسفل",
+    featureSeo: "تحليل SEO",
+    featurePerf: "تحليل الأداء",
+    featureSec: "فحص الأمان",
+    featureFull: "تحليل شامل",
+    platformWebsite: "موقع",
+  },
+};
+
 export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
   const [url, setUrl] = useState("");
-  const [isValid, setIsValid] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<Platform>("website");
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
   const isRtl = locale === "ar";
+  const t = translations[locale] || translations.en;
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -61,60 +126,31 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedUrl = url.trim();
+    
     if (!trimmedUrl) {
-      setIsValid(false);
+      setError(t.errorEmpty);
       return;
     }
-    setIsValid(true);
+    
+    // Basic URL validation
+    const hasValidFormat = /^[a-zA-Z0-9][a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(trimmedUrl.replace(/^https?:\/\//, ""));
+    if (!hasValidFormat) {
+      setError(t.errorInvalid);
+      return;
+    }
+    
+    setError(null);
     onAnalyze(trimmedUrl, selectedPlatform);
   };
 
   const getPlaceholder = () => {
-    if (isRtl) {
-      switch (selectedPlatform) {
-        case "website": return "أدخل رابط موقعك (مثال: example.com)";
-        case "youtube": return "أدخل رابط قناة أو فيديو يوتيوب";
-        case "facebook": return "أدخل رابط صفحة أو بروفايل فيسبوك";
-        case "instagram": return "أدخل رابط بروفايل إنستغرام";
-        case "tiktok": return "أدخل رابط بروفايل تيك توك";
-        case "snapchat": return "أدخل رابط بروفايل سناب شات";
-        case "linkedin": return "أدخل رابط بروفايل أو شركة لينكد إن";
-      }
-    } else {
-      switch (selectedPlatform) {
-        case "website": return "Enter your website URL (e.g., example.com)";
-        case "youtube": return "Enter YouTube channel or video URL";
-        case "facebook": return "Enter Facebook page or profile URL";
-        case "instagram": return "Enter Instagram profile URL";
-        case "tiktok": return "Enter TikTok profile URL";
-        case "snapchat": return "Enter Snapchat profile URL";
-        case "linkedin": return "Enter LinkedIn profile or company URL";
-      }
-    }
+    const key = `placeholder${selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)}` as keyof typeof t;
+    return t[key] || t.placeholderWebsite;
   };
 
   const getButtonText = () => {
-    if (isRtl) {
-      switch (selectedPlatform) {
-        case "website": return "حلل موقعك الآن";
-        case "youtube": return "حلل قناتك الآن";
-        case "facebook": return "حلل صفحتك الآن";
-        case "instagram": return "حلل حسابك الآن";
-        case "tiktok": return "حلل حسابك الآن";
-        case "snapchat": return "حلل حسابك الآن";
-        case "linkedin": return "حلل بروفايلك الآن";
-      }
-    } else {
-      switch (selectedPlatform) {
-        case "website": return "Analyze Your Site";
-        case "youtube": return "Analyze Your Channel";
-        case "facebook": return "Analyze Your Page";
-        case "instagram": return "Analyze Your Profile";
-        case "tiktok": return "Analyze Your Profile";
-        case "snapchat": return "Analyze Your Profile";
-        case "linkedin": return "Analyze Your Profile";
-      }
-    }
+    const key = `btn${selectedPlatform.charAt(0).toUpperCase() + selectedPlatform.slice(1)}` as keyof typeof t;
+    return t[key] || t.btnWebsite;
   };
 
   const platforms: { id: Platform; label: string }[] = [
@@ -128,16 +164,16 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
   ];
 
   const features = [
-    { icon: BarChart3, label: isRtl ? "تحليل SEO" : "SEO Analysis", color: "from-gold-500 to-gold-600" },
-    { icon: Zap, label: isRtl ? "تحليل الأداء" : "Performance", color: "from-gold-400 to-gold-600" },
-    { icon: Shield, label: isRtl ? "فحص الأمان" : "Security Check", color: "from-gold-500 to-gold-700" },
-    { icon: Globe, label: isRtl ? "تحليل شامل" : "Full Audit", color: "from-gold-400 to-gold-500" },
+    { icon: BarChart3, label: t.featureSeo, color: "from-gold-500 to-gold-600" },
+    { icon: Zap, label: t.featurePerf, color: "from-gold-400 to-gold-600" },
+    { icon: Shield, label: t.featureSec, color: "from-gold-500 to-gold-700" },
+    { icon: Globe, label: t.featureFull, color: "from-gold-400 to-gold-500" },
   ];
 
   return (
     <section 
       ref={sectionRef}
-      className="relative min-h-[100vh] flex items-center justify-center overflow-hidden"
+      className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -178,52 +214,50 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce-slow">
-        <span className="text-xs text-dark-500">{isRtl ? "اسفل" : "Scroll"}</span>
+        <span className="text-xs text-dark-500">{t.scroll}</span>
         <ChevronDown className="w-4 h-4 text-gold-500/50" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 md:py-40">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 lg:py-40 w-full">
         <div className="text-center max-w-4xl mx-auto">
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold-500/10 border border-gold-500/20 backdrop-blur-sm mb-8 gold-glow animate-fade-in-up">
             <Sparkles className="w-4 h-4 text-gold-400" />
             <span className="text-sm text-gold-300 font-medium">
-              {isRtl ? "سمارت لاند لتحليل المواقع والسوشيال ميديا" : "Smart Land - Analyze Websites & Social Media"}
+              {t.badge}
             </span>
           </div>
 
-          {/* Title */}
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-bold text-white mb-6 leading-tight animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+          {/* Title - Bigger and more prominent */}
+          <h1 className="text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-bold text-white mb-6 leading-tight animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
             {isRtl ? (
               <>
-                سمارت لاند،
+                {t.title1}
                 <br />
                 <span className="bg-gradient-to-r from-gold-400 via-gold-500 to-gold-300 text-transparent bg-clip-text text-glow">
-                  لتحليل مواقع الويب والسوشيال ميديا
+                  {t.title2}
                 </span>
               </>
             ) : (
               <>
-                Smart Land,
+                {t.title1}
                 <br />
                 <span className="bg-gradient-to-r from-gold-400 via-gold-500 to-gold-300 text-transparent bg-clip-text text-glow">
-                  Analyze Websites & Social Media
+                  {t.title2}
                 </span>
               </>
             )}
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-dark-300 mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            {isRtl
-              ? "أرسل رابط موقعك الإلكتروني أو صفحتك على التواصل الاجتماعي. تقوم سمارت لاند بتحليل الإشارات المتاحة الفعلية، وتكتشف نقاط القوة والضعف، وتظهر الأدلة، وتشرح كيفية إصلاح المشكلات المكتشفة."
-              : "Submit your website or social media profile URL. Smart Land analyzes real available signals, detects strengths and weaknesses, shows evidence, and explains how to fix detected problems."}
+          {/* Subtitle - Shorter and clearer */}
+          <p className="text-lg sm:text-xl text-dark-300 mb-10 max-w-3xl mx-auto leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+            {t.subtitle}
           </p>
 
           {/* Platform Selector */}
           <div className="max-w-3xl mx-auto mb-8 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
             <p className="text-sm text-dark-400 mb-4 text-center font-medium">
-              {isRtl ? "اختر نوع المنصة التي تريد تحليلها:" : "Select the platform you want to analyze:"}
+              {t.platformLabel}
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {platforms.map((platform) => {
@@ -256,14 +290,15 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
                 <input
                   type="text"
                   value={url}
-                  onChange={(e) => { setUrl(e.target.value); setIsValid(true); }}
+                  onChange={(e) => { setUrl(e.target.value); if (error) setError(null); }}
                   placeholder={getPlaceholder()}
                   className={cn(
                     "relative w-full px-6 py-4 rounded-xl bg-dark-800/80 border text-white placeholder-dark-400 text-lg transition-all duration-200 backdrop-blur-sm",
-                    "focus:outline-none focus:ring-2 focus:ring-gold-500/30",
-                    isValid ? 'border-gold-500/30 focus:border-gold-500' : 'border-red-500 focus:border-red-500'
+                    "focus:outline-none focus:ring-2",
+                    error ? 'border-red-500 focus:ring-red-500/30' : 'border-gold-500/30 focus:ring-gold-500/30 focus:border-gold-500'
                   )}
                   dir={isRtl ? "rtl" : "ltr"}
+                  aria-label={getPlaceholder()}
                 />
               </div>
               <button
@@ -278,10 +313,11 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
                 </span>
               </button>
             </div>
-            {!isValid && (
-              <p className="text-red-400 text-sm mt-2 text-right animate-fade-in">
-                {isRtl ? "يرجى إدخال رابط صحيح" : "Please enter a valid URL"}
-              </p>
+            {error && (
+              <div className="flex items-center gap-2 mt-3 text-red-400 text-sm animate-fade-in" role="alert">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{error}</span>
+              </div>
             )}
           </form>
 
@@ -300,16 +336,16 @@ export function HeroSection({ onAnalyze, locale }: HeroSectionProps) {
             ))}
           </div>
 
-          {/* Trust indicator */}
+          {/* Trust indicator - Enhanced */}
           <div className="animate-fade-in-up" style={{ animationDelay: "0.7s" }}>
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-dark-800/40 border border-gold-500/5 mt-8">
+            <div className="inline-flex items-center gap-3 px-5 py-3 rounded-full bg-dark-800/40 border border-gold-500/5 mt-8 hover:bg-dark-800/60 hover:border-gold-500/20 transition-all duration-300">
               <span className="flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping-slow" />
                 <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping-slow" style={{ animationDelay: "0.5s" }} />
                 <span className="w-2 h-2 rounded-full bg-gold-500 animate-ping-slow" style={{ animationDelay: "1s" }} />
               </span>
-              <span className="text-dark-500 text-sm">
-                {isRtl ? "موثوق من فرق رقمية حول العالم" : "Trusted by digital teams worldwide"}
+              <span className="text-dark-400 text-sm font-medium">
+                {t.trusted}
               </span>
             </div>
           </div>

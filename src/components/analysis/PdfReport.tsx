@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { FileDown, Printer, CheckCircle2, Copy, FileJson, Download } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { useState, useRef } from "react";
+import { FileDown, Printer, CheckCircle2, Copy, FileJson } from "lucide-react";
 import type { AnalysisResult } from "@/lib/types";
 
 interface PdfReportProps {
@@ -14,195 +13,137 @@ export function PdfReport({ result, locale }: PdfReportProps) {
   const isRtl = locale === "ar";
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const handleDownloadPdf = async () => {
     setExporting(true);
     try {
-      const { jsPDF } = await import("jspdf");
-      const doc = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
+      const [{ jsPDF }, html2canvas] = await Promise.all([
+        import("jspdf"),
+        import("html2canvas"),
+      ]);
 
-      let yPos = 20;
+      const container = document.createElement("div");
+      container.style.position = "absolute";
+      container.style.left = "-9999px";
+      container.style.top = "0";
+      container.style.width = "800px";
+      container.style.padding = "40px";
+      container.style.fontFamily = "Arial, sans-serif";
+      container.style.direction = isRtl ? "rtl" : "ltr";
+      container.style.textAlign = isRtl ? "right" : "left";
+      container.style.background = "#ffffff";
+      container.style.color = "#333333";
+      container.style.fontSize = "14px";
+      container.style.lineHeight = "1.6";
+      document.body.appendChild(container);
 
-      // === HEADER ===
-      doc.setFontSize(22);
-      // استخدام Helvetica للإنجليزية و Courier للعربية (لأن jsPDF لا يدعم العربية مباشرة)
-      doc.setTextColor(234, 179, 8);
-      const title = isRtl ? "تقرير سمارت لاند" : "Smart Land - Audit Report";
-      doc.text(title, 105, yPos, { align: "center" });
-      yPos += 10;
+      const scoreColor = result.overallScore >= 80 ? "#22c55e" : result.overallScore >= 60 ? "#eab308" : "#ef4444";
+      const getBarColor = (score: number) => score >= 80 ? "#22c55e" : score >= 60 ? "#eab308" : "#ef4444";
 
-      // Divider line
-      doc.setDrawColor(234, 179, 8);
-      doc.setLineWidth(0.5);
-      doc.line(20, yPos, 190, yPos);
-      yPos += 8;
-
-      // URL and Date
-      doc.setFontSize(10);
-      doc.setTextColor(80, 80, 80);
-      doc.text(isRtl ? `الرابط: ${result.url}` : `URL: ${result.url}`, 20, yPos);
-      yPos += 6;
       const dateStr = new Date(result.date).toLocaleDateString(isRtl ? "ar-EG" : "en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
+        year: "numeric", month: "long", day: "numeric",
       });
-      doc.text(isRtl ? `التاريخ: ${dateStr}` : `Date: ${dateStr}`, 20, yPos);
-      yPos += 12;
 
-      // === OVERALL SCORE ===
-      doc.setFontSize(32);
-      const scoreColor = result.overallScore >= 80 ? [34, 197, 94] : result.overallScore >= 60 ? [234, 179, 8] : [239, 68, 68];
-      doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
-      doc.text(`${result.overallScore}/100`, 105, yPos, { align: "center" });
-      yPos += 8;
-      doc.setFontSize(12);
-      doc.setTextColor(100, 100, 100);
-      doc.text(isRtl ? "النتيجة الإجمالية" : "Overall Score", 105, yPos, { align: "center" });
-      yPos += 14;
-
-      // === SCORE BREAKDOWN ===
-      doc.setFontSize(14);
-      doc.setTextColor(234, 179, 8);
-      doc.text(isRtl ? "تفصيل النتائج" : "Score Breakdown", 20, yPos);
-      yPos += 8;
-
+      let categoriesHtml = "";
       const categories = Object.entries(result.scores);
-      for (const [key, score] of categories) {
-        doc.setFontSize(10);
-        doc.setTextColor(50, 50, 50);
+      for (const [, score] of categories) {
         const label = isRtl ? score.labelAr : score.label;
-        doc.text(`${label}: ${score.score}/100`, 20, yPos);
-
-        // Progress bar background
-        doc.setFillColor(230, 230, 230);
-        doc.roundedRect(110, yPos - 3, 70, 5, 2, 2, "F");
-
-        // Progress bar fill
-        const barColor = score.score >= 80 ? [34, 197, 94] as const : score.score >= 60 ? [234, 179, 8] as const : [239, 68, 68] as const;
-        doc.setFillColor(barColor[0], barColor[1], barColor[2]);
-        const barWidth = Math.min(70, (score.score / 100) * 70);
-        doc.roundedRect(110, yPos - 3, barWidth, 5, 2, 2, "F");
-
-        yPos += 10;
-
-        // New page if needed
-        if (yPos > 270) {
-          doc.addPage();
-          yPos = 20;
-        }
+        const barColor = getBarColor(score.score);
+        categoriesHtml += `
+          <div style="margin-bottom:12px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+              <span style="font-size:13px;color:#444;">${label}</span>
+              <span style="font-size:13px;font-weight:bold;color:${barColor};">${score.score}/100</span>
+            </div>
+            <div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;">
+              <div style="background:${barColor};width:${Math.min(100, score.score)}%;height:10px;border-radius:6px;"></div>
+            </div>
+          </div>`;
       }
 
-      yPos += 6;
-
-      // === STRENGTHS ===
+      let strengthsHtml = "";
       if (result.strengths.length > 0) {
-        if (yPos > 250) {
-          doc.addPage();
-          yPos = 20;
-        }
-
-        doc.setFontSize(14);
-        doc.setTextColor(34, 197, 94);
-        doc.text(isRtl ? "نقاط القوة" : "Strengths", 20, yPos);
-        yPos += 8;
-
-        doc.setFontSize(9);
-        doc.setTextColor(80, 80, 80);
-        for (const s of result.strengths.slice(0, 5)) {
-          const lines = doc.splitTextToSize(`✓ ${s}`, 170);
-          for (const line of lines) {
-            if (yPos > 275) {
-              doc.addPage();
-              yPos = 20;
-            }
-            doc.text(line, 25, yPos);
-            yPos += 5;
-          }
-          yPos += 2;
-        }
-        yPos += 4;
+        strengthsHtml = `
+          <div style="margin-top:20px;">
+            <h2 style="color:#22c55e;font-size:16px;font-weight:bold;margin-bottom:8px;">${isRtl ? "نقاط القوة" : "Strengths"}</h2>
+            ${result.strengths.slice(0, 5).map((s) => `<div style="padding:4px 0;font-size:12px;color:#555;">✓ ${s}</div>`).join("")}
+          </div>`;
       }
 
-      // === CRITICAL ISSUES ===
+      let criticalIssuesHtml = "";
       if (result.criticalIssues.length > 0) {
-        if (yPos > 240) {
-          doc.addPage();
-          yPos = 20;
-        }
-
-        doc.setFontSize(14);
-        doc.setTextColor(239, 68, 68);
-        doc.text(isRtl ? "المشكلات الحرجة" : "Critical Issues", 20, yPos);
-        yPos += 8;
-
-        doc.setFontSize(9);
-        doc.setTextColor(80, 80, 80);
-        for (const issue of result.criticalIssues.slice(0, 5)) {
-          const text = isRtl ? issue.issueAr : issue.issue;
-          const lines = doc.splitTextToSize(`• ${text}`, 170);
-          for (const line of lines) {
-            if (yPos > 275) {
-              doc.addPage();
-              yPos = 20;
-            }
-            doc.text(line, 25, yPos);
-            yPos += 5;
-          }
-          yPos += 2;
-        }
-        yPos += 4;
+        criticalIssuesHtml = `
+          <div style="margin-top:20px;">
+            <h2 style="color:#ef4444;font-size:16px;font-weight:bold;margin-bottom:8px;">${isRtl ? "المشكلات الحرجة" : "Critical Issues"}</h2>
+            ${result.criticalIssues.slice(0, 5).map((issue) => `<div style="padding:4px 0;font-size:12px;color:#555;">• ${isRtl ? issue.issueAr : issue.issue}</div>`).join("")}
+          </div>`;
       }
 
-      // === ALL FINDINGS ===
+      let findingsHtml = "";
       if (result.findings.length > 0) {
-        if (yPos > 240) {
-          doc.addPage();
-          yPos = 20;
-        }
-
-        doc.setFontSize(14);
-        doc.setTextColor(100, 100, 100);
-        doc.text(isRtl ? "جميع النتائج" : "All Findings", 20, yPos);
-        yPos += 8;
-
-        doc.setFontSize(8);
-        doc.setTextColor(100, 100, 100);
-        for (const finding of result.findings.slice(0, 10)) {
-          const text = isRtl ? finding.issueAr : finding.issue;
-          const lines = doc.splitTextToSize(`• ${text}`, 170);
-          for (const line of lines) {
-            if (yPos > 275) {
-              doc.addPage();
-              yPos = 20;
-            }
-            doc.text(line, 25, yPos);
-            yPos += 4;
-          }
-          yPos += 1;
-        }
+        findingsHtml = `
+          <div style="margin-top:20px;">
+            <h2 style="color:#666;font-size:16px;font-weight:bold;margin-bottom:8px;">${isRtl ? "جميع النتائج" : "All Findings"}</h2>
+            ${result.findings.slice(0, 10).map((f) => `<div style="padding:3px 0;font-size:11px;color:#777;">• ${isRtl ? f.issueAr : f.issue}</div>`).join("")}
+          </div>`;
       }
 
-      // === FOOTER ===
-      if (yPos > 260) {
+      container.innerHTML = `
+        <div style="text-align:center;margin-bottom:20px;">
+          <h1 style="color:#eab308;font-size:24px;font-weight:bold;margin:0;">${isRtl ? "تقرير سمارت لاند لتحليل المواقع والسوشيال ميديا" : "Smart Land - Website & Social Media Analysis Report"}</h1>
+          <hr style="border:none;border-top:2px solid #eab308;margin:12px 0;" />
+          <div style="font-size:12px;color:#888;">
+            <div>${isRtl ? "الرابط" : "URL"}: ${result.url}</div>
+            <div>${isRtl ? "التاريخ" : "Date"}: ${dateStr}</div>
+          </div>
+        </div>
+        <div style="text-align:center;margin:20px 0;">
+          <div style="font-size:40px;font-weight:bold;color:${scoreColor};">${result.overallScore}/100</div>
+          <div style="font-size:14px;color:#999;">${isRtl ? "النتيجة الإجمالية" : "Overall Score"}</div>
+        </div>
+        <div style="margin-top:20px;">
+          <h2 style="color:#eab308;font-size:16px;font-weight:bold;margin-bottom:12px;">${isRtl ? "تفصيل النتائج" : "Score Breakdown"}</h2>
+          ${categoriesHtml}
+        </div>
+        ${strengthsHtml}
+        ${criticalIssuesHtml}
+        ${findingsHtml}
+        <div style="margin-top:30px;border-top:1px solid #ddd;padding-top:10px;text-align:center;font-size:10px;color:#aaa;">
+          ${isRtl ? "تم الإنشاء بواسطة سمارت لاند لتحليل المواقع والسوشيال ميديا" : "Generated by Smart Land - Website & Social Media Analysis"}
+        </div>
+      `;
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
+      const canvas = await html2canvas.default(container, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+        width: 800,
+        height: container.scrollHeight,
+      });
+
+      document.body.removeChild(container);
+
+      const imgData = canvas.toDataURL("image/png");
+      const imgWidth = 190;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pageHeight = 295;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      doc.addImage(imgData, "PNG", 10, 10, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
         doc.addPage();
-        yPos = 20;
+        doc.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
       }
-
-      doc.setDrawColor(200, 200, 200);
-      doc.setLineWidth(0.3);
-      doc.line(20, 282, 190, 282);
-
-      doc.setFontSize(7);
-      doc.setTextColor(150, 150, 150);
-      const footerText = isRtl
-        ? "تم الإنشاء بواسطة سمارت لاند - منصة التدقيق الرقمي بالذكاء الاصطناعي"
-        : "Generated by Smart Land - AI Digital Audit Platform";
-      doc.text(footerText, 105, 288, { align: "center" });
 
       const pageCount = doc.getNumberOfPages();
       for (let i = 1; i <= pageCount; i++) {
@@ -223,7 +164,7 @@ export function PdfReport({ result, locale }: PdfReportProps) {
   const handleExportJson = () => {
     const exportData = {
       report: {
-        title: isRtl ? "تقرير سمارت لاند" : "Smart Land Audit Report",
+        title: isRtl ? "تقرير سمارت لاند لتحليل المواقع والسوشيال ميديا" : "Smart Land - Website & Social Media Analysis Report",
         url: result.url,
         date: result.date,
         overallScore: result.overallScore,

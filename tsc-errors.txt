@@ -1,0 +1,5 @@
+src/app/layout.tsx(106,5): error TS2322: Type 'string' is not assignable to type 'undefined'.
+src/components/GoogleAnalytics.tsx(41,9): error TS2322: Type '{ async: true; src: string; strategy: string; }' is not assignable to type 'DetailedHTMLProps<ScriptHTMLAttributes<HTMLScriptElement>, HTMLScriptElement>'.
+  Property 'strategy' does not exist on type 'DetailedHTMLProps<ScriptHTMLAttributes<HTMLScriptElement>, HTMLScriptElement>'.
+src/components/GoogleAnalytics.tsx(58,9): error TS2322: Type '{ id: string; dangerouslySetInnerHTML: { __html: string; }; strategy: string; }' is not assignable to type 'DetailedHTMLProps<ScriptHTMLAttributes<HTMLScriptElement>, HTMLScriptElement>'.
+  Property 'strategy' does not exist on type 'DetailedHTMLProps<ScriptHTMLAttributes<HTMLScriptElement>, HTMLScriptElement>'.

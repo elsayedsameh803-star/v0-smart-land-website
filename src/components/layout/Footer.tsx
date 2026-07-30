@@ -1,12 +1,56 @@
+"use client";
+
 import Link from 'next/link';
-import { Sparkles, Github, Twitter, Linkedin, Mail, Heart } from 'lucide-react';
+import { Sparkles, Github, Twitter, Linkedin, Mail, Heart, Globe } from 'lucide-react';
 
 interface FooterProps {
   locale?: string;
 }
 
+const translations: Record<string, Record<string, string>> = {
+  en: {
+    description: "AI Digital Audit Platform — Evidence-driven digital presence analysis. Analyze, understand, and improve your digital presence with actionable insights.",
+    trusted: "Trusted globally",
+    product: "Product",
+    resources: "Resources",
+    company: "Company",
+    urlAnalyzer: "URL Analyzer",
+    methodology: "Methodology",
+    admin: "Admin Dashboard",
+    documentation: "Documentation",
+    apiRef: "API Reference",
+    blog: "Blog",
+    privacy: "Privacy Policy",
+    terms: "Terms of Service",
+    contact: "Contact",
+    rights: "All rights reserved.",
+    madeWith: "Made with",
+    precision: "precision — AI Digital Audit Platform",
+  },
+  ar: {
+    description: "منصة التدقيق الرقمي بالذكاء الاصطناعي — تحليل الحضور الرقمي القائم على الأدلة. حلل، افهم، وحسّن حضورك الرقمي برؤى قابلة للتنفيذ.",
+    trusted: "موثوق عالمياً",
+    product: "المنتج",
+    resources: "الموارد",
+    company: "الشركة",
+    urlAnalyzer: "محلل الروابط",
+    methodology: "المنهجية",
+    admin: "لوحة الإدارة",
+    documentation: "الوثائق",
+    apiRef: "مرجع API",
+    blog: "المدونة",
+    privacy: "سياسة الخصوصية",
+    terms: "شروط الخدمة",
+    contact: "اتصل بنا",
+    rights: "جميع الحقوق محفوظة.",
+    madeWith: "صُنع بـ",
+    precision: "دقة — منصة التدقيق الرقمي بالذكاء الاصطناعي",
+  },
+};
+
 export function Footer({ locale = "en" }: FooterProps) {
   const isRtl = locale === "ar";
+  const t = translations[locale] || translations.en;
 
   return (
     <footer className="relative border-t border-gold-500/10 bg-dark-950 overflow-hidden">
@@ -19,19 +63,20 @@ export function Footer({ locale = "en" }: FooterProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Brand - wider column */}
           <div className="lg:col-span-2">
-            <Link href={`/${locale}`} className="inline-flex items-center gap-2.5 mb-5 group">
+            <Link href={`/${locale}`} className="inline-flex items-center gap-3 mb-5 group">
               <div className="relative">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center shadow-lg shadow-gold-500/20 group-hover:shadow-gold-500/40 transition-all duration-300 group-hover:scale-105">
-                  <Sparkles className="w-5 h-5 text-dark-950" />
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center shadow-lg shadow-gold-500/20 group-hover:shadow-gold-500/40 transition-all duration-300 group-hover:scale-105">
+                  <Sparkles className="w-6 h-6 text-dark-950" />
                 </div>
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-gold-500 rounded-full animate-ping-slow" />
+                <span className="absolute -top-1 -right-1 w-3 h-3 bg-gold-500 rounded-full animate-ping-slow" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-gold-400 to-gold-600 text-transparent bg-clip-text">Smart Land</span>
+              <div>
+                <span className="text-xl font-bold bg-gradient-to-r from-gold-400 to-gold-600 text-transparent bg-clip-text">Smart Land</span>
+                <span className="text-[10px] text-dark-500 block">AI Digital Audit Platform</span>
+              </div>
             </Link>
             <p className="text-sm text-dark-400 max-w-md leading-relaxed mb-6" dir={isRtl ? "rtl" : "ltr"}>
-              {isRtl
-                ? "منصة التدقيق الرقمي بالذكاء الاصطناعي — تحليل الحضور الرقمي القائم على الأدلة. حلل، افهم، وحسّن حضورك الرقمي برؤى قابلة للتنفيذ."
-                : "AI Digital Audit Platform — Evidence-driven digital presence analysis. Analyze, understand, and improve your digital presence with actionable insights."}
+              {t.description}
             </p>
             
             {/* Social links */}
@@ -45,7 +90,7 @@ export function Footer({ locale = "en" }: FooterProps) {
                 <a
                   key={social.label}
                   href={social.href}
-                  className="w-9 h-9 rounded-lg bg-dark-800 border border-gold-500/10 flex items-center justify-center text-dark-400 hover:text-gold-400 hover:border-gold-500/30 hover:bg-dark-700 transition-all duration-200 gold-glow-hover"
+                  className="w-10 h-10 rounded-xl bg-dark-800 border border-gold-500/10 flex items-center justify-center text-dark-400 hover:text-gold-400 hover:border-gold-500/30 hover:bg-dark-700 transition-all duration-200 gold-glow-hover"
                   aria-label={social.label}
                 >
                   <social.icon className="w-4 h-4" />
@@ -65,21 +110,21 @@ export function Footer({ locale = "en" }: FooterProps) {
                   </div>
                 ))}
               </div>
-              <span className="text-xs text-dark-500">{isRtl ? "موثوق عالمياً" : "Trusted globally"}</span>
+              <span className="text-xs text-dark-500">{t.trusted}</span>
             </div>
           </div>
 
           {/* Product */}
           <div>
             <h3 className="text-sm font-semibold text-gold-400 mb-5 relative inline-block">
-              {isRtl ? "المنتج" : "Product"}
+              {t.product}
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-gold-500 to-transparent rounded-full" />
             </h3>
             <ul className="space-y-3">
               {[
-                { href: `/${locale}`, label: isRtl ? "محلل الروابط" : "URL Analyzer" },
-                { href: `/${locale}/methodology`, label: isRtl ? "المنهجية" : "Methodology" },
-                { href: `/${locale}/admin`, label: isRtl ? "لوحة الإدارة" : "Admin Dashboard" },
+                { href: `/${locale}`, label: t.urlAnalyzer },
+                { href: `/${locale}/methodology`, label: t.methodology },
+                { href: `/${locale}/admin`, label: t.admin },
               ].map((item) => (
                 <li key={item.href}>
                   <Link 
@@ -97,14 +142,14 @@ export function Footer({ locale = "en" }: FooterProps) {
           {/* Resources */}
           <div>
             <h3 className="text-sm font-semibold text-gold-400 mb-5 relative inline-block">
-              {isRtl ? "الموارد" : "Resources"}
+              {t.resources}
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-gold-500 to-transparent rounded-full" />
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "#", label: isRtl ? "الوثائق" : "Documentation" },
-                { href: "#", label: isRtl ? "مرجع API" : "API Reference" },
-                { href: "#", label: isRtl ? "المدونة" : "Blog" },
+                { href: "#", label: t.documentation },
+                { href: "#", label: t.apiRef },
+                { href: "#", label: t.blog },
               ].map((item) => (
                 <li key={item.label}>
                   <a 
@@ -122,14 +167,14 @@ export function Footer({ locale = "en" }: FooterProps) {
           {/* Company */}
           <div>
             <h3 className="text-sm font-semibold text-gold-400 mb-5 relative inline-block">
-              {isRtl ? "الشركة" : "Company"}
+              {t.company}
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-gold-500 to-transparent rounded-full" />
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "#", label: isRtl ? "سياسة الخصوصية" : "Privacy Policy" },
-                { href: "#", label: isRtl ? "شروط الخدمة" : "Terms of Service" },
-                { href: "#", label: isRtl ? "اتصل بنا" : "Contact" },
+                { href: "#", label: t.privacy },
+                { href: "#", label: t.terms },
+                { href: "#", label: t.contact },
               ].map((item) => (
                 <li key={item.label}>
                   <a 
@@ -151,10 +196,10 @@ export function Footer({ locale = "en" }: FooterProps) {
         {/* Bottom bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-dark-500 flex items-center gap-1">
-            © {new Date().getFullYear()} Smart Land. {isRtl ? "جميع الحقوق محفوظة." : "All rights reserved."}
+            © {new Date().getFullYear()} Smart Land. {t.rights}
           </p>
           <p className="text-xs text-dark-500 flex items-center gap-1">
-            {isRtl ? "صُنع بـ" : "Made with"} <Heart className="w-3 h-3 text-gold-500 fill-gold-500" /> {isRtl ? "دقة — منصة التدقيق الرقمي بالذكاء الاصطناعي" : "precision — AI Digital Audit Platform"}
+            {t.madeWith} <Heart className="w-3 h-3 text-gold-500 fill-gold-500" /> {t.precision}
           </p>
         </div>
       </div>
