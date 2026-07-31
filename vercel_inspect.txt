@@ -1,0 +1,41 @@
+Vercel CLI 57.0.0 (Node.js 26.3.0)
+Error: Worker timed out after 10 seconds
+> Failed to spawn get latest worker: Error: write EPIPE
+    at target._send (node:internal/child_process:884:20)
+    at target.send (node:internal/child_process:759:19)
+    at ChildProcess.<anonymous> (file:///C:/Users/Fast/AppData/Roaming/npm/node_modules/vercel/dist/index.js:546:12)
+    at Object.onceWrapper (node:events:631:12)
+    at ChildProcess.emit (node:events:509:20)
+    at emit (node:internal/child_process:956:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+Fetching deployment "dpl_9HrEzmn8RXrhWBTvgq9vTpNuwrDd" in sameh-elkwaga-s-projects
+> Fetched deployment "smart-land-2jja06bes-sameh-elkwaga-s-projects.vercel.app" in sameh-elkwaga-s-projects [600ms]
+
+  General
+
+    id		dpl_9HrEzmn8RXrhWBTvgq9vTpNuwrDd
+    name	smart-land
+    target	production
+    status	ΓùÅ Ready
+    url		https://smart-land-2jja06bes-sameh-elkwaga-s-projects.vercel.app
+    created	Thu Jul 30 2026 06:50:57 GMT+0300 (Eastern European Summer Time) [12h ago]
+
+
+  Aliases
+
+    Γò╢ https://smart-land-theta.vercel.app
+    Γò╢ https://smart-land-sameh-elkwaga-s-projects.vercel.app
+    Γò╢ https://smart-land-elsayedsameh803-3786-sameh-elkwaga-s-projects.vercel.app
+    
+
+  Builds
+
+    Γöî .        [0ms]
+    Γö£ΓöÇΓöÇ ╬╗ [locale] (1.1MB) [iad1]
+    Γö£ΓöÇΓöÇ ╬╗ [locale].rsc (1.1MB) [iad1]
+    Γö£ΓöÇΓöÇ ╬╗ [locale]/dashboard (1.1MB) [iad1]
+    Γö£ΓöÇΓöÇ ╬╗ [locale]/dashboard.rsc (1.1MB) [iad1]
+    Γö£ΓöÇΓöÇ ╬╗ [locale]/offline (1.1MB) [iad1]
+    ΓööΓöÇΓöÇ 15 output items hidden
+    
+

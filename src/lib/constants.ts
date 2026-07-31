@@ -28,11 +28,27 @@ export const ANALYSIS_STAGES = [
 
 export const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Home", labelAr: "الرئيسية" },
+  { href: "/features", label: "Features", labelAr: "المميزات" },
+  { href: "/pricing", label: "Pricing", labelAr: "الأسعار" },
   { href: "/methodology", label: "Methodology", labelAr: "المنهجية" },
-  { href: "/admin", label: "Intelligence Center", labelAr: "مركز الذكاء" },
+  { href: "/about", label: "About", labelAr: "حول" },
+  { href: "/contact", label: "Contact", labelAr: "اتصل بنا" },
+  { href: "/faq", label: "FAQ", labelAr: "الأسئلة الشائعة" },
 ];
 
 export const SOCIAL_LINKS = {
   twitter: "https://twitter.com/smartland",
   github: "https://github.com/smartland",
+  linkedin: "https://linkedin.com/company/smartland",
+  email: "mailto:elsayedsameh803@gmail.com",
+  whatsapp: "https://wa.me/201272097150",
+} as const;
+
+export const COMPANY_INFO = {
+  email: "elsayedsameh803@gmail.com",
+  phone: "01272097150",
+  whatsapp: "201272097150",
+  address: "Egypt",
+  workingHours: "Sun - Thu, 9:00 AM - 6:00 PM (GMT+2)",
+  workingHoursAr: "الأحد - الخميس، 9:00 صباحاً - 6:00 مساءً (توقيت مصر)",
 } as const;

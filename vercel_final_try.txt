@@ -1,0 +1,12 @@
+Vercel CLI 57.0.0 (Node.js 26.3.0)
+Retrieving projectΓÇª
+Deploying sameh-elkwaga-s-projects/smart-land
+Uploading [--------------------] (0.0B/104.5KB)
+Uploading [======--------------] (32.4KB/104.5KB)
+Uploading [============--------] (64.4KB/104.5KB)
+Uploading [===============-----] (80.4KB/104.5KB)
+Uploading [====================] (104.5KB/104.5KB)
+  Inspect         https://vercel.com/sameh-elkwaga-s-projects/smart-land/9HrEzmn8RXrhWBTvgq9vTpNuwrDd
+Γû▓ Production      https://smart-land-2jja06bes-sameh-elkwaga-s-projects.vercel.app
+Note: Deployment is still processingΓÇª
+https://smart-land-2jja06bes-sameh-elkwaga-s-projects.vercel.app

@@ -1,0 +1,15 @@
+Vercel CLI 57.0.0 (Node.js 26.3.0)
+> Failed to spawn get latest worker: Error: write EPIPE
+    at target._send (node:internal/child_process:884:20)
+    at target.send (node:internal/child_process:759:19)
+    at ChildProcess.<anonymous> (file:///C:/Users/Fast/AppData/Roaming/npm/node_modules/vercel/dist/index.js:546:12)
+    at Object.onceWrapper (node:events:631:12)
+    at ChildProcess.emit (node:events:509:20)
+    at emit (node:internal/child_process:956:14)
+    at process.processTicksAndRejections (node:internal/process/task_queues:91:21)
+Retrieving projectΓÇª
+Deploying sameh-elkwaga-s-projects/smart-land
+Uploading [--------------------] (0.0B/305.1KB)
+Uploading [=====---------------] (76.5KB/305.1KB)
+Uploading [==========----------] (156.7KB/305.1KB)
+Error: fetch failed

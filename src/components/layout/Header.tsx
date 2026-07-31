@@ -38,8 +38,11 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
 
   const navLinks = [
     { href: `/${locale}`, label: dictionary.nav.home },
+    { href: `/${locale}/features`, label: "Features" },
     { href: `/${locale}/methodology`, label: dictionary.nav.methodology },
-    { href: `/${locale}/admin`, label: dictionary.nav.admin },
+    { href: `/${locale}/about`, label: "About" },
+    { href: `/${locale}/contact`, label: "Contact" },
+    { href: `/${locale}/faq`, label: "FAQ" },
   ];
 
   const otherLocale = locale === "en" ? "ar" : "en";

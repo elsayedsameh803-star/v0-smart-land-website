@@ -1,0 +1,9 @@
+Vercel CLI 57.0.0 (Node.js 26.3.0)
+Retrieving projectΓÇª
+Deploying sameh-elkwaga-s-projects/smart-land
+Uploading [--------------------] (0.0B/246.9KB)
+Uploading [=====---------------] (70.1KB/246.9KB)
+Uploading [===========---------] (137.2KB/246.9KB)
+Uploading [===============-----] (185.2KB/246.9KB)
+Error: fetch failed
+Uploading [====================] (246.9KB/246.9KB)

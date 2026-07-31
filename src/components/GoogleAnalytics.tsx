@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import Script from "next/script";
 import { trackPageView } from "@/lib/analytics";
 
 /**
@@ -15,7 +14,6 @@ export function GoogleAnalyticsTracker() {
 
   useEffect(() => {
     const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : "");
-    // Track page view after a short delay to ensure title is updated
     const timeout = setTimeout(() => {
       trackPageView(url);
     }, 300);
@@ -28,6 +26,7 @@ export function GoogleAnalyticsTracker() {
 /**
  * Google Analytics 4 Script Component
  * Loads the GA4 script and initializes it
+ * Uses regular script tags to avoid Next.js Script component issues in server components
  */
 export function GoogleAnalyticsScript() {
   const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
@@ -36,12 +35,11 @@ export function GoogleAnalyticsScript() {
 
   return (
     <>
-      <Script
+      <script
         async
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-        strategy="afterInteractive"
       />
-      <Script
+      <script
         id="google-analytics"
         dangerouslySetInnerHTML={{
           __html: `
@@ -56,7 +54,6 @@ export function GoogleAnalyticsScript() {
             });
           `,
         }}
-        strategy="afterInteractive"
       />
     </>
   );

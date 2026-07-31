@@ -81,12 +81,12 @@ export function Footer({ locale = "en" }: FooterProps) {
             
             {/* Social links */}
             <div className="flex items-center gap-3">
-              {[
-                { icon: Twitter, href: "#", label: "Twitter" },
-                { icon: Linkedin, href: "#", label: "LinkedIn" },
-                { icon: Github, href: "#", label: "GitHub" },
-                { icon: Mail, href: "#", label: "Email" },
-              ].map((social) => (
+            {[
+              { icon: Twitter, href: "https://twitter.com/smartland", label: "Twitter" },
+              { icon: Linkedin, href: "https://linkedin.com/company/smartland", label: "LinkedIn" },
+              { icon: Github, href: "https://github.com/smartland", label: "GitHub" },
+              { icon: Mail, href: "mailto:elsayedsameh803@gmail.com", label: "Email" },
+            ].map((social) => (
                 <a
                   key={social.label}
                   href={social.href}
@@ -147,9 +147,9 @@ export function Footer({ locale = "en" }: FooterProps) {
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "#", label: t.documentation },
-                { href: "#", label: t.apiRef },
-                { href: "#", label: t.blog },
+                { href: `/${locale}/features`, label: "Features" },
+                { href: `/${locale}/faq`, label: "FAQ" },
+                { href: `/${locale}/help`, label: "Help Center" },
               ].map((item) => (
                 <li key={item.label}>
                   <a 
@@ -172,18 +172,18 @@ export function Footer({ locale = "en" }: FooterProps) {
             </h3>
             <ul className="space-y-3">
               {[
-                { href: "#", label: t.privacy },
-                { href: "#", label: t.terms },
-                { href: "#", label: t.contact },
+                { href: `/${locale}/privacy`, label: t.privacy },
+                { href: `/${locale}/terms`, label: t.terms },
+                { href: `/${locale}/contact`, label: t.contact },
               ].map((item) => (
                 <li key={item.label}>
-                  <a 
+                  <Link 
                     href={item.href} 
                     className="text-sm text-dark-400 hover:text-gold-400 transition-colors duration-200 flex items-center gap-2 group"
                   >
                     <span className="w-1 h-1 rounded-full bg-gold-500/0 group-hover:bg-gold-500 transition-all duration-200" />
                     {item.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

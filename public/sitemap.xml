@@ -6,7 +6,7 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://smart-land.vercel.app/en"/>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-07-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -15,15 +15,127 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://smart-land.vercel.app/en"/>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-07-31</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/en/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/about"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/about"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/ar/about</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/about"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/about"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/en/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/contact"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/ar/contact</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/contact"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/contact"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/en/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/privacy"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/ar/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/privacy"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/en/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/terms"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/terms"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/ar/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/terms"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/terms"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/en/faq</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/faq"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/faq"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/ar/faq</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/faq"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/faq"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/en/features</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/features"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/features"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/ar/features</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/features"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/features"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/en/help</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/help"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/help"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/ar/help</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/help"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/help"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
   </url>
   <url>
     <loc>https://smart-land.vercel.app/en/methodology</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/methodology"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/methodology"/>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-07-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -31,8 +143,40 @@
     <loc>https://smart-land.vercel.app/ar/methodology</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/methodology"/>
     <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/methodology"/>
-    <lastmod>2026-07-29</lastmod>
+    <lastmod>2026-07-31</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/en/dashboard</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/dashboard"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/dashboard"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/ar/dashboard</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/dashboard"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/dashboard"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/en/projects</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/projects"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/projects"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://smart-land.vercel.app/ar/projects</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://smart-land.vercel.app/en/projects"/>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://smart-land.vercel.app/ar/projects"/>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
   </url>
 </urlset>
