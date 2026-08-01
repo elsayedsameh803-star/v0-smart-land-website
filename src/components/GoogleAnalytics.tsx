@@ -61,9 +61,12 @@ export function GoogleAnalyticsScript() {
 
 /**
  * Google Search Console Verification Meta Tag
+ * Uses hardcoded fallback to ensure verification always works
  */
+const GSC_VERIFICATION_ID = "JMwP_nJ4KRNImPNKdVqfgJb3yze-zjBbkEEmnlrkfso";
+
 export function SearchConsoleVerification() {
-  const GSC_ID = process.env.NEXT_PUBLIC_GSC_VERIFICATION;
+  const GSC_ID = process.env.NEXT_PUBLIC_GSC_VERIFICATION || GSC_VERIFICATION_ID;
   if (!GSC_ID) return null;
 
   return (
