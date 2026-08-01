@@ -1,11 +1,11 @@
 # Smart Land - AI Digital Audit Platform
-# https://smart-land.vercel.app
+# https://smart-land-theta.vercel.app
 
 User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://smart-land.vercel.app/sitemap.xml
+Sitemap: https://smart-land-theta.vercel.app/sitemap.xml
 
 # Disallow admin pages
 Disallow: /en/admin
