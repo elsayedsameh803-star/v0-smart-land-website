@@ -34,8 +34,9 @@
   ],
   "icons": [
     { "src": "/icons/icon-48x48.svg", "sizes": "48x48", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-96x96.svg", "sizes": "96x96", "type": "image/svg+xml", "purpose": "any" },
     { "src": "/icons/icon-192x192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
-    { "src": "/icons/icon-192x192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" }
+    { "src": "/icons/icon-512x512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
   ],
   "shortcuts": [
     {
@@ -43,14 +44,28 @@
       "short_name": "Analyze",
       "description": "Start a new digital presence analysis",
       "url": "/en?action=analyze",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96", "type": "image/png" }]
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96", "type": "image/svg+xml" }]
     },
     {
       "name": "Analysis History",
       "short_name": "History",
       "description": "View your analysis history",
       "url": "/en?action=history",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96", "type": "image/png" }]
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Features",
+      "short_name": "Features",
+      "description": "Explore Smart Land features",
+      "url": "/en/features",
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Help & Support",
+      "short_name": "Help",
+      "description": "Get help and support",
+      "url": "/en/help",
+      "icons": [{ "src": "/icons/icon-96x96.svg", "sizes": "96x96", "type": "image/svg+xml" }]
     }
   ],
   "related_applications": [],

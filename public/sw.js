@@ -1,18 +1,23 @@
-// Smart Land PWA - Service Worker v1.0.0
-// AI Digital Audit Platform
+// Smart Land PWA - Service Worker v2.0.0
+// AI Digital Audit Platform - Professional PWA
 
-const CACHE_NAME = 'smart-land-v1';
-const STATIC_CACHE = 'smart-land-static-v1';
-const DYNAMIC_CACHE = 'smart-land-dynamic-v1';
-const API_CACHE = 'smart-land-api-v1';
+const CACHE_NAME = 'smart-land-v2';
+const STATIC_CACHE = 'smart-land-static-v2';
+const DYNAMIC_CACHE = 'smart-land-dynamic-v2';
+const API_CACHE = 'smart-land-api-v2';
+const OFFLINE_CACHE = 'smart-land-offline-v2';
 
-// Assets to cache on install
+// Assets to precache on install
 const PRECACHE_URLS = [
   '/',
   '/en',
   '/ar',
   '/manifest.json',
   '/offline',
+  '/icons/icon-48x48.svg',
+  '/icons/icon-96x96.svg',
+  '/icons/icon-192x192.svg',
+  '/icons/icon-512x512.svg',
 ];
 
 // Install event - precache critical assets
@@ -30,7 +35,7 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME, STATIC_CACHE, DYNAMIC_CACHE, API_CACHE];
+  const cacheWhitelist = [CACHE_NAME, STATIC_CACHE, DYNAMIC_CACHE, API_CACHE, OFFLINE_CACHE];
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
@@ -60,12 +65,20 @@ function isNextStaticResource(url) {
          url.pathname.endsWith('.jpg') ||
          url.pathname.endsWith('.svg') ||
          url.pathname.endsWith('.ico') ||
-         url.pathname.endsWith('.webp');
+         url.pathname.endsWith('.webp') ||
+         url.pathname.endsWith('.woff2') ||
+         url.pathname.endsWith('.woff') ||
+         url.pathname.endsWith('.ttf');
 }
 
 // Helper: Check if URL is a navigation request
 function isNavigationRequest(request) {
   return request.mode === 'navigate';
+}
+
+// Helper: Check if URL is a sitemap or robots
+function isSeoResource(url) {
+  return url.pathname === '/sitemap.xml' || url.pathname === '/robots.txt';
 }
 
 // Fetch event - smart caching strategy
@@ -78,6 +91,12 @@ self.addEventListener('fetch', (event) => {
 
   // Skip browser-sync and other extensions
   if (url.hostname !== self.location.hostname && !url.hostname.includes('localhost')) {
+    return;
+  }
+
+  // SEO resources - Network First (always fresh)
+  if (isSeoResource(url)) {
+    event.respondWith(networkFirstWithCache(request, DYNAMIC_CACHE));
     return;
   }
 
@@ -169,6 +188,24 @@ async function checkForUpdates() {
   clients.forEach(client => {
     client.postMessage({
       type: 'UPDATE_AVAILABLE',
+      timestamp: Date.now(),
+    });
+  });
+}
+
+// Background sync for offline actions
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-analysis') {
+    event.waitUntil(syncAnalysisData());
+  }
+});
+
+async function syncAnalysisData() {
+  // Placeholder for offline data sync
+  const clients = await self.clients.matchAll();
+  clients.forEach(client => {
+    client.postMessage({
+      type: 'SYNC_COMPLETE',
       timestamp: Date.now(),
     });
   });
