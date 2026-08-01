@@ -97,5 +97,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/|.*\\.(svg|png|jpg|ico|webp|woff2|woff|ttf)$).*)"],
+  matcher: ["/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/).*)"],
 };
