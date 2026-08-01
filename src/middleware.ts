@@ -51,13 +51,25 @@ function getPreferredLocale(request: NextRequest): string {
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // استثناء مسارات API والملفات الثابتة
+  // استثناء مسارات API والملفات الثابتة وملفات PWA
   if (pathname.startsWith("/api/") || 
       pathname.startsWith("/_next/") || 
       pathname.startsWith("/_vercel") ||
       pathname === "/favicon.ico" ||
       pathname === "/robots.txt" ||
-      pathname === "/sitemap.xml") {
+      pathname === "/sitemap.xml" ||
+      pathname === "/manifest.json" ||
+      pathname === "/sw.js" ||
+      pathname.startsWith("/icons/") ||
+      pathname.startsWith("/screenshots/") ||
+      pathname.endsWith(".svg") ||
+      pathname.endsWith(".png") ||
+      pathname.endsWith(".jpg") ||
+      pathname.endsWith(".ico") ||
+      pathname.endsWith(".webp") ||
+      pathname.endsWith(".woff2") ||
+      pathname.endsWith(".woff") ||
+      pathname.endsWith(".ttf")) {
     return NextResponse.next();
   }
 
@@ -85,5 +97,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml).*)"],
+  matcher: ["/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/|.*\\.(svg|png|jpg|ico|webp|woff2|woff|ttf)$).*)"],
 };
