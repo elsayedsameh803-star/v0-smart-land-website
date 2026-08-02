@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Inter, Cairo } from "next/font/google";
 import { GoogleAnalyticsScript, SearchConsoleVerification } from "@/components/GoogleAnalytics";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({ 
@@ -207,6 +208,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-dark-950 text-gold-100 antialiased">
         {children}
+        <Analytics />
       </body>
     </html>
   );
