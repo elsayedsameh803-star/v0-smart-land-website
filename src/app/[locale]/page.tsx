@@ -50,7 +50,7 @@ export default function HomePage({ params }: PageProps) {
       // Start validating stage
       updateStageStatus(stageOrder[0], "processing");
 
-      const result = await analyzeUrl(submittedUrl, locale);
+      const result = await analyzeUrl(submittedUrl, locale, selectedPlatform);
       
       // Mark all stages as completed
       const completedStages = initialStages.map(s => ({ ...s, status: "completed" as const }));

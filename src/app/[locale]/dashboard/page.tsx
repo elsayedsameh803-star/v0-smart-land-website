@@ -6,7 +6,7 @@ import Link from "next/link";
 import { 
   LayoutDashboard, FolderKanban, TrendingUp, TrendingDown, Minus, 
   Globe, BarChart3, AlertTriangle, CheckCircle2, Clock, ArrowRight,
-  Sparkles, Search, Zap, Eye, Shield, FileText, Wrench, Plus
+  Sparkles, Search, Zap, Eye, Shield, FileText, Wrench, Plus, Gift
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getProjects, getDashboardMetrics, getProjectAnalyses } from "@/lib/storage";
@@ -42,6 +42,9 @@ const translations: Record<string, Record<string, string>> = {
     lastAnalyzed: "Last analyzed",
     daysAgo: "days ago",
     justNow: "Just now",
+    referralProgram: "Referral Program",
+    referralDesc: "Invite friends and earn rewards",
+    viewReferral: "View Referral",
   },
   ar: {
     title: "لوحة التحكم",
@@ -72,6 +75,9 @@ const translations: Record<string, Record<string, string>> = {
     lastAnalyzed: "آخر تحليل",
     daysAgo: "يوم مضى",
     justNow: "الآن",
+    referralProgram: "برنامج الإحالة",
+    referralDesc: "ادعُ أصدقاءك واكسب مكافآت",
+    viewReferral: "عرض الإحالات",
   },
 };
 
@@ -161,6 +167,31 @@ export default function DashboardPage({ params }: { params: { locale: string } }
             />
           </div>
         )}
+
+        {/* Referral Banner */}
+        <Link
+          href={`/${locale}/referral`}
+          className="group relative p-6 rounded-2xl bg-gradient-to-r from-gold-500/10 via-gold-600/5 to-transparent border border-gold-500/20 overflow-hidden block card-hover-effect"
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/10 rounded-full blur-3xl" />
+          <div className="relative flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center shrink-0">
+                <Gift className="w-6 h-6 text-dark-950" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white group-hover:text-gold-200 transition-colors">
+                  {t.referralProgram}
+                </h3>
+                <p className="text-sm text-dark-400">{t.referralDesc}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 text-gold-400">
+              <span className="text-sm font-medium">{t.viewReferral}</span>
+              <ArrowRight className={`w-4 h-4 group-hover:translate-x-1 transition-transform ${isRtl ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
+            </div>
+          </div>
+        </Link>
 
         {/* Projects Section */}
         <section>

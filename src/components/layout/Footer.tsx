@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { Sparkles, Github, Twitter, Linkedin, Mail, Heart, Globe } from 'lucide-react';
+import { Sparkles, Github, Twitter, Linkedin, Mail, Heart, Globe, Gift } from 'lucide-react';
 
 interface FooterProps {
   locale?: string;
@@ -16,6 +16,7 @@ const translations: Record<string, Record<string, string>> = {
     company: "Company",
     urlAnalyzer: "URL Analyzer",
     methodology: "Methodology",
+    referral: "Referral Program",
     admin: "Admin Dashboard",
     documentation: "Documentation",
     apiRef: "API Reference",
@@ -35,6 +36,7 @@ const translations: Record<string, Record<string, string>> = {
     company: "الشركة",
     urlAnalyzer: "محلل الروابط",
     methodology: "المنهجية",
+    referral: "برنامج الإحالة",
     admin: "لوحة الإدارة",
     documentation: "الوثائق",
     apiRef: "مرجع API",
@@ -124,6 +126,7 @@ export function Footer({ locale = "en" }: FooterProps) {
               {[
                 { href: `/${locale}`, label: t.urlAnalyzer },
                 { href: `/${locale}/methodology`, label: t.methodology },
+                { href: `/${locale}/referral`, label: t.referral },
                 { href: `/${locale}/admin`, label: t.admin },
               ].map((item) => (
                 <li key={item.href}>

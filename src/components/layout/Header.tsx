@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Menu, X, Globe, Sparkles } from "lucide-react";
+import { Menu, X, Globe, Sparkles, Gift } from "lucide-react";
 
 interface HeaderProps {
   locale: string;
@@ -40,6 +40,7 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
     { href: `/${locale}`, label: dictionary.nav.home },
     { href: `/${locale}/features`, label: "Features" },
     { href: `/${locale}/methodology`, label: dictionary.nav.methodology },
+    { href: `/${locale}/referral`, label: locale === "ar" ? "الإحالات" : "Referral" },
     { href: `/${locale}/about`, label: "About" },
     { href: `/${locale}/contact`, label: "Contact" },
     { href: `/${locale}/faq`, label: "FAQ" },
