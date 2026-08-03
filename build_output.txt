@@ -1,3 +1,7 @@
+
+> smart-land@2.0.0 build
+> next build
+
   Γû▓ Next.js 14.2.35
   - Environments: .env.local
   - Experiments (use with caution):
@@ -5,34 +9,32 @@
     ┬╖ scrollRestoration
 
    Creating an optimized production build ...
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\Fast\OneDrive\Desktop\new smart land\.next\cache\webpack\server-production\6.pack_' -> 'C:\Users\Fast\OneDrive\Desktop\new smart land\.next\cache\webpack\server-production\6.pack'
-<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, rename 'C:\Users\Fast\OneDrive\Desktop\new smart land\.next\cache\webpack\client-production\12.pack_' -> 'C:\Users\Fast\OneDrive\Desktop\new smart land\.next\cache\webpack\client-production\12.pack'
  Γ£ô Compiled successfully
    Linting and checking validity of types ...
    Collecting page data ...
-   Generating static pages (0/28) ...
+   Generating static pages (0/36) ...
+Time 99.8072
  ΓÜá metadataBase property in metadata export is not set for resolving social open graph or twitter images, using "http://localhost:3000". See https://nextjs.org/docs/app/api-reference/functions/generate-metadata#metadatabase
-Time 185.7354
-   Generating static pages (7/28) 
-Time 29.3235
-   Generating static pages (14/28) 
-   Generating static pages (21/28) 
- Γ£ô Generating static pages (28/28)
+   Generating static pages (9/36) 
+Time 3.8506
+   Generating static pages (18/36) 
+   Generating static pages (27/36) 
+ Γ£ô Generating static pages (36/36)
    Finalizing page optimization ...
    Collecting build traces ...
 
 Route (app)                              Size     First Load JS
 Γöî ╞Æ /_not-found                          876 B          88.6 kB
-Γö£ ΓùÅ /[locale]                            23.6 kB         119 kB
+Γö£ ΓùÅ /[locale]                            25.2 kB         120 kB
 Γö£   Γö£ /en
 Γö£   Γöö /ar
 Γö£ ΓùÅ /[locale]/about                      5.57 kB         102 kB
 Γö£   Γö£ /en/about
 Γö£   Γöö /ar/about
-Γö£ ΓùÅ /[locale]/contact                    6.1 kB          103 kB
+Γö£ ΓùÅ /[locale]/contact                    6.11 kB         103 kB
 Γö£   Γö£ /en/contact
 Γö£   Γöö /ar/contact
-Γö£ ΓùÅ /[locale]/dashboard                  3.9 kB          110 kB
+Γö£ ΓùÅ /[locale]/dashboard                  4.33 kB         111 kB
 Γö£   Γö£ /en/dashboard
 Γö£   Γöö /ar/dashboard
 Γö£ ΓùÅ /[locale]/faq                        6.42 kB         103 kB
@@ -47,27 +49,38 @@ Route (app)                              Size     First Load JS
 Γö£ ΓùÅ /[locale]/offline                    2.19 kB        98.6 kB
 Γö£   Γö£ /en/offline
 Γö£   Γöö /ar/offline
-Γö£ ΓùÅ /[locale]/privacy                    8.57 kB         105 kB
+Γö£ ΓùÅ /[locale]/privacy                    8.58 kB         105 kB
 Γö£   Γö£ /en/privacy
 Γö£   Γöö /ar/privacy
 Γö£ ΓùÅ /[locale]/projects                   2.96 kB         109 kB
 Γö£   Γö£ /en/projects
 Γö£   Γöö /ar/projects
-Γö£ ╞Æ /[locale]/projects/[projectId]       5.74 kB         110 kB
+Γö£ ╞Æ /[locale]/projects/[projectId]       5.82 kB         109 kB
+Γö£ ΓùÅ /[locale]/referral                   7.65 kB         122 kB
+Γö£   Γö£ /en/referral
+Γö£   Γöö /ar/referral
+Γö£ ╞Æ /[locale]/referral/[code]            5.6 kB          109 kB
 Γö£ ΓùÅ /[locale]/terms                      7.29 kB         104 kB
 Γö£   Γö£ /en/terms
 Γö£   Γöö /ar/terms
 Γö£ ╞Æ /api/analyze                         0 B                0 B
 Γö£ ╞Æ /api/analyze-url                     0 B                0 B
-Γöö ╞Æ /api/analyze/youtube                 0 B                0 B
+Γö£ ╞Æ /api/analyze/facebook                0 B                0 B
+Γö£ ╞Æ /api/analyze/instagram               0 B                0 B
+Γö£ ╞Æ /api/analyze/linkedin                0 B                0 B
+Γö£ ╞Æ /api/analyze/snapchat                0 B                0 B
+Γö£ ╞Æ /api/analyze/tiktok                  0 B                0 B
+Γö£ ╞Æ /api/analyze/youtube                 0 B                0 B
+Γöö Γùï /sitemap.xml                         0 B                0 B
 + First Load JS shared by all            87.7 kB
-  Γö£ chunks/117-a2ba9a792a9753e5.js       31.9 kB
-  Γö£ chunks/fd9d1056-8585549861fedf03.js  53.6 kB
+  Γö£ chunks/117-8b578e85491b6564.js       31.9 kB
+  Γö£ chunks/fd9d1056-efefe381e0118c0c.js  53.6 kB
   Γöö other shared chunks (total)          2.14 kB
 
 
-╞Æ Middleware                             26.8 kB
+╞Æ Middleware                             26.9 kB
 
+Γùï  (Static)   prerendered as static content
 ΓùÅ  (SSG)      prerendered as static HTML (uses getStaticProps)
 ╞Æ  (Dynamic)  server-rendered on demand
 

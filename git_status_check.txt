@@ -1,0 +1,17 @@
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   build-result.txt
+	modified:   git_log.txt
+	modified:   git_push_result.txt
+	modified:   src/components/GoogleAnalytics.tsx
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	git_log_check.txt
+	git_status_check.txt
+	remote_check.txt
+	vercel_response.txt
+
+no changes added to commit (use "git add" and/or "git commit -a")

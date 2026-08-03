@@ -1,0 +1,71 @@
+Vercel CLI 57.0.0 (Node.js 26.3.0)
+Retrieving projectΓÇª
+Deploying sameh-elkwaga-s-projects/smart-land
+Uploading [--------------------] (0.0B/179.9KB)
+Uploading [======--------------] (56.1KB/179.9KB)
+Uploading [===========---------] (103.2KB/179.9KB)
+Uploading [===============-----] (135.2KB/179.9KB)
+Uploading [====================] (179.9KB/179.9KB)
+  Inspect         https://vercel.com/sameh-elkwaga-s-projects/smart-land/69dxC8yxvgm8JQSNGAiXJ5JEMa4H
+  Production      https://smart-land-ergixbdur-sameh-elkwaga-s-projects.vercel.app
+BuildingΓÇª
+BuildingΓÇª
+Running build in Washington, D.C., USA (East) ΓÇô iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Downloading 149 deployment files...
+Restored build cache from previous deployment (7JAuvDuqSbWLW8XijVMpH5HwnTpg)
+Running "vercel build"
+Vercel CLI 58.1.0
+Installing dependencies...
+up to date in 881ms
+170 packages are looking for funding
+run `npm fund` for details
+Detected Next.js version: 14.2.35
+Running "npm run build"
+> smart-land@2.0.0 build
+> next build
+Γû▓ Next.js 14.2.35
+- Experiments (use with caution):
+┬╖ optimizeCss
+┬╖ scrollRestoration
+Creating an optimized production build ...
+2026-08-01T03:20:17.554Z  Running build in Washington, D.C., USA (East) ΓÇô iad1
+2026-08-01T03:20:17.554Z  Build machine configuration: 2 cores, 8 GB
+2026-08-01T03:20:17.586Z  Retrieving list of deployment files...
+2026-08-01T03:20:17.968Z  Downloading 149 deployment files...
+2026-08-01T03:20:18.718Z  Restored build cache from previous deployment (7JAuvDuqSbWLW8XijVMpH5HwnTpg)
+2026-08-01T03:20:18.912Z  Running "vercel build"
+2026-08-01T03:20:18.930Z  Vercel CLI 58.1.0
+2026-08-01T03:20:19.124Z  Installing dependencies...
+2026-08-01T03:20:20.124Z  
+2026-08-01T03:20:20.125Z  up to date in 881ms
+2026-08-01T03:20:20.125Z  
+2026-08-01T03:20:20.125Z  170 packages are looking for funding
+2026-08-01T03:20:20.125Z  run `npm fund` for details
+2026-08-01T03:20:20.197Z  Detected Next.js version: 14.2.35
+2026-08-01T03:20:20.202Z  Running "npm run build"
+2026-08-01T03:20:20.304Z  
+2026-08-01T03:20:20.304Z  > smart-land@2.0.0 build
+2026-08-01T03:20:20.305Z  > next build
+2026-08-01T03:20:20.305Z  
+2026-08-01T03:20:21.006Z  Γû▓ Next.js 14.2.35
+2026-08-01T03:20:21.007Z  - Experiments (use with caution):
+2026-08-01T03:20:21.008Z  ┬╖ optimizeCss
+2026-08-01T03:20:21.008Z  ┬╖ scrollRestoration
+2026-08-01T03:20:21.008Z  
+2026-08-01T03:20:21.029Z  Creating an optimized production build ...
+2026-08-01T03:20:21.562Z  
+2026-08-01T03:20:21.563Z  Error parsing `/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/|.*\.(svg|png|jpg|ico|webp|woff2|woff|ttf)$).*)` https://nextjs.org/docs/messages/invalid-route-source
+2026-08-01T03:20:21.563Z  Reason: Capturing groups are not allowed at 99
+2026-08-01T03:20:21.563Z  
+2026-08-01T03:20:21.563Z  /((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/|.*\.(svg|png|jpg|ico|webp|woff2|woff|ttf)$).*)
+2026-08-01T03:20:21.563Z  ^
+2026-08-01T03:20:21.563Z  
+2026-08-01T03:20:21.563Z  `source` parse failed for route {"source":"/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/|.*\\.(svg|png|jpg|ico|webp|woff2|woff|ttf)$).*)"}
+2026-08-01T03:20:21.563Z  
+2026-08-01T03:20:21.563Z  
+2026-08-01T03:20:21.563Z  Error: Invalid middleware found
+2026-08-01T03:20:21.574Z  Next.js build worker exited with code: 1 and signal: null
+2026-08-01T03:20:21.595Z  Error: Command "npm run build" exited with 1
+https://smart-land-ergixbdur-sameh-elkwaga-s-projects.vercel.app

@@ -1,24 +1,29 @@
 Vercel CLI 57.0.0 (Node.js 26.3.0)
+Error: Failed to get package info: Error: Failed to fetch dist-tags from npm
+    at process.<anonymous> (C:\Users\Fast\AppData\Roaming\npm\node_modules\vercel\dist\get-latest-worker.cjs:124:13)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at runNextTicks (node:internal/process/task_queues:69:3)
+    at process.processTimers (node:internal/timers:538:9)
 Retrieving projectΓÇª
 Deploying sameh-elkwaga-s-projects/smart-land
-Uploading [--------------------] (0.0B/116KB)
-Uploading [======--------------] (39.2KB/116KB)
-Uploading [============--------] (71.2KB/116KB)
-Uploading [===============-----] (87.2KB/116KB)
-Uploading [====================] (116.0KB/116KB)
-  Inspect         https://vercel.com/sameh-elkwaga-s-projects/smart-land/2pvqyZc4x4EFzjw1KdsZH9mTAoub
-  Production      https://smart-land-kptowd22g-sameh-elkwaga-s-projects.vercel.app
+Uploading [--------------------] (0.0B/143.6KB)
+Uploading [=====---------------] (40.9KB/143.6KB)
+Uploading [===========---------] (82.9KB/143.6KB)
+Uploading [===============-----] (114.9KB/143.6KB)
+Uploading [====================] (143.6KB/143.6KB)
+  Inspect         https://vercel.com/sameh-elkwaga-s-projects/smart-land/7JAuvDuqSbWLW8XijVMpH5HwnTpg
+  Production      https://smart-land-5tcgcuu5k-sameh-elkwaga-s-projects.vercel.app
 BuildingΓÇª
 BuildingΓÇª
 Running build in Washington, D.C., USA (East) ΓÇô iad1
 Build machine configuration: 2 cores, 8 GB
 Retrieving list of deployment files...
-Downloading 151 deployment files...
-Restored build cache from previous deployment (7JAuvDuqSbWLW8XijVMpH5HwnTpg)
+Downloading 139 deployment files...
+Restored build cache from previous deployment (J3ve2vEreq9Yrc94WG9xP8yAdXhw)
 Running "vercel build"
 Vercel CLI 58.1.0
 Installing dependencies...
-up to date in 1s
+up to date in 895ms
 170 packages are looking for funding
 run `npm fund` for details
 Detected Next.js version: 14.2.35
@@ -34,8 +39,8 @@ Creating an optimized production build ...
 Linting and checking validity of types ...
 Collecting page data ...
 Generating static pages (0/29) ...
-Time 10.130826
-Time 1.548112
+Time 8.649347
+Time 5.469047
 Generating static pages (7/29)
 Generating static pages (14/29)
 Generating static pages (21/29)
@@ -86,18 +91,18 @@ Route (app)                              Size     First Load JS
 Γö£ chunks/117-8b578e85491b6564.js       31.9 kB
 Γö£ chunks/fd9d1056-efefe381e0118c0c.js  53.6 kB
 Γöö other shared chunks (total)          2.14 kB
-╞Æ Middleware                             26.9 kB
+╞Æ Middleware                             26.8 kB
 Γùï  (Static)   prerendered as static content
 ΓùÅ  (SSG)      prerendered as static HTML (uses getStaticProps)
 ╞Æ  (Dynamic)  server-rendered on demand
-Traced Next.js server files in: 38.101ms
-Created all serverless functions in: 182.398ms
-Collected static files (public/, static/, .next/static): 6.553ms
-Build Completed in /vercel/output [25s]
+Traced Next.js server files in: 74.891ms
+Created all serverless functions in: 1.555s
+Collected static files (public/, static/, .next/static): 6.905ms
+Build Completed in /vercel/output [29s]
 Deploying outputs...
-[2K[1A[2K[G  Production      https://smart-land-kptowd22g-sameh-elkwaga-s-projects.vercel.app
+[2K[1A[2K[G  Production      https://smart-land-5tcgcuu5k-sameh-elkwaga-s-projects.vercel.app
 CompletingΓÇª
 Γû▓ Aliased         https://smart-land-theta.vercel.app
 
-Γ£ô Ready in 52s
-https://smart-land-kptowd22g-sameh-elkwaga-s-projects.vercel.app
+Γ£ô Ready in 54s
+https://smart-land-5tcgcuu5k-sameh-elkwaga-s-projects.vercel.app

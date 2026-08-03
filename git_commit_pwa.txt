@@ -1,0 +1,4 @@
+[master 8998c30] Enhance PWA with professional install prompt, better manifest, icons, and service worker
+ 5 files changed, 217 insertions(+), 55 deletions(-)
+ create mode 100644 public/icons/icon-512x512.svg
+ create mode 100644 public/icons/icon-96x96.svg
