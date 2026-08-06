@@ -1,0 +1,26 @@
+
+> smart-land@2.0.0 build
+> next build
+
+  Γû▓ Next.js 14.2.35
+  - Environments: .env.local
+  - Experiments (use with caution):
+    ┬╖ optimizeCss
+    ┬╖ scrollRestoration
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/components/home/PricingSection.tsx:18:5
+Type error: Type 'string[]' is not assignable to type 'string'.
+
+  16 |     freePeriod: "/forever",
+  17 |     freeDesc: "Perfect for trying Smart Land",
+> 18 |     freeFeatures: ["5 analyses per month", "Website analysis", "Basic score breakdown", "PDF report", "Email support"],
+     |     ^
+  19 |     pro: "Pro",
+  20 |     proPrice: "$19",
+  21 |     proPeriod: "/month",
+Next.js build worker exited with code: 1 and signal: null

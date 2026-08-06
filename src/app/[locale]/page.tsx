@@ -4,6 +4,11 @@ import { useState } from "react";
 import { HeroSection } from "@/components/home/HeroSection";
 import { OnboardingSteps } from "@/components/home/OnboardingSteps";
 import { VideoSection } from "@/components/home/VideoSection";
+import { StatsSection } from "@/components/home/StatsSection";
+import { PartnersSection } from "@/components/home/PartnersSection";
+import { TestimonialsSection } from "@/components/home/TestimonialsSection";
+import { PricingSection } from "@/components/home/PricingSection";
+import { CTASection } from "@/components/home/CTASection";
 import { AnalysisProgress } from "@/components/analysis/AnalysisProgress";
 import { ScoreBreakdown } from "@/components/analysis/ScoreBreakdown";
 import { EvidenceCard } from "@/components/analysis/EvidenceCard";
@@ -97,9 +102,14 @@ export default function HomePage({ params }: PageProps) {
       {currentView === "home" && (
         <>
           <HeroSection onAnalyze={handleAnalyze} locale={locale} />
+          <StatsSection locale={locale} />
           <OnboardingSteps locale={locale} />
           <VideoSection locale={locale} />
+          <PartnersSection locale={locale} />
+          <TestimonialsSection locale={locale} />
           <MethodologySection locale={locale} />
+          <PricingSection locale={locale} />
+          <CTASection locale={locale} onAnalyze={handleAnalyze} />
         </>
       )}
 

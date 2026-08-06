@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-analysis-helper";
+import { safeFetch } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     let profileData: Record<string, any> = {};
 
     try {
-      const res = await fetch(`https://www.instagram.com/${username}/`, {
+      const res = await safeFetch(`https://www.instagram.com/${username}/`, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
           "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -31,7 +32,6 @@ export async function POST(request: NextRequest) {
           "Sec-Fetch-Mode": "navigate",
           "Sec-Fetch-Site": "none",
         },
-        redirect: "follow",
       });
 
       if (res.ok) {

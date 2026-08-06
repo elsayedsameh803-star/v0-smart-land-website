@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-analysis-helper";
+import { safeFetch } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
     let videos: any[] = [];
 
     try {
-      const oembedRes = await fetch(`https://www.tiktok.com/oembed?url=https://www.tiktok.com/@${cleanHandle}`, {
+      const oembedRes = await safeFetch(`https://www.tiktok.com/oembed?url=https://www.tiktok.com/@${cleanHandle}`, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
           "Accept": "application/json",
@@ -59,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     // ===== 2. Try to fetch TikTok profile page for more data =====
     try {
-      const profileRes = await fetch(`https://www.tiktok.com/@${cleanHandle}`, {
+      const profileRes = await safeFetch(`https://www.tiktok.com/@${cleanHandle}`, {
         headers: {
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
           "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -69,7 +70,6 @@ export async function POST(request: NextRequest) {
           "Sec-Fetch-Site": "none",
           "Cache-Control": "no-cache",
         },
-        redirect: "follow",
       });
 
       if (profileRes.ok) {

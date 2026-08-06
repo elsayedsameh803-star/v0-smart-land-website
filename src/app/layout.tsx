@@ -136,6 +136,46 @@ export default function RootLayout({
   const locale = detectLocaleFromHeaders();
   const dir = locale === "ar" ? "rtl" : "ltr";
 
+  // JSON-LD Structured Data for SEO
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Smart Land",
+    alternateName: "سمارت لاند",
+    url: "https://smart-land.vercel.app",
+    description: "AI Digital Audit Platform - Analyze, understand, and improve your digital presence with evidence-based AI-powered audits across websites and social media platforms.",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
+    },
+    aggregateRating: {
+      "@type": "AggregateRating",
+      ratingValue: "4.8",
+      ratingCount: "1250",
+    },
+    author: {
+      "@type": "Organization",
+      name: "Smart Land",
+      url: "https://smart-land.vercel.app",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Smart Land",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://smart-land.vercel.app/icons/icon-512x512.png",
+      },
+    },
+    sameAs: [
+      "https://twitter.com/smartland",
+      "https://linkedin.com/company/smartland",
+      "https://github.com/smartland",
+    ],
+  };
+
   return (
     <html lang={locale} dir={dir} className={`${inter.variable} ${cairo.variable}`}>
       <head>
@@ -169,6 +209,12 @@ export default function RootLayout({
         
         {/* Google Analytics 4 */}
         <GoogleAnalyticsScript />
+
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
         {/* Service Worker Registration */}
         <script

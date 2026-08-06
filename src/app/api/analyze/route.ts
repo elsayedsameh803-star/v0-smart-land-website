@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { safeFetch, validateUrlForFetch, ssrfErrorResponse } from "@/lib/security";
 
 export const dynamic = "force-dynamic";
 
@@ -10,22 +11,23 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
+    
+    // SSRF Protection - Validate URL before fetching
+    const urlError = validateUrlForFetch(normalizedUrl);
+    if (urlError) {
+      return ssrfErrorResponse(urlError);
+    }
+
     const startTime = Date.now();
 
-    // Fetch the actual page
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
-    
-    const res = await fetch(normalizedUrl, {
-      signal: controller.signal,
+    // Fetch the actual page with SSRF protection
+    const res = await safeFetch(normalizedUrl, {
       headers: {
         "User-Agent": "Mozilla/5.0 (compatible; SmartLandBot/3.0; +https://smart-land.vercel.app)",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.5",
       },
-      redirect: "follow",
     });
-    clearTimeout(timeout);
 
     const html = await res.text();
     const headers: Record<string, string> = {};
