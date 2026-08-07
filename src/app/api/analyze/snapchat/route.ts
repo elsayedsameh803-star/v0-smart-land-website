@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-analysis-helper";
 import { safeFetch } from "@/lib/security";
+import { recordAnalysis } from "@/lib/admin-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -82,6 +83,7 @@ export async function POST(request: NextRequest) {
     const normalizedData = normalizeProfileData("snapchat", profileData);
     const normalizedUrl = `https://www.snapchat.com/add/${username}`;
 
+    recordAnalysis("snapchat", true);
     return NextResponse.json(
       buildSocialAnalysisResponse({
         platform: "snapchat",
@@ -99,6 +101,7 @@ export async function POST(request: NextRequest) {
       })
     );
   } catch (error: any) {
+    recordAnalysis("snapchat", false);
     return NextResponse.json(
       { success: false, error: error.message || "Failed to analyze Snapchat profile" },
       { status: 500 }

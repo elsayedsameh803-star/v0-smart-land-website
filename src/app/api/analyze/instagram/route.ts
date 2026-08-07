@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-analysis-helper";
 import { safeFetch } from "@/lib/security";
+import { recordAnalysis } from "@/lib/admin-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -113,6 +114,7 @@ export async function POST(request: NextRequest) {
     const normalizedData = normalizeProfileData("instagram", profileData);
     const normalizedUrl = `https://www.instagram.com/${username}/`;
 
+    recordAnalysis("instagram", true);
     return NextResponse.json(
       buildSocialAnalysisResponse({
         platform: "instagram",
@@ -131,6 +133,7 @@ export async function POST(request: NextRequest) {
       })
     );
   } catch (error: any) {
+    recordAnalysis("instagram", false);
     return NextResponse.json(
       { success: false, error: error.message || "Failed to analyze Instagram profile" },
       { status: 500 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-analysis-helper";
 import { safeFetch } from "@/lib/security";
+import { recordAnalysis } from "@/lib/admin-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -102,6 +103,7 @@ export async function POST(request: NextRequest) {
     const normalizedData = normalizeProfileData("youtube", profileData);
     const normalizedUrl = `https://youtube.com/watch?v=${videoId}`;
 
+    recordAnalysis("youtube", true);
     return NextResponse.json(
       buildSocialAnalysisResponse({
         platform: "youtube",
@@ -125,6 +127,7 @@ export async function POST(request: NextRequest) {
       })
     );
   } catch (error: any) {
+    recordAnalysis("youtube", false);
     return NextResponse.json({ 
       success: false, 
       error: error.message || "Failed to analyze YouTube video" 

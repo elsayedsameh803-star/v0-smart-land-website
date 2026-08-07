@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { safeFetch, validateUrlForFetch, ssrfErrorResponse } from "@/lib/security";
+import { recordAnalysis } from "@/lib/admin-stats";
 
 export const dynamic = "force-dynamic";
 
@@ -737,6 +738,8 @@ export async function POST(request: NextRequest) {
 
     const criticalIssues = findings.filter(f => f.severity === "critical" || f.severity === "high");
 
+    recordAnalysis("website", true);
+
     return NextResponse.json({
       success: true,
       data: {
@@ -803,6 +806,7 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error: any) {
+    recordAnalysis("website", false);
     return NextResponse.json({
       success: false,
       error: error.message || "Failed to analyze URL",

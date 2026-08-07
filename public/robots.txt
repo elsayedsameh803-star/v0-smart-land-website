@@ -8,6 +8,7 @@ Allow: /
 Sitemap: https://smart-land-theta.vercel.app/sitemap.xml
 
 # Disallow admin pages
+Disallow: /admin
 Disallow: /en/admin
 Disallow: /ar/admin
 
