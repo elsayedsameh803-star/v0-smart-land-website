@@ -78,10 +78,12 @@ export async function verifySessionToken(
   try {
     const key = await importKey();
     const signature = b64urlToBytes(sigB64);
+    const signatureBuffer = new ArrayBuffer(signature.byteLength);
+    new Uint8Array(signatureBuffer).set(signature);
     const valid = await crypto.subtle.verify(
       "HMAC",
       key,
-      signature,
+      signatureBuffer as BufferSource,
       te.encode(payload)
     );
     if (!valid) return false;
