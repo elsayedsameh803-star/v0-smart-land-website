@@ -100,6 +100,20 @@ export async function POST(request: NextRequest) {
       // Fall through - use intelligent engine
     }
 
+    // ===== YouTube Data API v3 - authoritative real metrics (when API key is set) =====
+    const apiKey = process.env.GOOGLE_API_KEY;
+    if (apiKey) {
+      try {
+        const apiResult = await fetchYouTubeApiData(videoId, apiKey);
+        if (apiResult) {
+          // Overlay real API metrics onto any scraped data (never hard-fail)
+          profileData = { ...profileData, ...apiResult.profile };
+        }
+      } catch {
+        // keep scraped data - analysis still returns real, partial evidence
+      }
+    }
+
     const normalizedData = normalizeProfileData("youtube", profileData);
     const normalizedUrl = `https://youtube.com/watch?v=${videoId}`;
 
@@ -120,8 +134,14 @@ export async function POST(request: NextRequest) {
           views: profileData.views || 0,
           likes: profileData.likes || 0,
           commentCount: profileData.commentCount || 0,
+          subscribers: profileData.subscribers || 0,
+          videoCount: profileData.postsCount || profileData.channelVideoCount || 0,
+          channelTitle: profileData.channelName || null,
           duration: profileData.duration || 0,
           category: profileData.category || null,
+          publishedAt: profileData.publishedAt || null,
+          thumbnail: profileData.avatarUrl || null,
+          dataSource: profileData.dataSource || "youtube-page-scrape",
         },
         startTime,
       })
@@ -133,6 +153,124 @@ export async function POST(request: NextRequest) {
       error: error.message || "Failed to analyze YouTube video" 
     }, { status: 500 });
   }
+}
+
+interface YouTubeApiResult {
+  profile: Record<string, any>;
+}
+
+/**
+ * Fetches authoritative, real metrics for a YouTube video + channel using the
+ * official YouTube Data API v3. Requires GOOGLE_API_KEY. Returns null on any
+ * failure so the analyzer never hard-fails (it keeps scraped/partial evidence).
+ */
+async function fetchYouTubeApiData(
+  videoId: string,
+  apiKey: string
+): Promise<YouTubeApiResult | null> {
+  const videoRes = await safeFetch(
+    `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${apiKey}`,
+    { headers: { Accept: "application/json" } },
+    15000
+  );
+  if (!videoRes.ok) return null;
+  const videoJson = await videoRes.json();
+  const item = videoJson?.items?.[0];
+  if (!item) return null;
+
+  const snippet = item.snippet || {};
+  const stats = item.statistics || {};
+
+  const views = parseInt(stats.viewCount || "0", 10) || 0;
+  const likes = parseInt(stats.likeCount || "0", 10) || 0;
+  const commentCount = parseInt(stats.commentCount || "0", 10) || 0;
+  const durationIso = item.contentDetails?.duration || "";
+  const duration = parseIsoDurationSeconds(durationIso);
+  const description = snippet.description || "";
+  const tags: string[] = Array.isArray(snippet.tags) ? snippet.tags : [];
+  const hashtags = description.match(/#[a-zA-Z0-9_]+/g) || [];
+  const engagement = views > 0 ? ((likes + commentCount) / views) * 100 : 0;
+
+  const thumbnail =
+    snippet.thumbnails?.maxres?.url ||
+    snippet.thumbnails?.high?.url ||
+    snippet.thumbnails?.default?.url ||
+    null;
+
+  const channelId = snippet.channelId || "";
+  let subscribers = 0;
+  let videoCount = 0;
+  let channelViews = 0;
+  let channelTitle = snippet.channelTitle || "";
+
+  if (channelId) {
+    try {
+      const chRes = await safeFetch(
+        `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${apiKey}`,
+        { headers: { Accept: "application/json" } },
+        15000
+      );
+      if (chRes.ok) {
+        const chJson = await chRes.json();
+        const ch = chJson?.items?.[0];
+        if (ch) {
+          subscribers = parseInt(ch.statistics?.subscriberCount || "0", 10) || 0;
+          videoCount = parseInt(ch.statistics?.videoCount || "0", 10) || 0;
+          channelViews = parseInt(ch.statistics?.viewCount || "0", 10) || 0;
+          channelTitle = ch.snippet?.title || channelTitle;
+        }
+      }
+    } catch {
+      // optional channel enrichment
+    }
+  }
+
+  return {
+    profile: {
+      title: snippet.title || null,
+      description: description || null,
+      views,
+      likes,
+      commentCount,
+      subscribers,
+      subscribersText: formatCount(subscribers),
+      followers: subscribers,
+      postsCount: videoCount,
+      channelId,
+      channelName: channelTitle,
+      displayName: channelTitle,
+      fullName: channelTitle,
+      avatarUrl: thumbnail,
+      category: snippet.categoryId || null,
+      duration,
+      tags,
+      hashtags: hashtags.map((h: string) => h.replace("#", "")),
+      engagementRate: Math.round(engagement * 100) / 100,
+      publishedAt: snippet.publishedAt || null,
+      channelSubscribers: subscribers,
+      channelVideoCount: videoCount,
+      channelViewCount: channelViews,
+      dataSource: "youtube-data-api",
+    },
+  };
+}
+
+/** Converts ISO-8601 duration (PT#H#M#S) to total seconds. */
+function parseIsoDurationSeconds(iso: string): number {
+  if (!iso) return 0;
+  const m = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!m) return 0;
+  const h = parseInt(m[1] || "0", 10);
+  const min = parseInt(m[2] || "0", 10);
+  const s = parseInt(m[3] || "0", 10);
+  return h * 3600 + min * 60 + s;
+}
+
+/** Formats a number as a compact count (e.g. 1.2M, 45K). */
+function formatCount(n: number): string {
+  if (n >= 1000000) return `${(n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1)}M`;
+  if (n >= 1000) return `${(n / 1000).toFixed(n % 1000 === 0 ? 0 : 1)}K`;
+  return String(n);
 }
 
 function extractVideoId(url: string): string | null {
