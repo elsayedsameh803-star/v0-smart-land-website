@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     siteName: "Smart Land",
     title: "Smart Land - AI Digital Audit Platform",
     description: "Analyze, understand, and improve your digital presence with evidence-based AI-powered audits.",
-    url: "https://smart-land.vercel.app",
+    url: "https://smart-land-theta.vercel.app",
     images: [
       {
         url: "/icons/icon-512x512.png",

@@ -32,6 +32,10 @@ export function VideoSection({ locale }: VideoSectionProps) {
   const isRtl = locale === "ar";
   const t = translations[locale] || translations.en;
   const [showTranscript, setShowTranscript] = useState(false);
+  // Optional real demo video. Drop an MP4 at /public/videos/intro-demo.mp4 and set
+  // NEXT_PUBLIC_DEMO_VIDEO_URL=/videos/intro-demo.mp4 to display it.
+  // If unset, the section shows an animated poster + transcript (no fake playback).
+  const demoVideoUrl = (process.env.NEXT_PUBLIC_DEMO_VIDEO_URL || "").trim();
 
   return (
     <section className="relative py-20 md:py-28 bg-dark-900 overflow-hidden">
@@ -65,7 +69,20 @@ export function VideoSection({ locale }: VideoSectionProps) {
           {/* Animated background pattern */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(234,179,8,0.05),transparent_50%)]" />
           
-          {/* Play Button */}
+          {/* Real demo video (when configured) */}
+          {demoVideoUrl && (
+            <video
+              className="absolute inset-0 w-full h-full object-cover z-20"
+              src={demoVideoUrl}
+              poster="/icons/icon-512x512.png"
+              controls
+              playsInline
+              preload="none"
+            />
+          )}
+
+          {/* Play Button (poster fallback) */}
+          {!demoVideoUrl && (
           <div className="absolute inset-0 flex items-center justify-center z-20">
             <div className="relative">
               <div className="absolute inset-0 w-20 h-20 rounded-full bg-gold-500/20 blur-xl group-hover:bg-gold-500/30 transition-all duration-300" />
@@ -74,6 +91,7 @@ export function VideoSection({ locale }: VideoSectionProps) {
               </div>
             </div>
           </div>
+          )}
 
           {/* Bottom info */}
           <div className="absolute bottom-6 left-6 right-6 z-20">

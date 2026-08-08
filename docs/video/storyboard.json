@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Smart Land Intro Video — Storyboard",
+  "format": "1920x1080 / 24fps",
+  "totalDurationSec": 150,
+  "shots": [
+    {
+      "id": 1,
+      "time": "0:00–0:06",
+      "scene": "Animated logo intro",
+      "action": "Smart Land logo badge (gold-on-dark) scales/fades in centered on a dark #020617 background with a soft gold glow.",
+      "voiceoverAr": "سمارت لاند… منصة التدقيق الرقمي المدعومة بالذكاء الاصطناعي.",
+      "voiceoverEn": "Smart Land… the AI-powered digital audit platform."
+    },
+    {
+      "id": 2,
+      "time": "0:06–0:18",
+      "scene": "Home page — hero",
+      "action": "Show the production home page (/en then /ar). Slowly scroll the hero: headline, CTA, hero visuals; cursor moves toward the main analyze input.",
+      "voiceoverAr": "هل تريد أن تفهم حضورك الرقمي على الإنترنت؟ أدخل رابط موقعك أو حسابك على وسائل التواصل، وسنقوم بتحليل حقيقي للإشارات المتاحة ونحدد نقاط القوة والضعف بدليل واضح.",
+      "voiceoverEn": "Want to understand your digital presence? Enter your website or social account — we analyze the real available signals and show strengths and weaknesses with evidence."
+    },
+    {
+      "id": 3,
+      "time": "0:18–0:32",
+      "scene": "Choosing the analysis type",
+      "action": "On the analyzer, cursor selects the target: Website, then the social platforms row (Facebook, Instagram, LinkedIn, Snapchat, TikTok, YouTube). Highlight each platform as it appears.",
+      "voiceoverAr": "اختر نوع التحليل المناسب: موقع ويب، أو أي منصّة من منصات التواصل المدعومة مثل فيسبوك وإنستغرام ولينكد إن وسناب شات وتيك توك ويوتيوب.",
+      "voiceoverEn": "Choose your analysis type: a website, or any of the supported social platforms — Facebook, Instagram, LinkedIn, Snapchat, TikTok, and YouTube."
+    },
+    {
+      "id": 4,
+      "time": "0:32–0:45",
+      "scene": "Entering the URL",
+      "action": "Cursor clicks the URL field and types a real URL (e.g. https://example.com). Show the input validating and the 'Analyze' button pressing.",
+      "voiceoverAr": "أدخل الرابط في الحقل المخصص. سيتحقق سمارت لاند من صحة الرابط ثم يبدأ التحليل الفعلي على الإنترنت.",
+      "voiceoverEn": "Type the link into the field. Smart Land validates the URL and then performs a real live analysis."
+    },
+    {
+      "id": 5,
+      "time": "0:45–1:00",
+      "scene": "Real analysis progress",
+      "action": "Show the live analysis progress UI: stages lighting up (Fetching page → SEO → Performance → Accessibility → Security → Content → Technical → Generating report).",
+      "voiceoverAr": "يمكنك متابعة خطوات التحليل لحظيًا: جلب الصفحة، تحسين محركات البحث، الأداء، سهولة الوصول، الأمان، المحتوى، والعوامل التقنية، ثم بناء التقرير.",
+      "voiceoverEn": "Follow the live steps: fetching the page, SEO, performance, accessibility, security, content and technical checks, then report generation."
+    },
+    {
+      "id": 6,
+      "time": "1:00–1:18",
+      "scene": "Smart Score & metrics",
+      "action": "Show the result page: the animated Smart Score ring plus the six category scores with their real values and max scores.",
+      "voiceoverAr": "النتيجة: رقم ذكي شامل (Smart Score) ودرجات لكل فئة. كل تخفيض مرتبط بدليل حقيقي قابل للتحقق.",
+      "voiceoverEn": "Here's your result: an overall Smart Score plus per-category scores. Every deduction is tied to real, verifiable evidence."
+    },
+    {
+      "id": 7,
+      "time": "1:18–1:32",
+      "scene": "Issues, recommendations & AI insights",
+      "action": "Scroll the findings list: severity badges, evidence, why-it-matters, and how-to-fix steps; show the AI insights/fix assistant panel.",
+      "voiceoverAr": "كل مشكلة تظهر مع خطورتها ودليلها وشرحها وكيفية إصلاحها خطوة بخطوة، مع رؤى ذكية تساعدك على التخطيط للتحسين.",
+      "voiceoverEn": "Each issue shows its severity, evidence, why it matters, and step-by-step fixes, plus smart insights to plan your improvements."
+    },
+    {
+      "id": 8,
+      "time": "1:32–1:46",
+      "scene": "User Dashboard & charts",
+      "action": "Open the user Dashboard (/en/dashboard): project cards, score trends chart, platform distribution, recent analyses and quick actions.",
+      "voiceoverAr": "تابع تطورك من لوحة التحكم: سجل مشاريعك ورسوم بيانية لتوزيع المنصات وتطور الدرجات بمرور الوقت.",
+      "voiceoverEn": "Track your progress in the Dashboard: your projects, platform distribution charts, and score trends over time."
+    },
+    {
+      "id": 9,
+      "time": "1:46–1:56",
+      "scene": "PDF report",
+      "action": "Cursor clicks 'Export' / PDF button on the results and a PDF-style preview/footer appears.",
+      "voiceoverAr": "صدّر تقريرك كملف PDF احترافي لمشاركته أو لمتابعة توصياتك في أي وقت.",
+      "voiceoverEn": "Export your report as a professional PDF to share or revisit your recommendations anytime."
+    },
+    {
+      "id": 10,
+      "time": "1:56–2:10",
+      "scene": "Key features round-up",
+      "action": "Quick montage over the Features & Methodology pages: AI insights, competitor comparison, referral program, bilingual AR/EN, PWA mobile app.",
+      "voiceoverAr": "ومزايا إضافية: رؤى الذكاء الاصطناعي، مقارنة المنافسين، برنامج الإحالة، دعم كامل للعربية والإنجليزية، وتطبيق ويب يعمل على هاتفك.",
+      "voiceoverEn": "Plus: AI insights, competitor comparison, referral rewards, full Arabic & English support, and a PWA that works on your phone."
+    },
+    {
+      "id": 11,
+      "time": "2:10–2:30",
+      "scene": "Closing CTA",
+      "action": "Fade to the Smart Land logo with tagline and CTA buttons (Analyze now).",
+      "voiceoverAr": "ابدأ الآن — أدخل رابطك ودع سمارت لاند يمنحك رؤية واضحة لحضورك الرقمي.",
+      "voiceoverEn": "Start now — drop your link and let Smart Land give you a clear picture of your digital presence."
+    }
+  ]
+}
