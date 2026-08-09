@@ -1,9 +1,13 @@
 // ============================================
 // Smart Land - API Route for URL Analysis
 // Server-side fetch to avoid CORS issues
+// Protected with SSRF validation (same as /api/analyze)
 // ============================================
 
 import { NextRequest, NextResponse } from 'next/server';
+import { safeFetch, validateUrlForFetch, ssrfErrorResponse } from '@/lib/security';
+
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,23 +39,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Fetch the URL server-side (no CORS restrictions)
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    // SSRF protection - block internal/private network access
+    const urlError = validateUrlForFetch(targetUrl.toString());
+    if (urlError) {
+      return ssrfErrorResponse(urlError);
+    }
 
+    // Fetch the URL server-side (no CORS restrictions) with SSRF-safe fetch
     try {
-      const response = await fetch(targetUrl.toString(), {
+      const response = await safeFetch(targetUrl.toString(), {
         method: 'GET',
         headers: {
-          'User-Agent': 'SmartLand-Audit/1.0 (Analysis Bot; +https://smart-land.vercel.app)',
+          'User-Agent': 'SmartLand-Audit/2.0 (Analysis Bot; +https://smart-land-theta.vercel.app)',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'en-US,en;q=0.5',
         },
-        signal: controller.signal,
-        redirect: 'follow',
-      });
-
-      clearTimeout(timeout);
+      }, 15000);
 
       const html = await response.text();
       const headers: Record<string, string> = {};
@@ -70,8 +73,6 @@ export async function POST(request: NextRequest) {
         url: targetUrl.toString(),
       });
     } catch (fetchError: any) {
-      clearTimeout(timeout);
-      
       if (fetchError.name === 'AbortError') {
         return NextResponse.json(
           { error: 'Request timed out after 15 seconds' },
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
       }
 
       return NextResponse.json(
-        { 
+        {
           error: `Failed to fetch URL: ${fetchError.message}`,
           url: targetUrl.toString(),
         },

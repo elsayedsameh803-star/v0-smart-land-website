@@ -113,10 +113,12 @@ export async function POST(request: NextRequest) {
 
     const normalizedData = normalizeProfileData("instagram", profileData);
     const normalizedUrl = `https://www.instagram.com/${username}/`;
+    const hasSourceData = Object.values(profileData).some((value) => value !== undefined && value !== null && value !== "");
+    const sourceConfidence = hasSourceData ? "high" : "low";
 
     recordAnalysis("instagram", true);
     return NextResponse.json(
-      buildSocialAnalysisResponse({
+      await buildSocialAnalysisResponse({
         platform: "instagram",
         username,
         url: normalizedUrl,
@@ -129,6 +131,8 @@ export async function POST(request: NextRequest) {
           profilePicUrl: profileData.profilePicUrl || null,
           postSamples: profileData.postSamples || [],
         },
+        dataSources: hasSourceData ? ["instagram-public-profile", "instagram-sharedData"] : ["instagram-public-profile"],
+        sourceConfidence,
         startTime,
       })
     );

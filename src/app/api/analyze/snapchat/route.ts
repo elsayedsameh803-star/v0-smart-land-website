@@ -82,10 +82,12 @@ export async function POST(request: NextRequest) {
 
     const normalizedData = normalizeProfileData("snapchat", profileData);
     const normalizedUrl = `https://www.snapchat.com/add/${username}`;
+    const hasSourceData = Object.values(profileData).some((value) => value !== undefined && value !== null && value !== "");
+    const sourceConfidence = hasSourceData ? "high" : "low";
 
     recordAnalysis("snapchat", true);
     return NextResponse.json(
-      buildSocialAnalysisResponse({
+      await buildSocialAnalysisResponse({
         platform: "snapchat",
         username,
         url: normalizedUrl,
@@ -97,6 +99,8 @@ export async function POST(request: NextRequest) {
         extraData: {
           avatarUrl: profileData.metaImage || null,
         },
+        dataSources: hasSourceData ? ["snapchat-public-profile", "snapchat-og"] : ["snapchat-public-profile"],
+        sourceConfidence,
         startTime,
       })
     );

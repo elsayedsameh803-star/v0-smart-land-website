@@ -100,10 +100,12 @@ export async function POST(request: NextRequest) {
 
     const normalizedData = normalizeProfileData("linkedin", profileData);
     const normalizedUrl = `https://www.linkedin.com/in/${profileId}/`;
+    const hasSourceData = Object.values(profileData).some((value) => value !== undefined && value !== null && value !== "");
+    const sourceConfidence = hasSourceData ? "high" : "low";
 
     recordAnalysis("linkedin", true);
     return NextResponse.json(
-      buildSocialAnalysisResponse({
+      await buildSocialAnalysisResponse({
         platform: "linkedin",
         username: profileId,
         url: normalizedUrl,
@@ -117,6 +119,8 @@ export async function POST(request: NextRequest) {
           profilePicUrl: profileData.metaImage || null,
           keywords: profileData.keywords || [],
         },
+        dataSources: hasSourceData ? ["linkedin-public-profile", "linkedin-og"] : ["linkedin-public-profile"],
+        sourceConfidence,
         startTime,
       })
     );

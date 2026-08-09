@@ -171,10 +171,15 @@ export async function POST(request: NextRequest) {
 
     const normalizedData = normalizeProfileData("tiktok", profileData);
     const normalizedUrl = `https://www.tiktok.com/@${cleanHandle}`;
+    const hasSourceData = Object.values(profileData).some((value) => value !== undefined && value !== null && value !== "");
+    const sourceConfidence = hasSourceData ? "high" : "low";
+    const dataSources = ["tiktok-public-profile"];
+    if (avatarUrl) dataSources.push("tiktok-oembed");
+    if (hasSourceData) dataSources.push("tiktok-page-json");
 
     recordAnalysis("tiktok", true);
     return NextResponse.json(
-      buildSocialAnalysisResponse({
+      await buildSocialAnalysisResponse({
         platform: "tiktok",
         username: cleanHandle,
         url: normalizedUrl,
@@ -188,6 +193,8 @@ export async function POST(request: NextRequest) {
           videoSamples,
           videoPostingFrequency,
         },
+        dataSources,
+        sourceConfidence,
         startTime,
       })
     );

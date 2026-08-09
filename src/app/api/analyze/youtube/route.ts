@@ -116,10 +116,14 @@ export async function POST(request: NextRequest) {
 
     const normalizedData = normalizeProfileData("youtube", profileData);
     const normalizedUrl = `https://youtube.com/watch?v=${videoId}`;
+    const hasSourceData = Object.values(profileData).some((value) => value !== undefined && value !== null && value !== "");
+    const sourceConfidence = hasSourceData ? "high" : "low";
+    const dataSources = ["youtube-page-scrape"];
+    if (process.env.GOOGLE_API_KEY) dataSources.push("youtube-data-api");
 
     recordAnalysis("youtube", true);
     return NextResponse.json(
-      buildSocialAnalysisResponse({
+      await buildSocialAnalysisResponse({
         platform: "youtube",
         username: (profileData.channelName || videoId).toLowerCase().replace(/[^a-z0-9]/g, "") || videoId,
         url: normalizedUrl,
@@ -143,6 +147,8 @@ export async function POST(request: NextRequest) {
           thumbnail: profileData.avatarUrl || null,
           dataSource: profileData.dataSource || "youtube-page-scrape",
         },
+        dataSources,
+        sourceConfidence,
         startTime,
       })
     );

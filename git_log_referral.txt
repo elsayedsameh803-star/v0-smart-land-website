@@ -1,3 +1,0 @@
-6fd4755 feat: add professional referral system with rewards program
-5bf448c Fix middleware matcher regex to avoid capturing groups
-019ee5d Fix middleware to exclude PWA files from locale redirect

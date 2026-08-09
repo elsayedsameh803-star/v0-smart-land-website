@@ -63,6 +63,7 @@ export interface AnalysisMetadata {
   dataSources: string[];
   limitations: string[];
   methodologyVersion: string;
+  sourceConfidence?: "high" | "medium" | "low";
 }
 
 export interface AnalysisStage {

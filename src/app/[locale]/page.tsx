@@ -148,6 +148,34 @@ export default function HomePage({ params }: PageProps) {
 
             <ScoreBreakdown overallScore={analysisResult.overallScore} scores={analysisResult.scores} locale={locale} />
 
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-xl p-6 bg-dark-800/60 border border-gold-500/10">
+                <h3 className="text-sm uppercase tracking-[0.2em] text-gold-400 mb-3">
+                  {locale === "ar" ? "ثقة المصدر" : "Source Confidence"}
+                </h3>
+                <p className="text-2xl font-semibold text-white capitalize">
+                  {analysisResult.metadata.sourceConfidence || (locale === "ar" ? "محدودة" : "Limited")}
+                </p>
+                <p className="text-dark-400 text-sm mt-3">
+                  {locale === "ar"
+                    ? "قياس جودة البيانات المستخدمة في التحليل"
+                    : "Quality of the extracted data used for analysis"}
+                </p>
+              </div>
+              <div className="md:col-span-2 rounded-xl p-6 bg-dark-800/60 border border-gold-500/10">
+                <h3 className="text-sm uppercase tracking-[0.2em] text-gold-400 mb-3">
+                  {locale === "ar" ? "مصادر البيانات" : "Data Sources"}
+                </h3>
+                <div className="space-y-2 text-dark-300 text-sm">
+                  {analysisResult.metadata.dataSources.map((source, index) => (
+                    <div key={index} className="rounded-lg border border-gold-500/10 p-3 bg-dark-900/80">
+                      {source}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="rounded-xl p-6 bg-dark-800/60 border border-gold-500/10">
                 <h3 className="text-lg font-semibold text-gold-400 mb-4">{locale === "ar" ? "نقاط القوة" : "Strengths"}</h3>

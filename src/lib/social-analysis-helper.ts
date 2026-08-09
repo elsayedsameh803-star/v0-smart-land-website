@@ -5,20 +5,23 @@
 // to produce UNIQUE, data-driven analysis for every social account.
 // =============================================================================
 
-import { generateUniqueAnalysis } from "./intelligent-analysis-engine";
+import { generateUniqueAnalysis, type UniqueAnalysisOutput } from "./intelligent-analysis-engine";
+import { analyzeSocialWithGemini } from "./gemini-analysis";
 
 /**
  * Build a complete analysis response by combining:
  * 1. Real extracted profile data (when available)
- * 2. Intelligent unique analysis generation
+ * 2. Gemini AI evidence-based analysis (when configured) — else the intelligent engine
  */
-export function buildSocialAnalysisResponse(params: {
+export async function buildSocialAnalysisResponse(params: {
   platform: string;
   username: string;
   url: string;
   locale?: string;
   profileData?: Record<string, any>;
   extraData?: Record<string, any>;
+  dataSources?: string[];
+  sourceConfidence?: "high" | "medium" | "low";
   startTime?: number;
 }) {
   const {
@@ -28,19 +31,51 @@ export function buildSocialAnalysisResponse(params: {
     locale = "en",
     profileData = {},
     extraData = {},
+    dataSources,
+    sourceConfidence,
     startTime = Date.now(),
   } = params;
 
-  // Generate UNIQUE analysis using the intelligent engine
-  const analysis = generateUniqueAnalysis({
-    platform,
-    username,
-    url,
-    locale,
-    profileData,
-  });
+  // Try Gemini (real, evidence-based analysis of the extracted data) first;
+  // fall back to the deterministic intelligent engine if Gemini is unavailable.
+  let analysis: UniqueAnalysisOutput | null = null;
+  let engine = "intelligent-analysis-engine";
+  try {
+    analysis = await analyzeSocialWithGemini({
+      platform,
+      username,
+      url,
+      locale,
+      profileData,
+    });
+    if (analysis) engine = "gemini-ai";
+  } catch {
+    analysis = null;
+  }
+  if (!analysis) {
+    analysis = generateUniqueAnalysis({
+      platform,
+      username,
+      url,
+      locale,
+      profileData,
+    });
+  }
 
   const duration = Math.round((Date.now() - startTime) / 1000);
+  const metadataDataSources = dataSources ?? analysis.dataSources;
+  const metadataSourceConfidence = sourceConfidence ?? computeSourceConfidence(profileData);
+
+  // Transparency layer: when no real public data could be extracted, make sure
+  // the report clearly says so instead of presenting estimates as hard facts.
+  const analysisLimitations = [...analysis.limitations];
+  if (metadataSourceConfidence === "low") {
+    analysisLimitations.unshift(
+      locale === "ar"
+        ? "تعذّر استرداد بيانات عامة حقيقية من المنصة لهذا الحساب — النتائج تقديرية مبنية على إشارات جزئية فقط"
+        : "No live public data could be retrieved for this account — results are estimates based on partial signals only"
+    );
+  }
 
   return {
     success: true,
@@ -63,10 +98,11 @@ export function buildSocialAnalysisResponse(params: {
         analyzedUrl: url,
         analysisDate: new Date().toISOString(),
         duration,
-        dataSources: analysis.dataSources,
-        limitations: analysis.limitations,
-        methodologyVersion: "3.1.0",
-        engine: "intelligent-analysis-engine",
+        dataSources: metadataDataSources,
+        limitations: analysisLimitations,
+        methodologyVersion: "3.2.0",
+        sourceConfidence: metadataSourceConfidence,
+        engine,
       },
     },
   };
@@ -250,6 +286,31 @@ export function normalizeProfileData(platform: string, raw: Record<string, any>)
   normalized.fullName = typeof normalized.fullName === "string" ? normalized.fullName : "";
 
   return normalized;
+}
+
+function computeSourceConfidence(profileData: Record<string, any>): "high" | "medium" | "low" {
+  const indicators = [
+    "followers",
+    "following",
+    "postsCount",
+    "videoCount",
+    "subscribers",
+    "likes",
+    "engagementRate",
+    "bio",
+    "description",
+    "title",
+    "profilePicUrl",
+    "avatarUrl",
+  ];
+  const score = indicators.reduce((count, field) => {
+    const value = profileData[field];
+    return value !== undefined && value !== null && value !== "" ? count + 1 : count;
+  }, 0);
+
+  if (score >= 3) return "high";
+  if (score > 0) return "medium";
+  return "low";
 }
 
 function parseNumericString(val: string): number {

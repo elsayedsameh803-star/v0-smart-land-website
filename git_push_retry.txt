@@ -1,2 +1,0 @@
-To https://github.com/elsayedsameh803-star/v0-smart-land-website.git
-   cd886cd..d457ba4  master -> master

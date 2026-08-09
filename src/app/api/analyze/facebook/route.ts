@@ -90,10 +90,12 @@ export async function POST(request: NextRequest) {
 
     const normalizedData = normalizeProfileData("facebook", profileData);
     const normalizedUrl = `https://www.facebook.com/${pageId}/`;
+    const hasSourceData = Object.values(profileData).some((value) => value !== undefined && value !== null && value !== "");
+    const sourceConfidence = hasSourceData ? "high" : "low";
 
     recordAnalysis("facebook", true);
     return NextResponse.json(
-      buildSocialAnalysisResponse({
+      await buildSocialAnalysisResponse({
         platform: "facebook",
         username: pageId,
         url: normalizedUrl,
@@ -105,6 +107,8 @@ export async function POST(request: NextRequest) {
         extraData: {
           metaImage: profileData.metaImage || null,
         },
+        dataSources: hasSourceData ? ["facebook-public-page", "facebook-og"] : ["facebook-public-page"],
+        sourceConfidence,
         startTime,
       })
     );

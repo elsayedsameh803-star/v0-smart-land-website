@@ -1,4 +1,0 @@
-{
-  "nextExists": true,
-  "buildOutputExists": true
-}

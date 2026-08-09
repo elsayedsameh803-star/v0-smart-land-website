@@ -1,2 +1,0 @@
-892d0a7 feat: create professional comprehensive dashboard with advanced analytics
-d384d44 feat: verify real social media analysis for all platforms

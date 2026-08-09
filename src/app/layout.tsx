@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { Inter, Cairo } from "next/font/google";
 import { GoogleAnalyticsScript, SearchConsoleVerification } from "@/components/GoogleAnalytics";
+import { SITE_URL } from "@/lib/constants";
 import "./globals.css";
 
 const inter = Inter({ 
@@ -19,6 +20,7 @@ const cairo = Cairo({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Smart Land - AI Digital Audit Platform | سمارت لاند - منصة التدقيق الرقمي",
     template: "%s | Smart Land",
@@ -52,10 +54,10 @@ export const metadata: Metadata = {
     siteName: "Smart Land",
     title: "Smart Land - AI Digital Audit Platform",
     description: "Analyze, understand, and improve your digital presence with evidence-based AI-powered audits.",
-    url: "https://smart-land-theta.vercel.app",
+    url: SITE_URL,
     images: [
       {
-        url: "/icons/icon-512x512.png",
+        url: "/icons/icon-512x512.svg",
         width: 512,
         height: 512,
         alt: "Smart Land Logo",
@@ -67,20 +69,20 @@ export const metadata: Metadata = {
     title: "Smart Land - AI Digital Audit Platform",
     description: "Analyze, understand, and improve your digital presence with evidence-based AI-powered audits.",
     creator: "@smartland",
-    images: ["/icons/icon-512x512.png"],
+    images: ["/icons/icon-512x512.svg"],
   },
   icons: {
     icon: [
-      { url: "/icons/icon-48x48.png", sizes: "48x48", type: "image/png" },
-      { url: "/icons/icon-96x96.png", sizes: "96x96", type: "image/png" },
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/icon-48x48.svg", sizes: "48x48", type: "image/svg+xml" },
+      { url: "/icons/icon-96x96.svg", sizes: "96x96", type: "image/svg+xml" },
+      { url: "/icons/icon-192x192.svg", sizes: "192x192", type: "image/svg+xml" },
+      { url: "/icons/icon-512x512.svg", sizes: "512x512", type: "image/svg+xml" },
     ],
     apple: [
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/icon-192x192.svg", sizes: "192x192", type: "image/svg+xml" },
+      { url: "/icons/icon-512x512.svg", sizes: "512x512", type: "image/svg+xml" },
     ],
-    shortcut: { url: "/icons/icon-96x96.png", type: "image/png" },
+    shortcut: { url: "/icons/icon-96x96.svg", type: "image/svg+xml" },
   },
   manifest: "/manifest.json",
   appleWebApp: {
@@ -89,7 +91,7 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     startupImage: [
       {
-        url: "/icons/icon-512x512.png",
+        url: "/icons/icon-512x512.svg",
         media: "(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)",
       },
     ],
@@ -106,7 +108,7 @@ export const metadata: Metadata = {
     "apple-touch-fullscreen": "yes",
     "apple-mobile-web-app-capable": "yes",
     "msapplication-TileColor": "#020617",
-    "msapplication-TileImage": "/icons/icon-144x144.png",
+    "msapplication-TileImage": "/icons/icon-144x144.svg",
     "msapplication-config": "none",
   } as Record<string, string>,
 };
@@ -142,7 +144,7 @@ export default function RootLayout({
     "@type": "WebApplication",
     name: "Smart Land",
     alternateName: "سمارت لاند",
-    url: "https://smart-land.vercel.app",
+    url: SITE_URL,
     description: "AI Digital Audit Platform - Analyze, understand, and improve your digital presence with evidence-based AI-powered audits across websites and social media platforms.",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
@@ -159,20 +161,19 @@ export default function RootLayout({
     author: {
       "@type": "Organization",
       name: "Smart Land",
-      url: "https://smart-land.vercel.app",
+      url: SITE_URL,
     },
     publisher: {
       "@type": "Organization",
       name: "Smart Land",
       logo: {
         "@type": "ImageObject",
-        url: "https://smart-land.vercel.app/icons/icon-512x512.png",
+        url: `${SITE_URL}/icons/icon-512x512.svg`,
       },
     },
     sameAs: [
-      "https://twitter.com/smartland",
-      "https://linkedin.com/company/smartland",
-      "https://github.com/smartland",
+      "https://github.com/elsayedsameh803-star/v0-smart-land-website",
+      "https://smart-land-theta.vercel.app",
     ],
   };
 
@@ -188,12 +189,12 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="application-name" content="Smart Land" />
         <meta name="msapplication-TileColor" content="#020617" />
-        <meta name="msapplication-TileImage" content="/icons/icon-144x144.png" />
+        <meta name="msapplication-TileImage" content="/icons/icon-144x144.svg" />
         
         {/* PWA splash screen */}
-        <link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
-        <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.png" />
+        <link rel="apple-touch-startup-image" href="/icons/icon-512x512.svg" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.svg" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512x512.svg" />
         <link rel="manifest" href="/manifest.json" />
         
         {/* Preconnect to critical origins */}

@@ -1,2 +1,0 @@
-?? git_log_v31.txt
-?? git_status_v31.txt

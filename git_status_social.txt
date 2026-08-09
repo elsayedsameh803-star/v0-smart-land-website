@@ -1,3 +1,0 @@
-?? git_log_social.txt
-?? git_push_social.txt
-?? git_status_social.txt

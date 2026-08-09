@@ -96,6 +96,7 @@ export function PdfReport({ result, locale }: PdfReportProps) {
           <div style="font-size:12px;color:#888;">
             <div>${isRtl ? "الرابط" : "URL"}: ${result.url}</div>
             <div>${isRtl ? "التاريخ" : "Date"}: ${dateStr}</div>
+            <div>${isRtl ? "ثقة المصدر" : "Source Confidence"}: ${result.metadata.sourceConfidence || (isRtl ? "محدودة" : "Limited")}</div>
           </div>
         </div>
         <div style="text-align:center;margin:20px 0;">
@@ -202,6 +203,7 @@ export function PdfReport({ result, locale }: PdfReportProps) {
         duration: result.metadata.duration,
         dataSources: result.metadata.dataSources,
         methodologyVersion: result.metadata.methodologyVersion,
+        sourceConfidence: result.metadata.sourceConfidence || "unknown",
       },
     };
 

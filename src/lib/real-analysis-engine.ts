@@ -139,6 +139,7 @@ export async function performRealAnalysis(url: string, locale: string = "en"): P
           "Results reflect the state at time of analysis",
         ],
         methodologyVersion: "3.0.0",
+        sourceConfidence: data.metadata?.sourceConfidence || "medium",
       },
     };
   } catch (error) {
@@ -286,6 +287,7 @@ export async function performRealSocialAnalysis(
           "Results reflect the state at time of analysis",
         ],
         methodologyVersion: "3.0.0",
+        sourceConfidence: data.metadata?.sourceConfidence || "medium",
       },
     };
   } catch (error) {

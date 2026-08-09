@@ -3,14 +3,8 @@
 
 User-agent: *
 Allow: /
-
-# Sitemap
-Sitemap: https://smart-land-theta.vercel.app/sitemap.xml
-
-# Disallow admin pages
+Disallow: /api
 Disallow: /admin
-Disallow: /en/admin
-Disallow: /ar/admin
 
-# Crawl rules
-Crawl-Delay: 10
+Sitemap: https://smart-land-theta.vercel.app/sitemap.xml
+Host: smart-land-theta.vercel.app

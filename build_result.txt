@@ -1,6 +1,0 @@
-  ▲ Next.js 14.2.35
-  - Experiments (use with caution):
-    · scrollRestoration
-
-   Creating an optimized production build ...
-

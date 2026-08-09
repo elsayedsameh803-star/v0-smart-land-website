@@ -182,7 +182,7 @@ const columns: Record<"ar" | "en", Record<string, string>> = {
   },
 };
 
-type Tab = "overview" | "analytics" | "security" | "system";
+type Tab = "overview" | "analytics" | "security" | "system" | "settings";
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -241,6 +241,7 @@ export default function AdminDashboard() {
     { id: "analytics", label: t.analytics, icon: BarChart3 },
     { id: "security", label: t.security, icon: ShieldCheck },
     { id: "system", label: t.system, icon: Cpu },
+    { id: "settings", label: "Settings", icon: Database },
   ];
 
   return (
@@ -389,6 +390,34 @@ export default function AdminDashboard() {
               )}
               {tab === "system" && data && (
                 <SystemSection t={t} system={data.system} version={data.version} />
+              )}
+              {tab === "settings" && (
+                <div className="rounded-2xl bg-dark-900/70 border border-gold-500/10 p-8">
+                  <div className="flex flex-col gap-3">
+                    <div className="inline-flex items-center gap-3 rounded-2xl bg-gold-500/10 border border-gold-500/20 p-4">
+                      <Database className="w-5 h-5 text-gold-300" />
+                      <div>
+                        <h2 className="text-lg font-bold text-white">Admin Settings</h2>
+                        <p className="text-sm text-dark-400">Open the runtime configuration panel and audit log for the admin console.</p>
+                      </div>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="rounded-2xl bg-dark-800/80 border border-gold-500/10 p-5">
+                        <p className="text-sm text-dark-400">Use this panel to manage maintenance mode, default admin locale, theme, and runtime security options.</p>
+                      </div>
+                      <div className="rounded-2xl bg-dark-800/80 border border-gold-500/10 p-5">
+                        <p className="text-sm text-dark-400">Settings are stored in memory on the current instance and require a persistent store for cross-instance durability.</p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => router.push("/admin/settings")}
+                      className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-gold-600 to-gold-500 px-5 py-3 text-sm font-bold text-dark-950 hover:from-gold-500 hover:to-gold-400 transition"
+                    >
+                      <span>Open Admin Settings</span>
+                    </button>
+                  </div>
+                </div>
               )}
             </>
           )}

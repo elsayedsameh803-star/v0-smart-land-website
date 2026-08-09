@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
+import CookieConsent from "@/components/CookieConsent";
 import { GoogleAnalyticsTracker } from "@/components/GoogleAnalytics";
 import { getDictionary } from "@/lib/i18n";
 import { Toaster } from "sonner";
@@ -26,6 +27,7 @@ export default async function LocaleLayout({
       <main>{children}</main>
       <Footer locale={locale} />
       <PwaInstallPrompt />
+      <CookieConsent />
       <Toaster 
         position={locale === "ar" ? "top-left" : "top-right"} 
         toastOptions={{

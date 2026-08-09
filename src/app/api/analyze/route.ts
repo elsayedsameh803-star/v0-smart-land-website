@@ -769,6 +769,12 @@ export async function POST(request: NextRequest) {
             "Client-side rendered content may not be fully captured",
           ],
           methodologyVersion: "3.0.0",
+          sourceConfidence:
+            res.ok && statusCode === 200 && title && (hasMetaDesc || hasCanonical || h1Count > 0)
+              ? "high"
+              : res.ok && statusCode === 200
+              ? "medium"
+              : "low",
         },
         pageData: {
           title,
