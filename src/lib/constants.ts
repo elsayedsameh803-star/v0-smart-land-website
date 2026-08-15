@@ -3,7 +3,7 @@ import type { NavItem } from "./types";
 export const SITE_URL =
   process.env.NEXT_PUBLIC_METADATA_BASE ||
   process.env.NEXT_PUBLIC_SITE_URL ||
-  "https://smart-land-theta.vercel.app";
+  "https://smart-land.vercel.app";
 export const SITE_NAME = "Smart Land";
 export const SITE_DESCRIPTION = "AI Digital Audit Platform — Analyze, understand, and improve your digital presence with evidence-based AI-powered audits.";
 

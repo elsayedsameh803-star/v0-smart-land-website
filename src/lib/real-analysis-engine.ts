@@ -7,6 +7,7 @@
 
 import type {
   AnalysisResult,
+  CategoryScore,
   CategoryScores,
   Finding,
   AnalysisStage,
@@ -286,8 +287,9 @@ export async function performRealSocialAnalysis(
           "Platform may limit access to certain metrics",
           "Results reflect the state at time of analysis",
         ],
-        methodologyVersion: "3.0.0",
+        methodologyVersion: "3.2.0",
         sourceConfidence: data.metadata?.sourceConfidence || "medium",
+        dataAvailability: data.metadata?.dataAvailability,
       },
     };
   } catch (error) {
@@ -408,64 +410,70 @@ function buildSocialCategoryScores(data: any, platform: string): CategoryScores 
   const platformLabelAr = getPlatformLabel(platform, "ar");
   const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
 
-  // Extract platform-specific scores
+  // Extract platform-specific scores (data-driven scores already carry
+  // `unavailable` and `reasons` — preserve them through the mapping).
   const platformScores = data.scores || {};
 
+  const build = (
+    key: string,
+    label: string,
+    labelAr: string,
+    description: string,
+    descriptionAr: string,
+    fallback: number
+  ): CategoryScore => {
+    const src = platformScores[key] || {};
+    return {
+      score: formatScore(src.score ?? fallback),
+      maxScore: 100,
+      label,
+      labelAr,
+      description,
+      descriptionAr,
+      findings: src.findings || [],
+      unavailable: src.unavailable,
+      reasons: src.reasons,
+      reasonsAr: src.reasonsAr,
+    };
+  };
+
   return {
-    seo: {
-      score: formatScore(platformScores.seo?.score ?? data.overallScore ?? 0),
-      maxScore: 100,
-      label: "SEO & Discoverability",
-      labelAr: "تحسين محركات البحث والظهور",
-      description: `${platformName} search optimization, profile keywords, hashtags`,
-      descriptionAr: `تحسين البحث في ${platformLabelAr}، الكلمات المفتاحية للملف، الهاشتاجات`,
-      findings: [],
-    },
-    performance: {
-      score: formatScore(platformScores.performance?.score ?? platformScores.profile?.score ?? 0),
-      maxScore: 100,
-      label: "Profile & Presence",
-      labelAr: "الملف والحضور",
-      description: `Profile completeness, verification, bio quality on ${platformName}`,
-      descriptionAr: `اكتمال الملف، التوثيق، جودة الوصف على ${platformLabelAr}`,
-      findings: [],
-    },
-    accessibility: {
-      score: formatScore(platformScores.accessibility?.score ?? platformScores.growth?.score ?? 0),
-      maxScore: 100,
-      label: "Audience & Growth",
-      labelAr: "الجمهور والنمو",
-      description: "Audience growth, follower engagement, reach metrics",
-      descriptionAr: "نمو الجمهور، تفاعل المتابعين، مقاييس الوصول",
-      findings: [],
-    },
-    security: {
-      score: formatScore(platformScores.security?.score ?? platformScores.engagement?.score ?? 0),
-      maxScore: 100,
-      label: "Content Engagement",
-      labelAr: "تفاعل المحتوى",
-      description: "Content engagement rates, likes, comments, shares",
-      descriptionAr: "معدلات تفاعل المحتوى، الإعجابات، التعليقات، المشاركات",
-      findings: [],
-    },
-    content: {
-      score: formatScore(platformScores.content?.score ?? data.overallScore ?? 0),
-      maxScore: 100,
-      label: "Content Quality",
-      labelAr: "جودة المحتوى",
-      description: `Content quality, consistency, and value on ${platformName}`,
-      descriptionAr: `جودة المحتوى والاتساق والقيمة على ${platformLabelAr}`,
-      findings: [],
-    },
-    technical: {
-      score: formatScore(platformScores.technical?.score ?? 0),
-      maxScore: 100,
-      label: "Technical & Platform",
-      labelAr: "التقنية والمنصة",
-      description: "Platform-specific technical signals and infrastructure",
-      descriptionAr: "إشارات تقنية خاصة بالمنصة والبنية التحتية",
-      findings: [],
-    },
+    seo: build(
+      "seo", "SEO & Discoverability", "الظهور والبحث",
+      `${platformName} search optimization, profile keywords, hashtags`,
+      `تحسين البحث في ${platformLabelAr}، الكلمات المفتاحية للملف، الهاشتاجات`,
+      data.overallScore ?? 0
+    ),
+    performance: build(
+      "performance", "Profile & Presence", "الملف والحضور",
+      `Profile completeness, verification, bio quality on ${platformName}`,
+      `اكتمال الملف، التوثيق، جودة الوصف على ${platformLabelAr}`,
+      platformScores.profile?.score ?? 0
+    ),
+    accessibility: build(
+      "accessibility", "Audience & Growth", "الجمهور والنمو",
+      "Audience growth, follower engagement, reach metrics",
+      "نمو الجمهور، تفاعل المتابعين، مقاييس الوصول",
+      platformScores.growth?.score ?? 0
+    ),
+    security: build(
+      "security", "Verification & Privacy", "التوثيق والخصوصية",
+      "Confirmed verification status and public/private visibility",
+      "حالة التوثيق المؤكدة ومدى علانية الملف",
+      platformScores.engagement?.score ?? 0
+    ),
+    content: build(
+      "content", "Content & Engagement", "المحتوى والتفاعل",
+      `Content quality, consistency, and value on ${platformName}`,
+      `جودة المحتوى والاتساق والقيمة على ${platformLabelAr}`,
+      data.overallScore ?? 0
+    ),
+    technical: build(
+      "technical", "Structure & Consistency", "البنية والاتساق",
+      "Platform-specific technical signals and infrastructure",
+      "إشارات تقنية خاصة بالمنصة والبنية التحتية",
+      0
+    ),
   };
 }
 

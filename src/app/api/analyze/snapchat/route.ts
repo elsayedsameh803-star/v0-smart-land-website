@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-analysis-helper";
 import { safeFetch } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
+import { enforceSubscription } from "@/lib/subscription-shield";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
     const { url, locale } = await request.json();
+    const blocked = enforceSubscription(request);
+    if (blocked) return blocked;
     if (!url) {
       return NextResponse.json({ error: "URL required" }, { status: 400 });
     }
@@ -69,7 +72,6 @@ export async function POST(request: NextRequest) {
           bio: trimmedBio,
           bioHashtags: hashtags,
           bioLinks: links,
-          verified: false,
           avatarUrl: metaImage,
           hasBio,
           hasActiveContent,

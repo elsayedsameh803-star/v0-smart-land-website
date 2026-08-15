@@ -36,6 +36,7 @@ export default function HomePage({ params }: PageProps) {
   const [activeFinding, setActiveFinding] = useState<Finding | null>(null);
   const [showFixAssistant, setShowFixAssistant] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [needsRenew, setNeedsRenew] = useState(false);
 
   const handleAnalyze = async (submittedUrl: string, selectedPlatform?: string) => {
     setUrl(submittedUrl);
@@ -43,6 +44,18 @@ export default function HomePage({ params }: PageProps) {
     setCurrentView("analyzing");
     setIsAnalyzing(true);
     setError(null);
+
+    // Server-side subscription access check (renewal required when expired)
+    try {
+      const acc = await fetch("/api/payments/access").then((r) => r.json()).catch(() => null);
+      if (acc && acc.allowed === false) {
+        setNeedsRenew(true);
+        setError(locale === "ar" ? acc.messageAr : acc.messageEn);
+        setCurrentView("home");
+        setIsAnalyzing(false);
+        return;
+      }
+    } catch { /* ignore access-check failures */ }
 
     // Initialize real stages
     const initialStages = getAnalysisStages();
@@ -101,6 +114,16 @@ export default function HomePage({ params }: PageProps) {
     <div className="min-h-screen bg-dark-950">
       {currentView === "home" && (
         <>
+          {needsRenew && (
+            <div className="fixed top-0 inset-x-0 z-50 bg-red-600/95 text-white px-4 py-3 text-center text-sm font-medium shadow-lg">
+              {error || (locale === "ar"
+                ? "انتهى اشتراكك، يرجى تجديد الاشتراك للاستمرار في استخدام Smart Land."
+                : "Your subscription has ended. Please renew to continue using Smart Land.")}
+              <a href="/checkout" className="ms-3 inline-block rounded-md bg-white text-red-600 px-3 py-1.5 text-xs font-bold">
+                {locale === "ar" ? "تجديد الاشتراك" : "Renew subscription"}
+              </a>
+            </div>
+          )}
           <HeroSection onAnalyze={handleAnalyze} locale={locale} />
           <StatsSection locale={locale} />
           <OnboardingSteps locale={locale} />

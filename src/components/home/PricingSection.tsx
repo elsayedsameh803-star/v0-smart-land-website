@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Sparkles, Zap, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface PricingSectionProps {
   locale: string;
@@ -64,11 +65,18 @@ const translations: Record<string, Record<string, string | string[]>> = {
 };
 
 export function PricingSection({ locale }: PricingSectionProps) {
+  const router = useRouter();
   const isRtl = locale === "ar";
   const t = translations[locale] || translations.en;
 
+  const go = (planId: string) => {
+    if (planId === "enterprise") { router.push("/contact"); return; }
+    router.push(`/checkout?plan=${planId}`);
+  };
+
   const plans = [
     {
+      planId: "free",
       name: t.free as string,
       price: t.freePrice as string,
       period: t.freePeriod as string,
@@ -79,6 +87,7 @@ export function PricingSection({ locale }: PricingSectionProps) {
       gradient: "from-gold-500/20 to-gold-600/5",
     },
     {
+      planId: "pro",
       name: t.pro as string,
       price: t.proPrice as string,
       period: t.proPeriod as string,
@@ -89,6 +98,7 @@ export function PricingSection({ locale }: PricingSectionProps) {
       gradient: "from-gold-500 to-gold-600",
     },
     {
+      planId: "enterprise",
       name: t.enterprise as string,
       price: t.enterprisePrice as string,
       period: t.enterprisePeriod as string,
@@ -178,7 +188,7 @@ export function PricingSection({ locale }: PricingSectionProps) {
               </ul>
 
               {/* CTA Button */}
-              <button className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
+              <button onClick={() => go(plan.planId)} className={`w-full py-3 px-4 rounded-xl font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
                 plan.popular
                   ? "bg-gradient-to-r from-gold-600 to-gold-500 text-dark-950 hover:from-gold-500 hover:to-gold-400 shadow-lg shadow-gold-500/25"
                   : "border border-gold-500/30 text-gold-300 hover:bg-gold-500/10 hover:border-gold-500/50"

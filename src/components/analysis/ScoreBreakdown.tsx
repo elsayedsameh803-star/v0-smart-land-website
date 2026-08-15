@@ -27,14 +27,17 @@ export function ScoreBreakdown({ overallScore, scores, locale }: ScoreBreakdownP
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (overallScore / 100) * circumference;
 
-  const categories = [
-    { key: "seo" as const },
-    { key: "performance" as const },
-    { key: "accessibility" as const },
-    { key: "security" as const },
-    { key: "content" as const },
-    { key: "technical" as const },
+  const categories: Array<{ key: keyof CategoryScores }> = [
+    { key: "seo" },
+    { key: "performance" },
+    { key: "accessibility" },
+    { key: "security" },
+    { key: "content" },
+    { key: "technical" },
   ];
+
+  const hasLiveData = categories.some(({ key }) => !scores[key]?.unavailable);
+  const reasonsFor = (key: keyof CategoryScores): string[] => (isRtl ? scores[key]?.reasonsAr : scores[key]?.reasons) || [];
 
   const getScoreColorGradient = (score: number) => {
     if (score >= 80) return "from-emerald-500 to-emerald-400";
@@ -84,7 +87,7 @@ export function ScoreBreakdown({ overallScore, scores, locale }: ScoreBreakdownP
             {/* Center content */}
             <div className="relative text-center">
               <div className="text-4xl md:text-5xl font-bold text-gold-400 text-glow">
-                {overallScore}
+                {hasLiveData ? overallScore : "—"}
               </div>
               <div className="text-xs text-dark-500 mt-1">
                 {isRtl ? "من 100" : "/100"}
@@ -98,9 +101,17 @@ export function ScoreBreakdown({ overallScore, scores, locale }: ScoreBreakdownP
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gold-500/10 border border-gold-500/20">
             <TrendingUp className="w-4 h-4 text-gold-400" />
             <span className="text-lg font-semibold text-gold-400">
-              {getScoreRating(overallScore, locale)}
+              {hasLiveData ? getScoreRating(overallScore, locale) : (isRtl ? "بيانات غير متاحة" : "Data unavailable")}
             </span>
           </div>
+
+          {!hasLiveData && (
+            <p className="mt-3 text-xs text-dark-400 max-w-md mx-auto">
+              {isRtl
+                ? "لم تتوفر بيانات عامة حقيقية يمكن التحقق منها — لا تُخترع درجات. اجعل الحساب عاماً أو اربط واجهة API رسمية للحصول على تدقيق كامل."
+                : "No live public data could be verified — no scores are invented. Make the account public or connect an official API for a full audit."}
+            </p>
+          )}
         </div>
       </div>
 
@@ -128,22 +139,45 @@ export function ScoreBreakdown({ overallScore, scores, locale }: ScoreBreakdownP
                       {isRtl ? score.labelAr : score.label}
                     </span>
                   </div>
-                  <span className={cn("text-xl font-bold", `text-gold-400`)}>
-                    {score.score}
-                  </span>
+                  {score.unavailable ? (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-dark-700 text-dark-300 text-[11px] font-medium border border-dark-600">
+                      {isRtl ? "غير متاح" : "Unavailable"}
+                    </span>
+                  ) : (
+                    <span className={cn("text-xl font-bold", `text-gold-400`)}>
+                      {score.score}
+                    </span>
+                  )}
                 </div>
                 
                 {/* Progress bar with gradient */}
                 <div className="w-full bg-dark-700 rounded-full h-2.5 overflow-hidden">
                   <div
-                    className={cn("h-full rounded-full transition-all duration-700 bg-gradient-to-r", gradientColor)}
-                    style={{ width: `${score.score}%` }}
+                    className={cn(
+                      "h-full rounded-full transition-all duration-700 bg-gradient-to-r",
+                      score.unavailable ? "bg-dark-600" : gradientColor
+                    )}
+                    style={{ width: `${score.unavailable ? 0 : score.score}%` }}
                   />
                 </div>
                 
                 <p className="text-xs text-dark-400 mt-2 leading-relaxed">
-                  {isRtl ? score.descriptionAr : score.description}
+                  {score.unavailable
+                    ? (isRtl ? "لا توجد بيانات عامة حقيقية يمكن التحقق منها لهذا القسم — لا تُخترع درجات." : "No live public data could be verified for this category — no score is invented.")
+                    : (isRtl ? score.descriptionAr : score.description)}
                 </p>
+
+                {/* Score reasons / evidence */}
+                {reasonsFor(key).length > 0 && (
+                  <ul className="mt-3 space-y-1.5">
+                    {reasonsFor(key).slice(0, 5).map((reason: string, idx: number) => (
+                      <li key={idx} className="flex items-start gap-1.5 text-[11px] text-dark-300 leading-snug">
+                        <span className="text-gold-500 mt-0.5 shrink-0">•</span>
+                        <span>{reason}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </div>
           );

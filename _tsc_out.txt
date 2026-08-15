@@ -1,0 +1,6 @@
+src/components/analysis/ScoreBreakdown.tsx(40,48): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'CategoryScores'.
+  No index signature with a parameter of type 'string' was found on type 'CategoryScores'.
+src/components/analysis/ScoreBreakdown.tsx(40,73): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type 'CategoryScores'.
+  No index signature with a parameter of type 'string' was found on type 'CategoryScores'.
+src/components/analysis/ScoreBreakdown.tsx(173,55): error TS7006: Parameter 'reason' implicitly has an 'any' type.
+src/components/analysis/ScoreBreakdown.tsx(173,63): error TS7006: Parameter 'idx' implicitly has an 'any' type.

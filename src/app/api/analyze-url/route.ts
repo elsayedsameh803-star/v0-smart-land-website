@@ -50,7 +50,7 @@ export async function POST(request: NextRequest) {
       const response = await safeFetch(targetUrl.toString(), {
         method: 'GET',
         headers: {
-          'User-Agent': 'SmartLand-Audit/2.0 (Analysis Bot; +https://smart-land-theta.vercel.app)',
+          'User-Agent': 'SmartLand-Audit/2.0 (Analysis Bot; +https://smart-land.vercel.app)',
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
           'Accept-Language': 'en-US,en;q=0.5',
         },

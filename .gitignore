@@ -74,3 +74,8 @@ vercel-*.log
 vercel-*.txt
 branch_check*
 current_*.txt
+
+data/paymob-store.json
+tmp_test.mp3
+build_final.log
+proc_check.txt

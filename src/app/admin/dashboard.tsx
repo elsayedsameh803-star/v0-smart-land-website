@@ -416,6 +416,13 @@ export default function AdminDashboard() {
                     >
                       <span>Open Admin Settings</span>
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => router.push("/admin/payments")}
+                      className="inline-flex items-center gap-2 rounded-lg bg-gold-500/10 border border-gold-500/25 px-5 py-3 text-sm font-bold text-gold-300 hover:bg-gold-500/20 transition"
+                    >
+                      <span>Subscriptions &amp; Payments</span>
+                    </button>
                   </div>
                 </div>
               )}

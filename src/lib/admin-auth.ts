@@ -19,9 +19,11 @@ export const SESSION_MAX_AGE = Math.floor(SESSION_TTL_MS / 1000); // seconds
 const te = new TextEncoder();
 
 function getSecret(): string {
-  const secret = process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD;
+  const secret = process.env.ADMIN_SESSION_SECRET;
   if (!secret) {
-    throw new Error("Admin session secret is not configured");
+    throw new Error(
+      "ADMIN_SESSION_SECRET is not configured. Set a random 64-character hex string in your environment variables."
+    );
   }
   return secret;
 }

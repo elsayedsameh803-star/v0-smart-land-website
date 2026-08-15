@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/site-config";
 
-const BASE_URL = "https://smart-land-theta.vercel.app";
+const BASE_URL = getSiteUrl();
 
 const locales = ["en", "ar"] as const;
 type Locale = (typeof locales)[number];

@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-analysis-helper";
 import { safeFetch } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
+import { enforceSubscription } from "@/lib/subscription-shield";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
     const { url, locale } = await request.json();
+    const blocked = enforceSubscription(request);
+    if (blocked) return blocked;
     if (!url) {
       return NextResponse.json({ error: "URL required" }, { status: 400 });
     }
@@ -42,6 +45,10 @@ export async function POST(request: NextRequest) {
         const sharedData = extractSharedData(html);
         
         const profile = sharedData?.entry_data?.ProfilePage?.[0]?.graphql?.user || null;
+
+        // Only treat data as extracted when the profile object actually exists;
+        // a login-wall or JS-only page means "unknown", never verified zeros.
+        if (profile) {
         const isPrivate = profile?.is_private || false;
         const verified = profile?.is_verified || false;
         const fullName = profile?.full_name || username;
@@ -106,9 +113,10 @@ export async function POST(request: NextRequest) {
           isPrivate,
           profilePicUrl,
         };
+        }
       }
     } catch {
-      // Fall through - use intelligent engine with no real data
+      // Fall through — no verifiable profile data
     }
 
     const normalizedData = normalizeProfileData("instagram", profileData);

@@ -5,13 +5,19 @@
 // to produce UNIQUE, data-driven analysis for every social account.
 // =============================================================================
 
-import { generateUniqueAnalysis, type UniqueAnalysisOutput } from "./intelligent-analysis-engine";
-import { analyzeSocialWithGemini } from "./gemini-analysis";
+import {
+  computeScoreBreakdown,
+  buildPlatformFindings,
+  buildPlatformStrengths,
+  buildPlatformWeaknesses,
+  buildPlatformSummary,
+} from "./platform-rules";
 
 /**
- * Build a complete analysis response by combining:
- * 1. Real extracted profile data (when available)
- * 2. Gemini AI evidence-based analysis (when configured) — else the intelligent engine
+ * Build a complete analysis response using ONLY real, verified data:
+ * 1. Data-driven scoring from the platform-specific rules engine (never invents numbers)
+ * 2. Real extracted profile data (when available)
+ * 3. Transparent reporting of every metric that could NOT be verified.
  */
 export async function buildSocialAnalysisResponse(params: {
   platform: string;
@@ -36,44 +42,43 @@ export async function buildSocialAnalysisResponse(params: {
     startTime = Date.now(),
   } = params;
 
-  // Try Gemini (real, evidence-based analysis of the extracted data) first;
-  // fall back to the deterministic intelligent engine if Gemini is unavailable.
-  let analysis: UniqueAnalysisOutput | null = null;
-  let engine = "intelligent-analysis-engine";
-  try {
-    analysis = await analyzeSocialWithGemini({
-      platform,
-      username,
-      url,
-      locale,
-      profileData,
-    });
-    if (analysis) engine = "gemini-ai";
-  } catch {
-    analysis = null;
-  }
-  if (!analysis) {
-    analysis = generateUniqueAnalysis({
-      platform,
-      username,
-      url,
-      locale,
-      profileData,
-    });
-  }
+  // Data-driven analysis: every number comes from verified real data.
+  const breakdown = computeScoreBreakdown(platform, profileData, username);
+  const availableMetrics = breakdown.availableMetrics;
+
+  const findings = buildPlatformFindings({
+    platform,
+    username,
+    url,
+    locale,
+    profileData,
+    availableMetrics,
+  });
+  const strengths = buildPlatformStrengths({ platform, profileData, locale });
+  const weaknesses = buildPlatformWeaknesses({ platform, profileData, locale });
+  const profileSummary = buildPlatformSummary({ platform, username, profileData, locale });
 
   const duration = Math.round((Date.now() - startTime) / 1000);
-  const metadataDataSources = dataSources ?? analysis.dataSources;
+  const metadataDataSources = dataSources ?? [
+    `${platform} Public Data Extraction`,
+    "Data-driven scoring — no invented numbers",
+  ];
   const metadataSourceConfidence = sourceConfidence ?? computeSourceConfidence(profileData);
 
-  // Transparency layer: when no real public data could be extracted, make sure
-  // the report clearly says so instead of presenting estimates as hard facts.
-  const analysisLimitations = [...analysis.limitations];
-  if (metadataSourceConfidence === "low") {
-    analysisLimitations.unshift(
+  // Transparency layer: clearly state what was and was NOT verifiable.
+  const analysisLimitations: string[] = [];
+  if (!breakdown.hasLiveData) {
+    analysisLimitations.push(
       locale === "ar"
-        ? "تعذّر استرداد بيانات عامة حقيقية من المنصة لهذا الحساب — النتائج تقديرية مبنية على إشارات جزئية فقط"
-        : "No live public data could be retrieved for this account — results are estimates based on partial signals only"
+        ? "لم تتوفر بيانات عامة حقيقية يمكن التحقق منها من المنصة لهذا الحساب — الدرجات تعكس إشارات بنيوية فقط ولا تخترع أرقاماً"
+        : "No live public data could be verified from the platform for this account — scores reflect structural signals only and no numbers are invented"
+    );
+  }
+  if (breakdown.unavailableMetrics.length > 0) {
+    analysisLimitations.push(
+      locale === "ar"
+        ? `المقاييس التي تعذّر التحقق منها: ${breakdown.unavailableMetrics.join(", ")}`
+        : `Metrics that could not be verified: ${breakdown.unavailableMetrics.join(", ")}`
     );
   }
 
@@ -85,13 +90,18 @@ export async function buildSocialAnalysisResponse(params: {
       username,
       ...extraData,
       ...profileData,
-      overallScore: analysis.overallScore,
-      scores: analysis.scores,
-      findings: analysis.findings,
-      strengths: analysis.strengths,
-      weaknesses: analysis.weaknesses,
-      profileSummary: analysis.profileSummary,
-      criticalIssues: analysis.findings.filter(
+      overallScore: breakdown.overallScore,
+      overallAvailable: breakdown.overallAvailable,
+      scores: breakdown.scores,
+      scoreReasons: breakdown.scoreReasons,
+      scoreReasonsAr: breakdown.scoreReasonsAr,
+      findings,
+      strengths,
+      weaknesses,
+      profileSummary,
+      unavailableMetrics: breakdown.unavailableMetrics,
+      hasLiveData: breakdown.hasLiveData,
+      criticalIssues: findings.filter(
         (f) => f.severity === "critical" || f.severity === "high"
       ),
       metadata: {
@@ -102,7 +112,11 @@ export async function buildSocialAnalysisResponse(params: {
         limitations: analysisLimitations,
         methodologyVersion: "3.2.0",
         sourceConfidence: metadataSourceConfidence,
-        engine,
+        dataAvailability: {
+          hasLiveData: breakdown.hasLiveData,
+          availableMetrics: breakdown.availableMetrics,
+          unavailableMetrics: breakdown.unavailableMetrics,
+        },
       },
     },
   };
@@ -273,9 +287,10 @@ export function normalizeProfileData(platform: string, raw: Record<string, any>)
     if (parsed > 0) normalized.followers = parsed;
   }
 
-  // Ensure booleans
-  normalized.verified = !!normalized.verified;
-  normalized.isPrivate = !!normalized.isPrivate;
+  // Ensure booleans — ONLY coerce when the value was actually extracted.
+  // Never fabricate a confirmed "false" for a metric we could not verify.
+  if (typeof normalized.verified === "boolean") normalized.verified = !!normalized.verified;
+  if (typeof normalized.isPrivate === "boolean") normalized.isPrivate = !!normalized.isPrivate;
 
   // Ensure arrays
   if (!Array.isArray(normalized.bioHashtags)) normalized.bioHashtags = [];

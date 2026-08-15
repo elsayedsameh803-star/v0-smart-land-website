@@ -144,7 +144,7 @@ export function TestimonialsSection({ locale }: TestimonialsSectionProps) {
 
               {/* Testimonial text */}
               <p className="text-dark-300 text-sm leading-relaxed mb-6">
-                "{testimonial.text}"
+                &ldquo;{testimonial.text}&rdquo;
               </p>
 
               {/* User info */}

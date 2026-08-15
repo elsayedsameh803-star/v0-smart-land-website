@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-analysis-helper";
 import { safeFetch } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
+import { enforceSubscription } from "@/lib/subscription-shield";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
     const { url, locale } = await request.json();
+    const blocked = enforceSubscription(request);
+    if (blocked) return blocked;
     if (!url) {
       return NextResponse.json({ error: "URL required" }, { status: 400 });
     }
@@ -26,14 +29,17 @@ export async function POST(request: NextRequest) {
     let username = cleanHandle;
     let displayName = cleanHandle;
     let bio = "";
-    let verified = false;
-    let isPrivate = false;
-    let avatarUrl = null;
-    let following = 0;
-    let followers = 0;
-    let likes = 0;
-    let videoCount = 0;
-    let totalVideos = 0;
+    // Default to "not verified/not present" — we NEVER fabricate zeros for
+    // metrics we could not extract. Values only become real when actually read
+    // from the profile JSON below.
+    let verified: boolean | undefined;
+    let isPrivate: boolean | undefined;
+    let avatarUrl: string | null = null;
+    let following: number | undefined;
+    let followers: number | undefined;
+    let likes: number | undefined;
+    let videoCount: number | undefined;
+    let totalVideos: number | undefined;
     let videos: any[] = [];
 
     try {
@@ -144,29 +150,39 @@ export async function POST(request: NextRequest) {
     }
 
     // ===== 4. Calculate REAL metrics =====
-    const sampleCount = Math.max(videoSamples.length, 1);
-    const avgViewsPerVideo = totalVideos > 0 ? Math.round(totalViews / sampleCount) : 0;
-    const avgEngagementRate = totalViews > 0 ? ((totalLikes + totalComments + totalShares) / totalViews) * 100 : 0;
-    const videoPostingFrequency = totalVideos > 0 ? totalVideos / 30 : 0; // videos per month approx
+    // Derived metrics are only reported when real post data was actually
+    // extracted. Without verified posts they stay "not available" — never 0.
+    const hasRealPosts = videos.length > 0;
+    const sampleCount = videoSamples.length > 0 ? videoSamples.length : 0;
+    const avgViewsPerVideo =
+      hasRealPosts && sampleCount > 0 ? Math.round(totalViews / sampleCount) : undefined;
+    const avgEngagementRate =
+      hasRealPosts && totalViews > 0 ? ((totalLikes + totalComments + totalShares) / totalViews) * 100 : undefined;
+    const videoPostingFrequency =
+      hasRealPosts && typeof totalVideos === "number" && totalVideos > 0 ? totalVideos / 30 : undefined; // videos per month approx
+    const avgCommentsPerPost =
+      hasRealPosts && sampleCount > 0 && totalComments > 0 ? Math.round(totalComments / sampleCount) : undefined;
 
+    // Only include a key when it carries a REAL extracted value. JSON.stringify
+    // omits undefined, so unavailable metrics never become "0 followers".
     profileData = {
       username,
       displayName,
       bio,
       bioHashtags,
       bioLinks,
-      verified,
-      isPrivate,
+      ...(verified !== undefined ? { verified } : {}),
+      ...(isPrivate !== undefined ? { isPrivate } : {}),
       avatarUrl,
-      followers,
-      following,
-      likes,
-      videoCount,
-      totalVideos,
-      avgViewsPerVideo,
-      avgEngagementRate,
-      avgCommentsPerPost: totalComments > 0 ? Math.round(totalComments / sampleCount) : 0,
-      videoPostingFrequency,
+      ...(followers !== undefined ? { followers } : {}),
+      ...(following !== undefined ? { following } : {}),
+      ...(likes !== undefined ? { likes } : {}),
+      ...(videoCount !== undefined ? { videoCount } : {}),
+      ...(totalVideos !== undefined ? { totalVideos } : {}),
+      ...(avgViewsPerVideo !== undefined ? { avgViewsPerVideo } : {}),
+      ...(avgEngagementRate !== undefined ? { avgEngagementRate } : {}),
+      ...(avgCommentsPerPost !== undefined ? { avgCommentsPerPost } : {}),
+      ...(videoPostingFrequency !== undefined ? { videoPostingFrequency } : {}),
     };
 
     const normalizedData = normalizeProfileData("tiktok", profileData);

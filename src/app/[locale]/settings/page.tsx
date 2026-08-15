@@ -37,6 +37,7 @@ export default function SettingsPage({ params }: { params: { locale: string } })
   useEffect(() => {
     if (settings.language) applyUserLanguage(settings.language);
     if (settings.theme) applyUserTheme(settings.theme);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChange = (partial: Partial<typeof settings>) => {

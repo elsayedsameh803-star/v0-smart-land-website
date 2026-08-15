@@ -1,4 +1,17 @@
 // =============================================================================
+// !! DEPRECATED — DO NOT USE !!
+// =============================================================================
+// This engine was replaced by `src/lib/platform-rules.ts` (v3.2) because it
+// FABRICATED numbers: seeded-random scores, invented growth forecasts and
+// "estimated" metrics that were presented as hard facts.
+//
+// Smart Land v3.2 policy: never invent numbers. Every score must come from
+// real, verified data only. `social-analysis-helper.ts` now calls
+// `platform-rules.ts` directly. This file is kept only as a historical
+// reference and must NOT be imported anywhere.
+// =============================================================================
+
+// =============================================================================
 // Smart Land v3.1 - Intelligent Analysis Engine
 // =============================================================================
 // This engine generates UNIQUE, REAL analysis results for every social account

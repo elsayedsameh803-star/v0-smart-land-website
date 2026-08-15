@@ -146,7 +146,7 @@ export function validateUrlForFetch(url: string): string | null {
 /**
  * Creates a safe fetch with SSRF protection and timeout.
  */
-export async function safeFetch(url: string, options: RequestInit = {}, timeoutMs = 15000): Promise<Response> {
+export async function safeFetch(url: string, options: RequestInit = {}, timeoutMs = 15000, maxSizeBytes = 2_000_000): Promise<Response> {
   const validationError = validateUrlForFetch(url);
   if (validationError) {
     throw new Error(validationError);
@@ -161,6 +161,46 @@ export async function safeFetch(url: string, options: RequestInit = {}, timeoutM
       signal: controller.signal,
       redirect: "follow",
     });
+
+    // Check Content-Length header first
+    const contentLength = res.headers.get("content-length");
+    if (contentLength && parseInt(contentLength, 10) > maxSizeBytes) {
+      throw new Error(`Response too large: ${contentLength} bytes exceeds limit of ${maxSizeBytes}`);
+    }
+
+    // Clone the response to limit body size
+    const reader = res.body?.getReader();
+    let received = 0;
+    const chunks: Uint8Array[] = [];
+
+    if (reader) {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        received += value.length;
+        if (received > maxSizeBytes) {
+          reader.cancel();
+          throw new Error(`Response exceeded maximum size of ${maxSizeBytes} bytes`);
+        }
+        chunks.push(value);
+      }
+
+      // Reconstruct the body from chunks
+      const concatenated = new Uint8Array(received);
+      let offset = 0;
+      for (const chunk of chunks) {
+        concatenated.set(chunk, offset);
+        offset += chunk.length;
+      }
+
+      // Return a new Response with the limited body
+      return new Response(concatenated, {
+        status: res.status,
+        statusText: res.statusText,
+        headers: res.headers,
+      });
+    }
+
     return res;
   } finally {
     clearTimeout(timeout);

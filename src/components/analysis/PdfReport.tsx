@@ -49,16 +49,22 @@ export function PdfReport({ result, locale }: PdfReportProps) {
       const categories = Object.entries(result.scores);
       for (const [, score] of categories) {
         const label = isRtl ? score.labelAr : score.label;
-        const barColor = getBarColor(score.score);
+        const barColor = score.unavailable ? "#9ca3af" : getBarColor(score.score);
+        const display = score.unavailable ? (isRtl ? "غير متاح" : "Unavailable") : `${score.score}/100`;
+        const barWidth = score.unavailable ? 0 : Math.min(100, score.score);
+        const note = score.unavailable
+          ? (isRtl ? "لا توجد بيانات عامة حقيقية قابلة للتحقق لهذا القسم — لا تُخترع درجات." : "No verifiable live data for this category — no score is invented.")
+          : "";
         categoriesHtml += `
           <div style="margin-bottom:12px;">
             <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
               <span style="font-size:13px;color:#444;">${label}</span>
-              <span style="font-size:13px;font-weight:bold;color:${barColor};">${score.score}/100</span>
+              <span style="font-size:13px;font-weight:bold;color:${barColor};">${display}</span>
             </div>
             <div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;">
-              <div style="background:${barColor};width:${Math.min(100, score.score)}%;height:10px;border-radius:6px;"></div>
+              <div style="background:${barColor};width:${barWidth}%;height:10px;border-radius:6px;"></div>
             </div>
+            ${note ? `<div style="font-size:11px;color:#9ca3af;margin-top:3px;">${note}</div>` : ""}
           </div>`;
       }
 

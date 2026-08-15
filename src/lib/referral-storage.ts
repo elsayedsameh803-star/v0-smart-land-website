@@ -4,6 +4,7 @@
 
 import type { ReferralUser, ReferralEntry, RewardEntry, ReferralClickEvent, ReferralRegistrationEvent } from "./referral-types";
 import { generateId } from "./utils";
+import { getSiteUrl } from "@/lib/site-config";
 
 const REFERRAL_PREFIX = "smart-land-referral-";
 const REFERRAL_USERS_KEY = `${REFERRAL_PREFIX}users`;
@@ -25,7 +26,7 @@ export function generateReferralCode(name: string = ""): string {
 }
 
 export function generateReferralLink(code: string, locale: string = "en"): string {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://smart-land.vercel.app";
+  const baseUrl = getSiteUrl();
   return `${baseUrl}/${locale}/referral/${code}`;
 }
 

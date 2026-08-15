@@ -4,6 +4,54 @@
 
 export type Locale = "en" | "ar";
 
+export interface MetricValue {
+  value: number | null;
+  available: boolean;
+  unit?: string;
+}
+
+export interface ContentSample {
+  id?: string;
+  url?: string;
+  title?: string;
+  caption?: string;
+  views?: number;
+  likes?: number;
+  comments?: number;
+  shares?: number;
+  thumbnail?: string;
+  postedAt?: string;
+}
+
+export interface DetailedMetrics {
+  platform: string;
+  username?: string;
+  displayName?: string;
+  fullName?: string;
+  bio?: string;
+  verified?: boolean;
+  isPrivate?: boolean;
+  avatarUrl?: string | null;
+  followers: MetricValue;
+  following: MetricValue;
+  postsCount: MetricValue;
+  likes: MetricValue;
+  comments: MetricValue;
+  views: MetricValue;
+  avgLikesPerPost: MetricValue;
+  avgCommentsPerPost: MetricValue;
+  avgViewsPerVideo: MetricValue;
+  engagementRate: MetricValue;
+  postingFrequencyPerMonth: MetricValue;
+  growth: MetricValue;
+  bestContent: ContentSample | null;
+  worstContent: ContentSample | null;
+  availableMetrics: string[];
+  missingMetrics: string[];
+  scoreReasons: Record<string, string[]>;
+  scoreReasonsAr: Record<string, string[]>;
+}
+
 export interface AnalysisResult {
   id: string;
   url: string;
@@ -15,6 +63,7 @@ export interface AnalysisResult {
   weaknesses: string[];
   criticalIssues: Finding[];
   metadata: AnalysisMetadata;
+  detailedMetrics?: DetailedMetrics;
 }
 
 export interface CategoryScores {
@@ -34,6 +83,21 @@ export interface CategoryScore {
   description: string;
   descriptionAr: string;
   findings: Finding[];
+  /**
+   * True when no real/live data could be verified for this category, so the
+   * numeric score is informational only (never an invented value). The UI
+   * should render it as "data unavailable" instead of a hard score.
+   */
+  unavailable?: boolean;
+  /** Human-readable reasons (English) that explain exactly which real signals produced this score. */
+  reasons?: string[];
+  reasonsAr?: string[];
+}
+
+export interface DataAvailability {
+  hasLiveData: boolean;
+  availableMetrics: string[];
+  unavailableMetrics: string[];
 }
 
 export interface Finding {
@@ -64,6 +128,7 @@ export interface AnalysisMetadata {
   limitations: string[];
   methodologyVersion: string;
   sourceConfidence?: "high" | "medium" | "low";
+  dataAvailability?: DataAvailability;
 }
 
 export interface AnalysisStage {

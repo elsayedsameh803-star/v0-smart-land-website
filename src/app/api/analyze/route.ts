@@ -1,15 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
 import { safeFetch, validateUrlForFetch, ssrfErrorResponse } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
+import { enforceSubscription } from "@/lib/subscription-shield";
+import { checkRateLimit } from "@/lib/rate-limiter";
 
 export const dynamic = "force-dynamic";
 
+const MAX_BODY_SIZE = 10_000; // Maximum URL length in characters
+const MAX_RESPONSE_SIZE = 2_000_000; // ~2MB max HTML response
+
 export async function POST(request: NextRequest) {
   try {
-    const { url, locale } = await request.json();
-    if (!url) {
-      return NextResponse.json({ error: "URL is required" }, { status: 400 });
+    // ---- Rate limiting by IP ----
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      request.headers.get("x-real-ip") ||
+      "unknown";
+    const rl = checkRateLimit(`analyze:${ip}`, 20, 60_000); // 20 requests per minute
+    if (!rl.allowed) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Too many requests. Try again in ${Math.ceil((rl.resetAt - Date.now()) / 1000)} seconds.`,
+        },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+            "X-RateLimit-Remaining": "0",
+          },
+        }
+      );
     }
+
+    const body = await request.json();
+    const { url, locale } = body;
+
+    // ---- Input validation ----
+    if (!url || typeof url !== "string") {
+      return NextResponse.json({ error: "URL is required and must be a string" }, { status: 400 });
+    }
+    if (url.length > MAX_BODY_SIZE) {
+      return NextResponse.json({ error: "URL is too long" }, { status: 400 });
+    }
+
+    const blocked = enforceSubscription(request);
+    if (blocked) return blocked;
 
     const normalizedUrl = url.startsWith("http") ? url : `https://${url}`;
     
@@ -24,7 +60,7 @@ export async function POST(request: NextRequest) {
     // Fetch the actual page with SSRF protection
     const res = await safeFetch(normalizedUrl, {
       headers: {
-        "User-Agent": "Mozilla/5.0 (compatible; SmartLandBot/3.0; +https://smart-land.vercel.app)",
+        "User-Agent": `Mozilla/5.0 (compatible; SmartLandBot/3.0; +${new URL(normalizedUrl).origin}/bot)`,
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.5",
       },
