@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Menu, X, Globe, Sparkles, Gift } from "lucide-react";
+import { Menu, X, Globe, Sparkles, Gift, ShieldCheck } from "lucide-react";
 
 interface HeaderProps {
   locale: string;
@@ -44,6 +44,7 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
     { href: `/${locale}/about`, label: "About" },
     { href: `/${locale}/contact`, label: "Contact" },
     { href: `/${locale}/faq`, label: "FAQ" },
+    { href: "/admin", label: dictionary.nav.admin },
   ];
 
   const otherLocale = locale === "en" ? "ar" : "en";
@@ -106,6 +107,13 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
 
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-3">
+            <Link
+              href="/admin"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-dark-950 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 shadow-lg shadow-gold-500/20 hover:shadow-gold-500/40 transition-all duration-200"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              <span>{dictionary.nav.admin}</span>
+            </Link>
             <Link 
               href={localePath} 
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-dark-300 hover:text-gold-400 transition-all duration-200 border border-gold-500/10 hover:border-gold-500/30 hover:bg-gold-500/5 gold-glow-hover"

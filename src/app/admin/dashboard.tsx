@@ -22,6 +22,7 @@ import {
   Shield,
   FileWarning,
   Database,
+  CreditCard,
 } from "lucide-react";
 import {
   ResponsiveContainer,
@@ -117,6 +118,10 @@ const columns: Record<"ar" | "en", Record<string, string>> = {
     refresh: "تحديث",
     logout: "تسجيل الخروج",
     visitSite: "زيارة الموقع",
+    paymob: "Paymob — الدفع",
+    paymobDesc: "بوابة الدفع والاشتراكات والعمليات",
+    openPaymob: "فتح إدارة Paymob",
+    payments: "المدفوعات",
     loading: "جارٍ تحميل البيانات…",
     errorLoading: "تعذّر تحميل بيانات اللوحة.",
     minutes: "دقيقة",
@@ -172,6 +177,10 @@ const columns: Record<"ar" | "en", Record<string, string>> = {
     refresh: "Refresh",
     logout: "Sign out",
     visitSite: "Visit site",
+    paymob: "Paymob",
+    paymobDesc: "Payment gateway, subscriptions & transactions",
+    openPaymob: "Open Paymob Management",
+    payments: "Payments",
     loading: "Loading data…",
     errorLoading: "Failed to load panel data.",
     minutes: "min",
@@ -530,6 +539,25 @@ function OverviewSection({
         <StatCard icon={AlertTriangle} label={t.failures} value={String(fail)} tone="rose" />
         <StatCard icon={Globe} label={t.platforms} value={String(platforms)} tone="blue" />
       </div>
+
+      {/* Paymob quick access — payment gateway & subscriptions */}
+      <a
+        href="/admin/payments"
+        className="group block mb-6 rounded-2xl border border-gold-500/25 bg-gradient-to-r from-dark-800/80 via-dark-800/40 to-dark-800/80 p-5 hover:border-gold-500/50 hover:from-dark-800/90 transition-all duration-300 gold-glow-hover"
+      >
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold-500 to-gold-600 flex items-center justify-center text-dark-950 shadow-lg shadow-gold-500/25 group-hover:scale-105 transition-transform duration-200">
+            <CreditCard className="w-6 h-6" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="font-bold text-white text-base">{t.paymob}</p>
+            <p className="text-xs text-dark-400 mt-0.5">{t.paymobDesc}</p>
+          </div>
+          <span className="hidden sm:inline-flex items-center gap-2 rounded-lg bg-gold-500/15 border border-gold-500/25 px-4 py-2 text-sm font-bold text-gold-300 group-hover:bg-gold-500/25 transition">
+            {t.openPaymob}
+          </span>
+        </div>
+      </a>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
         <div className="lg:col-span-3 rounded-2xl bg-dark-800/60 border border-gold-500/10 p-5">
