@@ -99,8 +99,10 @@ export async function middleware(request: NextRequest) {
     return withSecurityHeaders(NextResponse.next());
   }
 
-  // استثناء مسارات API والملفات الثابتة وملفات PWA
+  // استثناء مسارات API والملفات الثابتة وملفات PWA ومسار الدفع
   if (pathname.startsWith("/api/") ||
+      pathname === "/checkout" ||
+      pathname.startsWith("/checkout/") ||
       pathname.startsWith("/_next/") ||
       pathname.startsWith("/_vercel") ||
       pathname === "/favicon.ico" ||

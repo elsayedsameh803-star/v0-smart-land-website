@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, Sparkles, Zap, ArrowRight } from "lucide-react";
+import { useState } from "react";
+import { Check, Sparkles, Zap, ArrowRight, X, Lock, BadgeCheck, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface PricingSectionProps {
@@ -11,56 +12,68 @@ const translations: Record<string, Record<string, string | string[]>> = {
   en: {
     badge: "PRICING",
     title: "Simple, Transparent Pricing",
-    subtitle: "Choose the plan that fits your needs. No hidden fees, cancel anytime.",
+    subtitle: "Choose the paid plan ($5) or start with your free analyses. No hidden fees.",
     free: "Free",
     freePrice: "$0",
-    freePeriod: "/forever",
-    freeDesc: "Perfect for trying Smart Land",
-    freeFeatures: ["5 analyses per month", "Website analysis", "Basic score breakdown", "PDF report", "Email support"],
-    pro: "Pro",
-    proPrice: "$19",
-    proPeriod: "/month",
-    proDesc: "For professionals and growing teams",
-    proFeatures: ["Unlimited analyses", "All platforms (7+)", "Advanced insights & recommendations", "Competitor comparison", "Analysis history & tracking", "Priority email support"],
+    freePeriod: "",
+    freeDesc: "2 free analyses to try Smart Land",
+    freeFeatures: ["2 free analyses", "Website analysis", "Basic score breakdown", "PDF report"],
+    pro: "Pro — Paid Plan",
+    proPrice: "$5",
+    proPeriod: "one-time",
+    proDesc: "Your paid plan. Unlock everything in one payment.",
+    proFeatures: ["Unlimited analyses", "All platforms (7+)", "Advanced insights & recommendations", "Competitor comparison", "Analysis history & tracking", "Email invoice & priority support"],
     enterprise: "Enterprise",
     enterprisePrice: "Custom",
     enterprisePeriod: "",
     enterpriseDesc: "For agencies and large organizations",
-    enterpriseFeatures: ["Unlimited everything", "API access", "White-label reports", "Dedicated account manager", "Custom integrations", "SLA & priority support"],
+    enterpriseFeatures: ["Everything in Pro", "API access", "White-label reports", "Dedicated account manager", "Custom integrations", "SLA & priority support"],
     popular: "Most Popular",
-    getStarted: "Get Started",
-    contactUs: "Contact Us",
-    freeCta: "Start Free",
-    proCta: "Go Pro",
+    freeCta: "Try Free",
+    proCta: "Upgrade for $5",
     enterpriseCta: "Talk to Sales",
-    moneyBack: "30-day money-back guarantee",
+    moneyBack: "Secure & encrypted checkout",
+    badgeSsl: "SSL Secure Checkout",
+    badgeLock: "Encrypted & Safe",
+    badgeBolt: "Instant activation",
+    modalTitle: "Thank you for subscribing!",
+    modalBody: "Your Smart Land paid plan ($5) is confirmed. After completing payment your subscription will be activated instantly and an invoice will be emailed to you.",
+    modalProceed: "Proceed to secure checkout",
+    modalLater: "Not now",
+    testMethods: "Test-mode payment methods:",
   },
   ar: {
     badge: "الأسعار",
     title: "أسعار بسيطة وشفافة",
-    subtitle: "اختر الخطة التي تناسب احتياجاتك. لا رسوم خفية، يمكنك الإلغاء في أي وقت.",
+    subtitle: "اختر الباقة المدفوعة ($5) أو ابدأ بتحليلاتك المجانية. لا رسوم خفية.",
     free: "مجاني",
     freePrice: "$0",
-    freePeriod: "/للأبد",
-    freeDesc: "مثالي لتجربة سمارت لاند",
-    freeFeatures: ["5 تحليلات شهرياً", "تحليل المواقع", "تفصيل الدرجات الأساسي", "تقرير PDF", "دعم عبر البريد"],
-    pro: "احترافي",
-    proPrice: "$19",
-    proPeriod: "/شهرياً",
-    proDesc: "للمحترفين والفرق المتنامية",
-    proFeatures: ["تحليلات غير محدودة", "جميع المنصات (7+)", "رؤى وتوصيات متقدمة", "مقارنة المنافسين", "سجل وتتبع التحليلات", "دعم بريدي ذو أولوية"],
+    freePeriod: "",
+    freeDesc: "تحليلان مجانيان لتجربة سمارت لاند",
+    freeFeatures: ["تحليلان مجانيان", "تحليل المواقع", "تفصيل الدرجات الأساسي", "تقرير PDF"],
+    pro: "احترافي — الباقة المدفوعة",
+    proPrice: "$5",
+    proPeriod: "مدفوع مرة واحدة",
+    proDesc: "باقتك المدفوعة. افتح كل المزايا بدفعة واحدة.",
+    proFeatures: ["تحليلات غير محدودة", "جميع المنصات (7+)", "رؤى وتوصيات متقدمة", "مقارنة المنافسين", "سجل وتتبع التحليلات", "فاتورة إلكترونية ودعم ذو أولوية"],
     enterprise: "مؤسسات",
     enterprisePrice: "مخصص",
     enterprisePeriod: "",
     enterpriseDesc: "للوكالات والمؤسسات الكبيرة",
-    enterpriseFeatures: ["كل شيء غير محدود", "الوصول للـ API", "تقارير بعلامة بيضاء", "مدير حساب مخصص", "تكاملات مخصصة", "SLA ودعم ذو أولوية"],
+    enterpriseFeatures: ["كل شيء في Pro", "الوصول للـ API", "تقارير بعلامة بيضاء", "مدير حساب مخصص", "تكاملات مخصصة", "SLA ودعم ذو أولوية"],
     popular: "الأكثر شيوعاً",
-    getStarted: "ابدأ الآن",
-    contactUs: "تواصل معنا",
-    freeCta: "ابدأ مجاناً",
-    proCta: "اشترك الآن",
+    freeCta: "جرّب مجاناً",
+    proCta: "اشترك مقابل $5",
     enterpriseCta: "تواصل مع المبيعات",
-    moneyBack: "ضمان استرداد الأموال لمدة 30 يوماً",
+    moneyBack: "دفع آمن ومشفّر",
+    badgeSsl: "دفع آمن SSL",
+    badgeLock: "مشفّر وآمن",
+    badgeBolt: "تفعيل فوري",
+    modalTitle: "شكراً لاشتراكك!",
+    modalBody: "باقتك المدفوعة في سمارت لاند ($5) مؤكدة. بعد إتمام الدفع سيتم تفعيل اشتراكك فوراً وستصلك فاتورة إلكترونية على بريدك.",
+    modalProceed: "المتابعة إلى الدفع الآمن",
+    modalLater: "ليس الآن",
+    testMethods: "طرق الدفع (وضع الاختبار):",
   },
 };
 
@@ -68,10 +81,13 @@ export function PricingSection({ locale }: PricingSectionProps) {
   const router = useRouter();
   const isRtl = locale === "ar";
   const t = translations[locale] || translations.en;
+  const [openModal, setOpenModal] = useState(false);
 
   const go = (planId: string) => {
     if (planId === "enterprise") { router.push("/contact"); return; }
-    router.push(`/checkout?plan=${planId}`);
+    if (planId === "pro") { setOpenModal(true); return; }
+    // Free plan: go back to the home analyzer.
+    router.push(`/${locale}`);
   };
 
   const plans = [
@@ -200,16 +216,70 @@ export function PricingSection({ locale }: PricingSectionProps) {
           ))}
         </div>
 
-        {/* Money back guarantee */}
-        <div className="text-center mt-12">
-          <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-dark-800/60 border border-gold-500/20">
-            <Check className="w-4 h-4 text-gold-500" />
-            <span className="text-sm text-dark-300">
-              {t.moneyBack}
-            </span>
-          </div>
+        {/* Trust badges — SSL secure checkout signals */}
+        <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
+          {[
+            { icon: Lock, label: t.badgeSsl },
+            { icon: ShieldCheck, label: t.badgeLock },
+            { icon: BadgeCheck, label: t.badgeBolt },
+          ].map((b, i) => (
+            <div key={i} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-dark-800/60 border border-emerald-500/20 text-sm text-dark-300">
+              <b.icon className="w-4 h-4 text-emerald-400" />
+              {b.label}
+            </div>
+          ))}
         </div>
       </div>
+
+      {/* Thank-you confirmation modal shown on upgrading to the paid plan */}
+      {openModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+          onClick={() => setOpenModal(false)}
+          dir={isRtl ? "rtl" : "ltr"}
+        >
+          <div
+            className="relative w-full max-w-md rounded-3xl glass-deep gold-border p-8 text-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button onClick={() => setOpenModal(false)} className="absolute top-4 end-4 text-dark-400 hover:text-gold-300 transition" aria-label="Close">
+              <X className="w-5 h-5" />
+            </button>
+            <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mb-4">
+              <BadgeCheck className="w-8 h-8 text-emerald-400" />
+            </div>
+            <h3 className="text-2xl font-bold text-white mb-2">{t.modalTitle}</h3>
+            <p className="text-sm text-dark-400 mb-6">{t.modalBody}</p>
+
+            <div className="rounded-xl bg-dark-800/70 border border-gold-500/10 p-4 mb-4 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="text-dark-400">{t.pro}</span>
+                <span className="font-bold text-gold-300">$5</span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => router.push("/checkout?plan=pro")}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-gold-600 to-gold-500 px-6 py-3.5 font-bold text-dark-950 hover:from-gold-500 hover:to-gold-400 transition"
+            >
+              <Lock className="w-4 h-4" /> {t.modalProceed}
+            </button>
+
+            <p className="text-[11px] text-dark-500 mt-4 mb-2">{t.testMethods}</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {["Paymob", "Stripe", "PayPal"].map((m) => (
+                <span key={m} className="px-3 py-1 rounded-full border border-gold-500/20 text-xs text-gold-300">
+                  {m} · Test
+                </span>
+              ))}
+            </div>
+
+            <button onClick={() => setOpenModal(false)} className="mt-4 w-full text-sm text-dark-400 hover:text-gold-300 transition">
+              {t.modalLater}
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

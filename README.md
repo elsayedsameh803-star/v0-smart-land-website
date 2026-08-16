@@ -48,9 +48,17 @@ See **`docs/LAUNCH_HANDOVER.md` §3** for the full, required list. Key ones:
 | Var | Purpose |
 |-----|---------|
 | `NEXT_PUBLIC_SITE_URL` | Final public domain (feeds sitemap/robots/referral/webhooks) |
-| `ADMIN_PASSWORD` / `ADMIN_SESSION_SECRET` | Admin auth (rotate passwords before launch) |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `ADMIN_ALLOWED_EMAILS` | **Admin login via Google OAuth (password login is removed)** |
+| `ADMIN_SESSION_SECRET` | Admin session cookie signing (required) |
+| `FREE_ANALYSES_LIMIT` | Freemium: number of free analyses before the paid plan (default `2`) |
 | `PAYMOB_MODE`, `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_INTEGRATION_ID`, `PAYMOB_IFRAME_ID`, `PAYMOB_HMAC_SECRET`, `PAYMOB_CUSTOMER_SECRET` | Paymob payments (start with `PAYMOB_MODE=test`) |
+| `EMAIL_FROM` / `RESEND_API_KEY` | Optional — sends the invoice confirmation email after a successful payment |
 | `GEMINI_API_KEY` / `GOOGLE_API_KEY` | Gemini AI + YouTube Data API (optional) |
+
+> ℹ️ The paid plan is **$5 one-time**. Anonymous users get `FREE_ANALYSES_LIMIT`
+> free analyses before being prompted to subscribe. Payment buttons support
+> Paymob, and **Stripe/PayPal are shown in Test mode** (routed through the
+> sandbox until their SDKs/keys are wired in the live flow).
 
 ## Analyzers & data sources
 

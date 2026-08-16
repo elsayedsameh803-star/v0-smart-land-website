@@ -128,6 +128,49 @@ export function getAccessDecision(customerEmail?: string | null): AccessDecision
   };
 }
 // ---------------------------------------------------------------------------
+// Freemium — free analysis allowance (server-authoritative, signed cookie)
+// ---------------------------------------------------------------------------
+export const FREE_USAGE_COOKIE = "smartland_free_usage";
+const FREE_USAGE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
+
+export function getFreeAnalysesLimit(): number {
+  const v = Number(process.env.FREE_ANALYSES_LIMIT);
+  return Number.isFinite(v) && v >= 0 ? Math.floor(v) : 2;
+}
+
+function signUsageToken(count: number): string {
+  const payload = b64url(JSON.stringify({ count }));
+  const hmac = createHmac("sha256", cookieSecret())
+    .update(payload)
+    .digest("base64url");
+  return `${payload}.${hmac}`;
+}
+
+export function readAnonymousUsage(request: NextRequest): number {
+  const token = request.cookies.get(FREE_USAGE_COOKIE)?.value;
+  if (!token) return 0;
+  const parts = token.split(".");
+  if (parts.length !== 2) return 0;
+  const [payload, sig] = parts;
+  const expected = createHmac("sha256", cookieSecret())
+    .update(payload)
+    .digest("base64url");
+  const a = Buffer.from(sig);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length || !timingSafeEqual(a, b)) return 0;
+  try {
+    const parsed = JSON.parse(b64urlDecode(payload)) as { count?: number };
+    const n = Number(parsed?.count);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+export function buildFreeUsageCookieValue(count: number): string {
+  return `${FREE_USAGE_COOKIE}=${signUsageToken(count)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=${FREE_USAGE_MAX_AGE}`;
+}
+// ---------------------------------------------------------------------------
 // Activation / renewal / extension (only called after a verified payment)
 // ---------------------------------------------------------------------------
 export function activateSubscription(params: {

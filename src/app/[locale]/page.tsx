@@ -37,6 +37,7 @@ export default function HomePage({ params }: PageProps) {
   const [showFixAssistant, setShowFixAssistant] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [needsRenew, setNeedsRenew] = useState(false);
+  const [freemiumBlocked, setFreemiumBlocked] = useState(false);
 
   const handleAnalyze = async (submittedUrl: string, selectedPlatform?: string) => {
     setUrl(submittedUrl);
@@ -49,7 +50,9 @@ export default function HomePage({ params }: PageProps) {
     try {
       const acc = await fetch("/api/payments/access").then((r) => r.json()).catch(() => null);
       if (acc && acc.allowed === false) {
-        setNeedsRenew(true);
+        // Freemium (anonymous free user hit the limit) vs. subscription expiry.
+        if (acc.hasSubscription === false) setFreemiumBlocked(true);
+        else setNeedsRenew(true);
         setError(locale === "ar" ? acc.messageAr : acc.messageEn);
         setCurrentView("home");
         setIsAnalyzing(false);
@@ -121,6 +124,17 @@ export default function HomePage({ params }: PageProps) {
                 : "Your subscription has ended. Please renew to continue using Smart Land.")}
               <a href="/checkout" className="ms-3 inline-block rounded-md bg-white text-red-600 px-3 py-1.5 text-xs font-bold">
                 {locale === "ar" ? "تجديد الاشتراك" : "Renew subscription"}
+              </a>
+            </div>
+          )}
+
+          {freemiumBlocked && (
+            <div className="fixed top-0 inset-x-0 z-[55] bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-dark-950 px-4 py-3 text-center text-sm font-semibold shadow-lg">
+              {locale === "ar"
+                ? "لقد استهلكت تحليلاتك المجانية. اشترك في الباقة المدفوعة ($5) لمواصلة التحليل."
+                : "You've used all your free analyses. Subscribe to the $5 plan to keep analyzing."}
+              <a href="/checkout?plan=pro" className="ms-3 inline-block rounded-md bg-dark-950 text-gold-400 px-3 py-1.5 text-xs font-bold hover:bg-dark-900 transition">
+                {locale === "ar" ? "اشترك مقابل $5" : "Upgrade for $5"}
               </a>
             </div>
           )}

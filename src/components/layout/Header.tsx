@@ -57,6 +57,20 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
         ? 'glass-deep shadow-lg shadow-gold-500/5' 
         : 'bg-transparent'
     )}>
+      {/* Top Announcement Bar */}
+      <div className="relative w-full bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-dark-950 px-4 py-2 border-b border-gold-700/40">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-semibold flex-wrap text-center">
+          <span>
+            {locale === "ar" ? "شكراً لاهتمامك، الباقة مدفوعة 🎉" : "Thank you for your interest — the plan is now paid! 🎉"}
+          </span>
+          <Link
+            href="/checkout"
+            className="inline-flex items-center gap-1 rounded-full bg-dark-950 px-3 py-0.5 text-xs font-bold text-gold-400 hover:bg-dark-900 transition"
+          >
+            <Sparkles className="w-3.5 h-3.5" /> $5
+          </Link>
+        </div>
+      </div>
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 lg:h-24">
           {/* Logo - Bigger and more prominent */}

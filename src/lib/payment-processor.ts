@@ -8,6 +8,7 @@
 import type { CustomerIdentity, TransactionStatus, Plan } from "./paymob-types";
 import { getPlans, getTransactionByPaymobId, createTransaction, updateTransaction, getPaymentSettings } from "./paymob-store";
 import { activateSubscription } from "./subscription-service";
+import { sendInvoiceEmail } from "./email-service";
 
 export type PaymentOutcome = "success" | "failed" | "cancelled" | "pending";
 
@@ -119,6 +120,17 @@ export function processPaymentResult(params: {
         transactionId,
         paymentDate: new Date().toISOString(),
       });
+
+      // Best-effort invoice confirmation email (never blocks the payment flow).
+      sendInvoiceEmail({
+        customerEmail: email,
+        customerName: params.customerName || email,
+        planName: plan.name,
+        amountCents,
+        currency,
+        transactionId,
+        paymentDate: new Date().toISOString(),
+      }).catch(() => {}); // sendInvoiceEmail must never throw, extra safety
     }
   }
 
