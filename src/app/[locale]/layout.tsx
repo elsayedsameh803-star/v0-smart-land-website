@@ -20,11 +20,18 @@ export default async function LocaleLayout({
 
   return (
     <div dir={dir} className="locale-wrapper">
+      {/* Skip-to-content link for keyboard / screen-reader users */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-gold-500 focus:px-3 focus:py-2 focus:text-dark-950 focus:text-sm"
+      >
+        {locale === "ar" ? "تخطَّ إلى المحتوى الرئيسي" : "Skip to main content"}
+      </a>
       <Suspense fallback={null}>
         <GoogleAnalyticsTracker />
       </Suspense>
       <Header locale={locale} dictionary={dict} />
-      <main>{children}</main>
+      <main id="main-content">{children}</main>
       <Footer locale={locale} />
       <PwaInstallPrompt />
       <CookieConsent />

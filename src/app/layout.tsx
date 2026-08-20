@@ -21,6 +21,14 @@ const cairo = Cairo({
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: SITE_URL,
+    languages: {
+      en: `${SITE_URL}/en`,
+      ar: `${SITE_URL}/ar`,
+      "x-default": SITE_URL,
+    },
+  },
   title: {
     default: "Smart Land - AI Digital Audit Platform | سمارت لاند - منصة التدقيق الرقمي",
     template: "%s | Smart Land",

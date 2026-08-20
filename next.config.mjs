@@ -14,6 +14,25 @@ const nextConfig = {
   },
   // Disable Google Font optimization to avoid socket hang up issues
   optimizeFonts: false,
+  async redirects() {
+    // Enforce HTTPS. On Vercel the platform already terminates TLS, so these
+    // are safe fallbacks for any host that proxies HTTP alongside HTTPS.
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: '(.*)' }],
+        missing: [
+          {
+            type: 'header',
+            key: 'x-forwarded-proto',
+            value: 'https',
+          },
+        ],
+        destination: 'https://:host/:path*',
+        permanent: true,
+      },
+    ];
+  },
   headers: async () => [
     {
       source: '/(.*)',
@@ -99,6 +118,44 @@ const nextConfig = {
         {
           key: 'Service-Worker-Allowed',
           value: '/',
+        },
+      ],
+    },
+    {
+      // Immutable static assets (hashed by Next.js) — ideal for CDN caching.
+      source: '/_next/static/:path*',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      // Icons / images / manifest referenced with content-hashed or fixed paths.
+      source: '/icons/:path*',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
+        },
+      ],
+    },
+    {
+      source: '/manifest.json',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=3600',
+        },
+      ],
+    },
+    {
+      source: '/og-image-1200x630.png',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'public, max-age=31536000, immutable',
         },
       ],
     },

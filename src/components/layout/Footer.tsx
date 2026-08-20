@@ -55,7 +55,7 @@ export function Footer({ locale = "en" }: FooterProps) {
   const t = translations[locale] || translations.en;
 
   return (
-    <footer className="relative border-t border-gold-500/10 bg-dark-950 overflow-hidden">
+    <footer className="relative border-t border-gold-500/10 bg-dark-950 overflow-hidden" role="contentinfo">
       {/* Background effects */}
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-gold-500/2 to-gold-600/3 pointer-events-none" />
       <div className="absolute top-0 left-1/4 w-64 h-64 bg-gold-500/5 rounded-full blur-3xl" />
@@ -122,7 +122,7 @@ export function Footer({ locale = "en" }: FooterProps) {
               {t.product}
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-gold-500 to-transparent rounded-full" />
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-3" aria-label={t.product}>
               {[
                 { href: `/${locale}`, label: t.urlAnalyzer },
                 { href: `/${locale}/methodology`, label: t.methodology },
@@ -148,7 +148,7 @@ export function Footer({ locale = "en" }: FooterProps) {
               {t.resources}
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-gold-500 to-transparent rounded-full" />
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-3" aria-label={t.resources}>
               {[
                 { href: `/${locale}/features`, label: "Features" },
                 { href: `/${locale}/faq`, label: "FAQ" },
@@ -173,7 +173,7 @@ export function Footer({ locale = "en" }: FooterProps) {
               {t.company}
               <span className="absolute -bottom-1 left-0 w-8 h-0.5 bg-gradient-to-r from-gold-500 to-transparent rounded-full" />
             </h3>
-            <ul className="space-y-3">
+            <ul className="space-y-3" aria-label={t.company}>
               {[
                 { href: `/${locale}/privacy`, label: t.privacy },
                 { href: `/${locale}/terms`, label: t.terms },

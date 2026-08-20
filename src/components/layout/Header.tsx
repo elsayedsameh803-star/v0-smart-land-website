@@ -72,7 +72,7 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
           </Link>
         </div>
       </div>
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav aria-label={locale === "ar" ? "التنقل الرئيسي" : "Main navigation"} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 lg:h-24">
           {/* Logo - Bigger and more prominent */}
           <Link href={`/${locale}`} className="flex items-center gap-3 group">
@@ -150,7 +150,7 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden py-4 border-t border-gold-500/10 animate-slide-down">
+          <div aria-label={locale === "ar" ? "قائمة الجوال" : "Mobile menu"} className="lg:hidden py-4 border-t border-gold-500/10 animate-slide-down">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;

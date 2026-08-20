@@ -106,7 +106,7 @@ export default function HomePage({ params }: PageProps) {
   return (
     <div className="min-h-screen bg-dark-950">
       {currentView === "home" && (
-        <>
+        <div id="page-home" className="bg-dark-950">
           <HeroSection onAnalyze={handleAnalyze} locale={locale} />
           <StatsSection locale={locale} />
           <OnboardingSteps locale={locale} />
@@ -116,11 +116,11 @@ export default function HomePage({ params }: PageProps) {
           <MethodologySection locale={locale} />
           <PricingSection locale={locale} />
           <CTASection locale={locale} onAnalyze={handleAnalyze} />
-        </>
+        </div>
       )}
 
       {currentView === "analyzing" && (
-        <div className="pt-24 pb-16 px-4 bg-dark-950 min-h-screen">
+        <div id="page-analyzing" className="pt-24 pb-16 px-4 bg-dark-950 min-h-screen">
           <div className="max-w-4xl mx-auto">
             <AnalysisProgress stages={stages} url={url} error={error} locale={locale} />
             {error && (
@@ -138,7 +138,7 @@ export default function HomePage({ params }: PageProps) {
       )}
 
       {currentView === "results" && analysisResult && (
-        <div className="pt-24 pb-16 px-4 bg-dark-950 min-h-screen">
+        <div id="page-results" className="pt-24 pb-16 px-4 bg-dark-950 min-h-screen">
           <div className="max-w-7xl mx-auto space-y-8">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
