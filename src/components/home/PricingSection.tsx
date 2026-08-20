@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Sparkles, Zap, ArrowRight, X, Lock, BadgeCheck, ShieldCheck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Check, Sparkles, Zap, ArrowRight, X, Lock, BadgeCheck, ShieldCheck, AlertTriangle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface PricingSectionProps {
@@ -12,12 +12,12 @@ const translations: Record<string, Record<string, string | string[]>> = {
   en: {
     badge: "PRICING",
     title: "Simple, Transparent Pricing",
-    subtitle: "Choose the paid plan ($5) or start with your free analyses. No hidden fees.",
+    subtitle: "Smart Land is open and unlimited for every visitor — start analyzing today, free.",
     free: "Free",
     freePrice: "$0",
     freePeriod: "",
-    freeDesc: "2 free analyses to try Smart Land",
-    freeFeatures: ["2 free analyses", "Website analysis", "Basic score breakdown", "PDF report"],
+    freeDesc: "Unlimited & completely free for every visitor — no limits, no hidden fees",
+    freeFeatures: ["Unlimited analyses", "All platforms (7+)", "Advanced insights & recommendations", "PDF report"],
     pro: "Pro — Paid Plan",
     proPrice: "$5",
     proPeriod: "one-time",
@@ -29,7 +29,7 @@ const translations: Record<string, Record<string, string | string[]>> = {
     enterpriseDesc: "For agencies and large organizations",
     enterpriseFeatures: ["Everything in Pro", "API access", "White-label reports", "Dedicated account manager", "Custom integrations", "SLA & priority support"],
     popular: "Most Popular",
-    freeCta: "Try Free",
+    freeCta: "Analyze Now",
     proCta: "Upgrade for $5",
     enterpriseCta: "Talk to Sales",
     moneyBack: "Secure & encrypted checkout",
@@ -41,16 +41,19 @@ const translations: Record<string, Record<string, string | string[]>> = {
     modalProceed: "Proceed to secure checkout",
     modalLater: "Not now",
     testMethods: "Test-mode payment methods:",
+    noRefund:
+      "Paid subscriptions are non-refundable. You can try the service for free before subscribing.",
+    loadingPlans: "Loading plans…",
   },
   ar: {
     badge: "الأسعار",
     title: "أسعار بسيطة وشفافة",
-    subtitle: "اختر الباقة المدفوعة ($5) أو ابدأ بتحليلاتك المجانية. لا رسوم خفية.",
+    subtitle: "Smart Land مفتوحة ومجانية بالكامل لكل زائر — ابدأ بالتحليل فوراً بدون قيود.",
     free: "مجاني",
     freePrice: "$0",
     freePeriod: "",
-    freeDesc: "تحليلان مجانيان لتجربة سمارت لاند",
-    freeFeatures: ["تحليلان مجانيان", "تحليل المواقع", "تفصيل الدرجات الأساسي", "تقرير PDF"],
+    freeDesc: "مفتوح بالكامل لكل زائر — بدون تسجيل وبدون حدود",
+    freeFeatures: ["تحليلات غير محدودة", "جميع المنصات (7+)", "رؤى وتوصيات متقدمة", "تقرير PDF"],
     pro: "احترافي — الباقة المدفوعة",
     proPrice: "$5",
     proPeriod: "مدفوع مرة واحدة",
@@ -62,7 +65,7 @@ const translations: Record<string, Record<string, string | string[]>> = {
     enterpriseDesc: "للوكالات والمؤسسات الكبيرة",
     enterpriseFeatures: ["كل شيء في Pro", "الوصول للـ API", "تقارير بعلامة بيضاء", "مدير حساب مخصص", "تكاملات مخصصة", "SLA ودعم ذو أولوية"],
     popular: "الأكثر شيوعاً",
-    freeCta: "جرّب مجاناً",
+    freeCta: "ابدأ التحليل",
     proCta: "اشترك مقابل $5",
     enterpriseCta: "تواصل مع المبيعات",
     moneyBack: "دفع آمن ومشفّر",
@@ -74,6 +77,9 @@ const translations: Record<string, Record<string, string | string[]>> = {
     modalProceed: "المتابعة إلى الدفع الآمن",
     modalLater: "ليس الآن",
     testMethods: "طرق الدفع (وضع الاختبار):",
+    noRefund:
+      "الاشتراكات المدفوعة غير قابلة للاسترداد، يمكنك تجربة الخدمة مجاناً أولاً.",
+    loadingPlans: "جارٍ تحميل الباقات…",
   },
 };
 
@@ -82,15 +88,66 @@ export function PricingSection({ locale }: PricingSectionProps) {
   const isRtl = locale === "ar";
   const t = translations[locale] || translations.en;
   const [openModal, setOpenModal] = useState(false);
+  const [modalPlan, setModalPlan] = useState<any>(null);
+  const [dbPlans, setDbPlans] = useState<Array<{
+    id: string; name: string; nameAr: string; description: string; descriptionAr: string;
+    priceCents: number; currency: string; billing: string; features: string[]; active: boolean;
+  }>>([]);
+  const [plansLoading, setPlansLoading] = useState(true);
+
+  // Load plans dynamically from the server store (what the admin configured).
+  useEffect(() => {
+    fetch("/api/payments/subscription")
+      .then((r) => r.json())
+      .then((j) => {
+        if (Array.isArray(j.plans)) {
+          setDbPlans(j.plans.filter((p: any) => p.active !== false));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setPlansLoading(false));
+  }, []);
 
   const go = (planId: string) => {
-    if (planId === "enterprise") { router.push("/contact"); return; }
-    if (planId === "pro") { setOpenModal(true); return; }
-    // Free plan: go back to the home analyzer.
-    router.push(`/${locale}`);
+    const plan = dbPlans.find((p) => p.id === planId);
+    if (!plan) return;
+    if (planId === "free") { router.push(`/${locale}`); return; }
+    if (plan.priceCents <= 0) { router.push(`/${locale}`); return; }
+    // Open the secure-checkout confirmation card for every paid plan.
+    setModalPlan(plan);
+    setOpenModal(true);
   };
 
-  const plans = [
+  // Fall back to the hardcoded translated defaults while DB plans load, so the
+  // section is never empty.
+  const plans =
+    dbPlans.length > 0
+      ? dbPlans.map((p) => ({
+          planId: p.id,
+          name: isRtl ? p.nameAr || p.name : p.name,
+          price:
+            p.priceCents <= 0
+              ? (isRtl ? "مجاني" : "Free")
+              : `${(p.priceCents / 100).toFixed(2)} ${p.currency}`,
+          period:
+            p.billing === "yearly"
+              ? (isRtl ? "/ سنوياً" : "/ year")
+              : p.billing === "monthly"
+              ? (isRtl ? "/ شهرياً" : "/ month")
+              : "",
+          desc: isRtl ? p.descriptionAr || p.description : p.description,
+          features: p.features || [],
+          cta:
+            p.priceCents <= 0
+              ? (isRtl ? "ابدأ مجاناً" : "Start Free")
+              : (isRtl ? "اشترك الآن" : "Subscribe"),
+          popular: ["pro", "pro-yearly"].includes(p.id),
+          gradient:
+            ["pro", "pro-yearly"].includes(p.id)
+              ? "from-gold-500 to-gold-600"
+              : "from-gold-500/20 to-gold-600/5",
+        }))
+      : [
     {
       planId: "free",
       name: t.free as string,
@@ -148,6 +205,14 @@ export function PricingSection({ locale }: PricingSectionProps) {
           <p className="text-lg text-dark-400 max-w-2xl mx-auto">
             {t.subtitle}
           </p>
+        </div>
+
+        {/* Non-refundable notice */}
+        <div className="max-w-2xl mx-auto mb-12">
+          <div className="flex items-start justify-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-5 py-3.5 text-sm text-amber-200">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span className="text-center">{t.noRefund}</span>
+          </div>
         </div>
 
         {/* Pricing Cards */}
@@ -253,13 +318,19 @@ export function PricingSection({ locale }: PricingSectionProps) {
 
             <div className="rounded-xl bg-dark-800/70 border border-gold-500/10 p-4 mb-4 text-sm">
               <div className="flex items-center justify-between">
-                <span className="text-dark-400">{t.pro}</span>
-                <span className="font-bold text-gold-300">$5</span>
+                <span className="text-dark-400">
+                  {modalPlan ? (isRtl ? modalPlan.nameAr || modalPlan.name : modalPlan.name) : t.pro}
+                </span>
+                <span className="font-bold text-gold-300">
+                  {modalPlan && modalPlan.priceCents > 0
+                    ? `${(modalPlan.priceCents / 100).toFixed(2)} ${modalPlan.currency}`
+                    : "$5"}
+                </span>
               </div>
             </div>
 
             <button
-              onClick={() => router.push("/checkout?plan=pro")}
+              onClick={() => router.push(`/checkout?plan=${modalPlan?.id || "pro"}`)}
               className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-gold-600 to-gold-500 px-6 py-3.5 font-bold text-dark-950 hover:from-gold-500 hover:to-gold-400 transition"
             >
               <Lock className="w-4 h-4" /> {t.modalProceed}

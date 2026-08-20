@@ -13,6 +13,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
+import { buildInvoicePdf, generateInvoiceNumber } from "./invoice-pdf";
 
 export interface InvoiceData {
   customerEmail: string;
@@ -22,27 +23,61 @@ export interface InvoiceData {
   currency: string;
   transactionId: string;
   paymentDate: string;
+  endDate?: string | null;
+  refundPolicy?: string;
+  invoiceNumber?: string;
 }
 
 export interface InvoiceResult {
   sent: boolean;
   method: "resend" | "log" | "none";
   reason?: string;
+  invoiceNumber?: string;
 }
 
 const INVOICE_DIR = path.join(process.cwd(), "data", "invoices");
 
-function recordInvoice(data: InvoiceData): void {
+function recordInvoice(data: InvoiceData): string {
+  let invoiceNumber = data.invoiceNumber;
+  let pdfBuffer: Buffer | null = null;
+  try {
+    invoiceNumber =
+      invoiceNumber || generateInvoiceNumber(data.transactionId, new Date(data.paymentDate));
+    pdfBuffer = buildInvoicePdf({
+      invoiceNumber,
+      customerName: data.customerName,
+      customerEmail: data.customerEmail,
+      planName: data.planName,
+      amountCents: data.amountCents,
+      currency: data.currency,
+      purchaseDate: data.paymentDate,
+      endDate: data.endDate || null,
+      transactionId: data.transactionId,
+      refundPolicy:
+        data.refundPolicy ||
+        "Paid subscriptions are non-refundable. You can try the service for free before subscribing.",
+    });
+  } catch (error: any) {
+    // eslint-disable-next-line no-console
+    console.error("[Invoice] PDF generation failed:", error?.message);
+    pdfBuffer = null;
+  }
+
   try {
     if (!fs.existsSync(INVOICE_DIR)) fs.mkdirSync(INVOICE_DIR, { recursive: true });
-    const file = path.join(
-      INVOICE_DIR,
-      `${data.transactionId.replace(/[^a-zA-Z0-9_-]/g, "_")}.json`
+    const safeId = data.transactionId.replace(/[^a-zA-Z0-9_-]/g, "_");
+    fs.writeFileSync(
+      path.join(INVOICE_DIR, `${safeId}.json`),
+      JSON.stringify(data, null, 2),
+      "utf8"
     );
-    fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
+    if (pdfBuffer) {
+      fs.writeFileSync(path.join(INVOICE_DIR, `${safeId}.pdf`), pdfBuffer);
+    }
   } catch {
     // best effort; never block payments
   }
+  return invoiceNumber || "";
 }
 
 function logInvoice(data: InvoiceData): void {
@@ -61,12 +96,13 @@ function logInvoice(data: InvoiceData): void {
 
 /**
  * Sends (or records) an invoice confirmation email after a successful payment.
+ * Generates the PDF receipt and attaches it when a provider is configured.
  * Never throws — payment flow is never blocked by email delivery.
  */
 export async function sendInvoiceEmail(
   data: InvoiceData
 ): Promise<InvoiceResult> {
-  recordInvoice(data);
+  const invoiceNumber = recordInvoice(data);
   logInvoice(data);
 
   const from = process.env.EMAIL_FROM;
@@ -76,6 +112,7 @@ export async function sendInvoiceEmail(
   if (from && apiKey) {
     try {
       const html = buildInvoiceHtml(data);
+      const attachments = buildPdfAttachment(data);
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: {
@@ -85,18 +122,20 @@ export async function sendInvoiceEmail(
         body: JSON.stringify({
           from,
           to: [data.customerEmail],
-          subject: `Smart Land — Payment confirmation · ${(data.amountCents / 100).toFixed(2)} ${data.currency}`,
+          subject: `Smart Land — Payment confirmation (${invoiceNumber}) · ${(data.amountCents / 100).toFixed(2)} ${data.currency}`,
           html,
+          attachments,
         }),
       });
-      if (res.ok) return { sent: true, method: "resend" };
+      if (res.ok) return { sent: true, method: "resend", invoiceNumber };
       return {
         sent: false,
         method: "log",
         reason: `email api returned ${res.status}`,
+        invoiceNumber,
       };
     } catch (error: any) {
-      return { sent: false, method: "log", reason: error?.message };
+      return { sent: false, method: "log", reason: error?.message, invoiceNumber };
     }
   }
 
@@ -104,7 +143,40 @@ export async function sendInvoiceEmail(
     sent: false,
     method: "log",
     reason: `${from ? "RESEND_API_KEY" : "EMAIL_FROM"} is not configured`,
+    invoiceNumber,
   };
+}
+
+/** Builds a Resend-compatible PDF attachment; returns undefined when generation fails. */
+function buildPdfAttachment(
+  data: InvoiceData
+): Array<{ filename: string; content: string }> | undefined {
+  try {
+    const safe = data.transactionId.replace(/[^a-zA-Z0-9_-]/g, "_");
+    const pdfBuffer = buildInvoicePdf({
+      invoiceNumber:
+        data.invoiceNumber || generateInvoiceNumber(data.transactionId, new Date(data.paymentDate)),
+      customerName: data.customerName,
+      customerEmail: data.customerEmail,
+      planName: data.planName,
+      amountCents: data.amountCents,
+      currency: data.currency,
+      purchaseDate: data.paymentDate,
+      endDate: data.endDate || null,
+      transactionId: data.transactionId,
+      refundPolicy:
+        data.refundPolicy ||
+        "Paid subscriptions are non-refundable. You can try the service for free before subscribing.",
+    });
+    return [
+      {
+        filename: `Smart-Land-Receipt-${safe}.pdf`,
+        content: pdfBuffer.toString("base64"),
+      },
+    ];
+  } catch {
+    return undefined;
+  }
 }
 
 function buildInvoiceHtml(data: InvoiceData): string {

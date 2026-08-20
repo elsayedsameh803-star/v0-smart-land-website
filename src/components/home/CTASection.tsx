@@ -11,20 +11,20 @@ const translations: Record<string, Record<string, string>> = {
   en: {
     badge: "READY TO START?",
     title: "Improve Your Digital Presence Today",
-    subtitle: "Join thousands of businesses and creators using Smart Land to analyze, improve, and grow.",
+    subtitle: "Get a real, evidence-based audit of your website or social profiles — and know exactly what to fix first.",
     cta: "Analyze Now",
     quick1: "Free analysis",
     quick2: "No sign-up required",
-    quick3: "Results in 30 seconds",
+    quick3: "Real, verified data",
   },
   ar: {
     badge: "مستعد للبدء؟",
     title: "حسّن حضورك الرقمي اليوم",
-    subtitle: "انضم إلى آلاف الشركات وصناع المحتوى الذين يستخدمون سمارت لاند للتحليل والتحسين والنمو.",
+    subtitle: "احصل على تدقيق حقيقي قائم على الأدلة لموقعك أو صفحاتك — واعرف بالضبط ماذا تصلح أولاً.",
     cta: "حلل الآن",
     quick1: "تحليل مجاني",
     quick2: "بدون تسجيل",
-    quick3: "النتائج في 30 ثانية",
+    quick3: "بيانات حقيقية موثّقة",
   },
 };
 

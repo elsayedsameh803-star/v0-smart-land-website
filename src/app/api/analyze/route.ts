@@ -849,9 +849,50 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     recordAnalysis("website", false);
+
+    const message = error?.message || "Failed to analyze URL";
+
+    // Timeout
+    if (error?.name === "AbortError" || /timed? out/i.test(message)) {
+      return NextResponse.json({
+        success: false,
+        error: "The website did not respond in time. It may be slow or unreachable. Please try again.",
+        errorAr: "لم يستجب الموقع في الوقت المحدد. قد يكون بطيئاً أو غير متاح. يرجى المحاولة مرة أخرى.",
+        code: "TIMEOUT",
+      }, { status: 504 });
+    }
+
+    // SSRF / URL validation failures
+    if (
+      /internal|localhost|private|protocol|port|credential/i.test(message) &&
+      !/failed to fetch/i.test(message)
+    ) {
+      return NextResponse.json({
+        success: false,
+        error: message,
+        errorAr: message,
+        code: "URL_BLOCKED",
+      }, { status: 400 });
+    }
+
+    // DNS / connection failures (unreachable site, blocked crawling)
+    if (
+      /ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ECONNRESET|network|fetch failed|ssl|tls|certificate|blocked|403|429/i.test(message)
+    ) {
+      return NextResponse.json({
+        success: false,
+        error: "Unable to reach the website. It may be offline, blocking automated requests, or the domain may not exist.",
+        errorAr: "تعذر الوصول إلى الموقع. قد يكون غير متصل، أو يحظر الطلبات الآلية، أو أن النطاق غير موجود.",
+        code: "UNREACHABLE",
+        detail: message,
+      }, { status: 502 });
+    }
+
     return NextResponse.json({
       success: false,
-      error: error.message || "Failed to analyze URL",
+      error: message || "Failed to analyze URL",
+      errorAr: message || "فشل تحليل الرابط",
+      code: "INTERNAL",
     }, { status: 500 });
   }
 }

@@ -36,42 +36,36 @@ export default function HomePage({ params }: PageProps) {
   const [activeFinding, setActiveFinding] = useState<Finding | null>(null);
   const [showFixAssistant, setShowFixAssistant] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [needsRenew, setNeedsRenew] = useState(false);
-  const [freemiumBlocked, setFreemiumBlocked] = useState(false);
 
   const handleAnalyze = async (submittedUrl: string, selectedPlatform?: string) => {
     setUrl(submittedUrl);
     setPlatform(selectedPlatform || "website");
-    setCurrentView("analyzing");
-    setIsAnalyzing(true);
     setError(null);
 
-    // Server-side subscription access check (renewal required when expired)
-    try {
-      const acc = await fetch("/api/payments/access").then((r) => r.json()).catch(() => null);
-      if (acc && acc.allowed === false) {
-        // Freemium (anonymous free user hit the limit) vs. subscription expiry.
-        if (acc.hasSubscription === false) setFreemiumBlocked(true);
-        else setNeedsRenew(true);
-        setError(locale === "ar" ? acc.messageAr : acc.messageEn);
-        setCurrentView("home");
-        setIsAnalyzing(false);
-        return;
-      }
-    } catch { /* ignore access-check failures */ }
-
-    // Initialize real stages
+    // Initialize real stages IMMEDIATELY before any network calls
+    // This ensures the user sees the stages list right away, not "0 من 0 مراحل"
     const initialStages = getAnalysisStages();
     setStages(initialStages);
+    setCurrentView("analyzing");
+    setIsAnalyzing(true);
+
+    // Helper to update a single stage status
+    const updateStage = (id: string, status: "pending" | "processing" | "completed" | "error") => {
+      setStages(prev => prev.map(s => s.id === id ? { ...s, status } : s));
+    };
 
     try {
-      // Update stages in real-time as the analysis progresses
       const stageOrder = initialStages.map(s => s.id);
       
-      // Start validating stage
-      updateStageStatus(stageOrder[0], "processing");
+      // Start the real-time stage progression
+      // Stage 1: validating
+      updateStage(stageOrder[0], "processing");
 
-      const result = await analyzeUrl(submittedUrl, locale, selectedPlatform);
+      const result = await analyzeUrl(submittedUrl, locale, selectedPlatform, {
+        onStageStart: (id) => updateStage(id, "processing"),
+        onStageComplete: (id) => updateStage(id, "completed"),
+        onStageError: (id) => updateStage(id, "error"),
+      });
       
       // Mark all stages as completed
       const completedStages = initialStages.map(s => ({ ...s, status: "completed" as const }));
@@ -85,10 +79,6 @@ export default function HomePage({ params }: PageProps) {
     } finally {
       setIsAnalyzing(false);
     }
-  };
-
-  const updateStageStatus = (stageId: string, status: "processing" | "completed") => {
-    setStages(prev => prev.map(s => s.id === stageId ? { ...s, status } : s));
   };
 
   const handleReAnalyze = () => {
@@ -117,27 +107,6 @@ export default function HomePage({ params }: PageProps) {
     <div className="min-h-screen bg-dark-950">
       {currentView === "home" && (
         <>
-          {needsRenew && (
-            <div className="fixed top-0 inset-x-0 z-50 bg-red-600/95 text-white px-4 py-3 text-center text-sm font-medium shadow-lg">
-              {error || (locale === "ar"
-                ? "انتهى اشتراكك، يرجى تجديد الاشتراك للاستمرار في استخدام Smart Land."
-                : "Your subscription has ended. Please renew to continue using Smart Land.")}
-              <a href="/checkout" className="ms-3 inline-block rounded-md bg-white text-red-600 px-3 py-1.5 text-xs font-bold">
-                {locale === "ar" ? "تجديد الاشتراك" : "Renew subscription"}
-              </a>
-            </div>
-          )}
-
-          {freemiumBlocked && (
-            <div className="fixed top-0 inset-x-0 z-[55] bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-dark-950 px-4 py-3 text-center text-sm font-semibold shadow-lg">
-              {locale === "ar"
-                ? "لقد استهلكت تحليلاتك المجانية. اشترك في الباقة المدفوعة ($5) لمواصلة التحليل."
-                : "You've used all your free analyses. Subscribe to the $5 plan to keep analyzing."}
-              <a href="/checkout?plan=pro" className="ms-3 inline-block rounded-md bg-dark-950 text-gold-400 px-3 py-1.5 text-xs font-bold hover:bg-dark-900 transition">
-                {locale === "ar" ? "اشترك مقابل $5" : "Upgrade for $5"}
-              </a>
-            </div>
-          )}
           <HeroSection onAnalyze={handleAnalyze} locale={locale} />
           <StatsSection locale={locale} />
           <OnboardingSteps locale={locale} />
@@ -154,6 +123,16 @@ export default function HomePage({ params }: PageProps) {
         <div className="pt-24 pb-16 px-4 bg-dark-950 min-h-screen">
           <div className="max-w-4xl mx-auto">
             <AnalysisProgress stages={stages} url={url} error={error} locale={locale} />
+            {error && (
+              <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <button onClick={() => { if (url) handleAnalyze(url, platform); }} className="px-6 py-3 rounded-xl bg-gradient-to-r from-gold-600 to-gold-500 text-dark-950 text-sm font-bold hover:from-gold-500 hover:to-gold-400 transition-all shadow-lg shadow-gold-500/25">
+                  {locale === "ar" ? "إعادة المحاولة" : "Try Again"}
+                </button>
+                <button onClick={handleNewAnalysis} className="px-6 py-3 rounded-xl border border-gold-500/20 text-gold-300 text-sm hover:bg-gold-500/10 transition-colors">
+                  {locale === "ar" ? "رجوع للرئيسية" : "Back to Home"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

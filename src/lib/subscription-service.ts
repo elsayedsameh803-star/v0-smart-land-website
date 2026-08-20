@@ -7,7 +7,7 @@
 
 import { createHmac, timingSafeEqual } from "crypto";
 import type { NextRequest } from "next/server";
-import type { CustomerIdentity, Subscription } from "./paymob-types";
+import type { CustomerIdentity, Subscription, UsageQuota } from "./paymob-types";
 import {
   getPlanById,
   getSubscriptionByEmail,
@@ -83,6 +83,8 @@ export interface AccessDecision {
   allowed: boolean;
   hasSubscription: boolean;
   subscription: Subscription | null;
+  /** True when a paid subscription just expired and the account was reverted to the free tier. */
+  downgradedToFree?: boolean;
   messageAr: string;
   messageEn: string;
 }
@@ -102,29 +104,39 @@ export function getAccessDecision(customerEmail?: string | null): AccessDecision
     return { allowed: true, hasSubscription: true, subscription: sub, messageAr: "", messageEn: "" };
   }
   if (sub.status === "expired") {
+    // Auto-cut: once the last day of the subscription passes, premium access is
+    // cut and the account is automatically reverted to the free tier (free
+    // analyses restored). The subscriber can renew at any time.
     return {
-      allowed: false,
-      hasSubscription: true,
+      allowed: true,
+      hasSubscription: false,
       subscription: sub,
-      messageAr: "انتهى اشتراكك، يرجى تجديد الاشتراك للاستمرار في استخدام Smart Land.",
-      messageEn: "Your subscription has ended. Please renew to continue using Smart Land.",
+      downgradedToFree: true,
+      messageAr:
+        "انتهى اشتراكك المدفوع. تمت إعادة حسابك تلقائياً للحصة المجانية — جدّد اشتراكك لاستعادة كل المزايا.",
+      messageEn:
+        "Your paid subscription has ended. Your account was automatically reverted to the free tier — renew to restore full access.",
     };
   }
   if (sub.status === "cancelled" || sub.status === "failed") {
     return {
-      allowed: false,
-      hasSubscription: true,
+      allowed: true,
+      hasSubscription: false,
       subscription: sub,
-      messageAr: "اشتراكك غير نشط. يرجى تجديد الاشتراك للاستمرار في استخدام Smart Land.",
-      messageEn: "Your subscription is not active. Please renew to continue using Smart Land.",
+      downgradedToFree: true,
+      messageAr:
+        "اشتراكك المدفوع غير نشط. عُدت إلى الحصة المجانية تلقائياً — اشترك لاستعادة كل المزايا.",
+      messageEn:
+        "Your paid subscription is not active. Your account was reverted to the free tier — subscribe to restore full access.",
     };
   }
+  // pending — treat as free tier until the payment is confirmed by the gateway.
   return {
-    allowed: false,
-    hasSubscription: true,
+    allowed: true,
+    hasSubscription: false,
     subscription: sub,
-    messageAr: "اشتراكك قيد المعالجة. أكمل عملية الدفع أو انتظر التأكيد.",
-    messageEn: "Your subscription is pending. Please complete the payment or wait for confirmation.",
+    messageAr: "اشتراكك قيد المعالجة. ستُفعّل المزايا فور تأكيد الدفع.",
+    messageEn: "Your subscription is pending. Benefits will activate as soon as payment is confirmed.",
   };
 }
 // ---------------------------------------------------------------------------
@@ -134,8 +146,9 @@ export const FREE_USAGE_COOKIE = "smartland_free_usage";
 const FREE_USAGE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 export function getFreeAnalysesLimit(): number {
-  const v = Number(process.env.FREE_ANALYSES_LIMIT);
-  return Number.isFinite(v) && v >= 0 ? Math.floor(v) : 2;
+  // Smart Land is fully open — every visitor gets unlimited analysis with no
+  // quota. The legacy FREE_ANALYSES_LIMIT env var is intentionally not read.
+  return -1;
 }
 
 function signUsageToken(count: number): string {
@@ -221,4 +234,45 @@ export function activateSubscription(params: {
     paymentMethod: "paymob",
     paymentDate: params.paymentDate,
   });
+}
+
+// ---------------------------------------------------------------------------
+// Usage quota (server-authoritative, derived from the active plan or free tier)
+// ---------------------------------------------------------------------------
+export function getUsageQuota(customerEmail?: string | null): UsageQuota {
+  applyExpiredSubscriptions();
+  const email = customerEmail?.trim().toLowerCase();
+  const sub = email ? getSubscriptionByEmail(email) : null;
+
+  // Active paid subscription -> quota comes straight from the plan's limits.
+  if (sub && sub.status === "active") {
+    const plan = getPlanById(sub.planId);
+    return {
+      planId: plan?.id || sub.planId,
+      planName: plan?.name || sub.planId,
+      planNameAr: plan?.nameAr || sub.planId,
+      isPaid: true,
+      analysesPerMonth: plan?.limits?.analysesPerMonth ?? -1,
+      sitesLimit: plan?.limits?.sitesLimit ?? -1,
+      pagesLimit: plan?.limits?.pagesLimit ?? -1,
+      platforms: plan?.limits?.platforms ?? ["*"],
+      expiresAt: sub.endDate,
+      subscriptionStatus: sub.status,
+    };
+  }
+
+  // Free tier (anonymous, expired, cancelled or pending account).
+  // The platform is fully open — unlimited analyses on every platform.
+  return {
+    planId: "free",
+    planName: "Free",
+    planNameAr: "المجاني",
+    isPaid: false,
+    analysesPerMonth: -1, // -1 = unlimited (open to all visitors)
+    sitesLimit: -1,
+    pagesLimit: -1,
+    platforms: ["*"],
+    expiresAt: null,
+    subscriptionStatus: sub?.status || "free",
+  };
 }

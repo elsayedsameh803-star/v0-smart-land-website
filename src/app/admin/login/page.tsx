@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import {
   verifySessionToken,
   SESSION_COOKIE_NAME,
+  isAdminConfigured,
 } from "@/lib/admin-auth";
 import { isGoogleOAuthConfigured } from "@/lib/google-auth";
 import LoginForm from "./login-form";
@@ -13,5 +14,10 @@ export default async function AdminLoginPage() {
   const token = cookies().get(SESSION_COOKIE_NAME)?.value;
   const authed = token ? await verifySessionToken(token) : false;
   if (authed) redirect("/admin");
-  return <LoginForm configured={isGoogleOAuthConfigured()} />;
+  return (
+    <LoginForm
+      passwordConfigured={isAdminConfigured()}
+      googleConfigured={isGoogleOAuthConfigured()}
+    />
+  );
 }

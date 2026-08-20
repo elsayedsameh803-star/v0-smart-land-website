@@ -14,13 +14,17 @@ interface AnalysisProgressProps {
 const stageIcons: Record<string, React.ElementType> = {
   validating: Search,
   connecting: Globe,
-  collecting: Gauge,
+  fetching: Globe,
   seo: Search,
-  technical: Zap,
   performance: Gauge,
   accessibility: Eye,
+  security: Shield,
+  content: FileText,
+  technical: Zap,
   recommendations: FileText,
   preparing: Sparkles,
+  detecting: Search,
+  collecting: Gauge,
 };
 
 export function AnalysisProgress({ stages, url, error, locale }: AnalysisProgressProps) {
@@ -88,6 +92,7 @@ export function AnalysisProgress({ stages, url, error, locale }: AnalysisProgres
           const isProcessing = stage.status === "processing";
           const isCompleted = stage.status === "completed";
           const isPending = stage.status === "pending";
+          const isError = stage.status === "error";
 
           return (
             <div
@@ -96,7 +101,8 @@ export function AnalysisProgress({ stages, url, error, locale }: AnalysisProgres
                 "flex items-center gap-4 p-4 rounded-xl border transition-all duration-300",
                 isCompleted && "bg-gold-500/5 border-gold-500/20",
                 isProcessing && "bg-dark-800/80 border-gold-500/30 gold-glow",
-                isPending && "bg-dark-800/40 border-dark-700"
+                isPending && "bg-dark-800/40 border-dark-700",
+                isError && "bg-red-500/5 border-red-500/30"
               )}
             >
               {/* Icon */}
@@ -104,12 +110,15 @@ export function AnalysisProgress({ stages, url, error, locale }: AnalysisProgres
                 "w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300",
                 isCompleted && "bg-gradient-to-br from-gold-500 to-gold-600",
                 isProcessing && "bg-dark-700 border border-gold-500/30",
-                isPending && "bg-dark-700"
+                isPending && "bg-dark-700",
+                isError && "bg-red-500/10 border border-red-500/30"
               )}>
                 {isCompleted ? (
                   <Check className="w-5 h-5 text-dark-950" />
                 ) : isProcessing ? (
                   <Loader2 className="w-5 h-5 text-gold-400 animate-spin" />
+                ) : isError ? (
+                  <AlertCircle className="w-5 h-5 text-red-400" />
                 ) : (
                   <StageIcon className="w-5 h-5 text-dark-500" />
                 )}
@@ -121,13 +130,19 @@ export function AnalysisProgress({ stages, url, error, locale }: AnalysisProgres
                   "text-sm font-medium transition-colors duration-300",
                   isCompleted && "text-gold-300",
                   isProcessing && "text-gold-400",
-                  isPending && "text-dark-500"
+                  isPending && "text-dark-500",
+                  isError && "text-red-400"
                 )}>
                   {isRtl ? stage.labelAr : stage.label}
                 </p>
                 {isProcessing && (
                   <p className="text-xs text-gold-500/70 mt-0.5">
                     {isRtl ? "جاري المعالجة..." : "Processing..."}
+                  </p>
+                )}
+                {isError && (
+                  <p className="text-xs text-red-500/70 mt-0.5">
+                    {isRtl ? "تعذر إكمال هذه المرحلة" : "This stage could not be completed"}
                   </p>
                 )}
               </div>
@@ -145,6 +160,9 @@ export function AnalysisProgress({ stages, url, error, locale }: AnalysisProgres
                     <span className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-ping-slow" style={{ animationDelay: "0.3s" }} />
                     <span className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-ping-slow" style={{ animationDelay: "0.6s" }} />
                   </div>
+                )}
+                {isError && (
+                  <AlertCircle className="w-5 h-5 text-red-400" />
                 )}
               </div>
             </div>

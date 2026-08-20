@@ -1,0 +1,6 @@
+ Volume in drive C has no label.
+ Volume Serial Number is 0C6F-183C
+
+ Directory of C:\Users\Fast\AppData\Local\Temp
+
+File Not Found

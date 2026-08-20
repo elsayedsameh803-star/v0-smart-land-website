@@ -51,6 +51,8 @@ export async function POST(request: NextRequest) {
     if (typeof body?.integrationId === "string") patch.integrationId = body.integrationId.trim();
     if (typeof body?.iframeId === "string") patch.iframeId = body.iframeId.trim();
     if (typeof body?.webhookActive === "boolean") patch.webhookActive = body.webhookActive;
+    if (typeof body?.refundPolicyEn === "string") patch.refundPolicyEn = body.refundPolicyEn.trim();
+    if (typeof body?.refundPolicyAr === "string") patch.refundPolicyAr = body.refundPolicyAr.trim();
     savePaymentSettings(patch);
     return NextResponse.json({ success: true, settings: getPaymentSettings() });
   } catch (error: any) {

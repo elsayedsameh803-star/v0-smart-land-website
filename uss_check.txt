@@ -1,0 +1,1 @@
+src\app\[locale]\page.tsx:101:  const updateStageStatus = (stageId: string, status: "processing" | "completed") => {

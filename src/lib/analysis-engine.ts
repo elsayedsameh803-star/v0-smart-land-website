@@ -17,28 +17,33 @@ import type {
   FixSuggestion,
 } from "./types";
 import { generateId, normalizeUrl, formatScore } from "./utils";
-import { performRealAnalysis, performRealSocialAnalysis, getRealAnalysisStages } from "./real-analysis-engine";
+import { performRealAnalysis, performRealSocialAnalysis, getRealAnalysisStages, type AnalysisCallbacks } from "./real-analysis-engine";
 
 // =============================================================================
 // PUBLIC API - MAIN ANALYSIS FUNCTION
 // =============================================================================
 
-export async function analyzeUrl(url: string, locale: string = "en", platform: string = "website"): Promise<AnalysisResult> {
+export async function analyzeUrl(
+  url: string,
+  locale: string = "en",
+  platform: string = "website",
+  callbacks?: AnalysisCallbacks
+): Promise<AnalysisResult> {
   // Detect platform from URL if not explicitly provided
   const detectedPlatform = detectPlatform(url, platform);
   
   switch (detectedPlatform) {
     case "youtube":
-      return performRealSocialAnalysis(url, locale, "youtube");
+      return performRealSocialAnalysis(url, locale, "youtube", callbacks);
     case "tiktok":
-      return performRealSocialAnalysis(url, locale, "tiktok");
+      return performRealSocialAnalysis(url, locale, "tiktok", callbacks);
     case "facebook":
     case "instagram":
     case "snapchat":
     case "linkedin":
-      return performRealSocialAnalysis(url, locale, detectedPlatform);
+      return performRealSocialAnalysis(url, locale, detectedPlatform, callbacks);
     default:
-      return performRealAnalysis(url, locale);
+      return performRealAnalysis(url, locale, callbacks);
   }
 }
 

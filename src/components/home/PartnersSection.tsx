@@ -1,6 +1,6 @@
 "use client";
 
-import { Crown, Building2, Rocket, Globe, Store, Briefcase, Heart } from "lucide-react";
+import { Globe, Youtube, Facebook, Instagram, Music2, Linkedin, Camera } from "lucide-react";
 
 interface PartnersSectionProps {
   locale: string;
@@ -8,29 +8,42 @@ interface PartnersSectionProps {
 
 const translations: Record<string, Record<string, string>> = {
   en: {
-    badge: "TRUSTED PARTNERS",
-    title: "Companies That Trust Smart Land",
-    subtitle: "Join thousands of businesses and creators using Smart Land to grow their digital presence",
+    badge: "PLATFORMS WE ANALYZE",
+    title: "Audit Every Major Platform",
+    subtitle: "Submit a URL and get a real, evidence-based audit. Every metric is sourced from the platform's own public data.",
+    p1: "Website",
+    p2: "YouTube",
+    p3: "Facebook",
+    p4: "Instagram",
+    p5: "TikTok",
+    p6: "LinkedIn",
+    p7: "Snapchat",
   },
   ar: {
-    badge: "شركاء موثوقون",
-    title: "شركات تثق في سمارت لاند",
-    subtitle: "انضم إلى آلاف الشركات وصناع المحتوى الذين يستخدمون سمارت لاند لتنمية حضورهم الرقمي",
+    badge: "المنصّات التي نحلّلها",
+    title: "دقّق كل المنصّات الكبرى",
+    subtitle: "أرسل رابطاً واحصل على تدقيق حقيقي قائم على الأدلة. كل رقم من بيانات المنصة العامة نفسها.",
+    p1: "موقعك",
+    p2: "يوتيوب",
+    p3: "فيسبوك",
+    p4: "إنستغرام",
+    p5: "تيك توك",
+    p6: "لينكد إن",
+    p7: "سناب شات",
   },
 };
 
 export function PartnersSection({ locale }: PartnersSectionProps) {
-  const isRtl = locale === "ar";
   const t = translations[locale] || translations.en;
 
   const partners = [
-    { icon: Crown, name: "TechNova" },
-    { icon: Building2, name: "UrbanCo" },
-    { icon: Rocket, name: "LaunchPad" },
-    { icon: Globe, name: "WorldLink" },
-    { icon: Store, name: "E-Shop" },
-    { icon: Briefcase, name: "BizCore" },
-    { icon: Heart, name: "Wellness+" },
+    { icon: Globe, name: t.p1 },
+    { icon: Youtube, name: t.p2 },
+    { icon: Facebook, name: t.p3 },
+    { icon: Instagram, name: t.p4 },
+    { icon: Music2, name: t.p5 },
+    { icon: Linkedin, name: t.p6 },
+    { icon: Camera, name: t.p7 },
   ];
 
   return (

@@ -30,6 +30,8 @@ export async function POST(request: NextRequest) {
       limits: {
         analysesPerMonth: body.limits?.analysesPerMonth === -1 ? -1 : Math.max(0, Number(body.limits?.analysesPerMonth) || 0),
         platforms: Array.isArray(body.limits?.platforms) ? body.limits.platforms : ["*"],
+        sitesLimit: body.limits?.sitesLimit === undefined ? -1 : Number(body.limits.sitesLimit) || 0,
+        pagesLimit: body.limits?.pagesLimit === undefined ? -1 : Number(body.limits.pagesLimit) || 0,
         competitorComparison: !!body.limits?.competitorComparison,
         pdfReports: body.limits?.pdfReports === undefined ? true : !!body.limits.pdfReports,
         prioritySupport: !!body.limits?.prioritySupport,
@@ -58,6 +60,10 @@ export async function PATCH(request: NextRequest) {
     if (body.priceCents !== undefined) patch.priceCents = Math.max(0, Number(body.priceCents) || 0);
     if (body.currency !== undefined) patch.currency = body.currency === "USD" ? "USD" : "EGP";
     if (body.durationMonths !== undefined) patch.durationMonths = Math.max(1, Number(body.durationMonths) || 1);
+    if (body.billing !== undefined) {
+      patch.billing =
+        body.billing === "yearly" || body.billing === "one_time" ? body.billing : "monthly";
+    }
     if (body.features !== undefined) patch.features = Array.isArray(body.features) ? body.features.map(String) : [];
     if (body.active !== undefined) patch.active = !!body.active;
     if (body.sortOrder !== undefined) patch.sortOrder = Math.max(1, Number(body.sortOrder) || 1);

@@ -18,6 +18,10 @@ export interface Plan {
   limits: {
     analysesPerMonth: number; // -1 = unlimited
     platforms: string[]; // ["*"] = all
+    /** Max number of sites/projects the subscriber can track (-1 = unlimited). */
+    sitesLimit: number;
+    /** Max number of pages per audit (-1 = unlimited). */
+    pagesLimit: number;
     competitorComparison: boolean;
     pdfReports: boolean;
     prioritySupport: boolean;
@@ -85,7 +89,24 @@ export interface PaymentGatewaySettings {
   iframeId: string;
   webhookUrl: string;
   webhookActive: boolean;
+  /** Refund policy shown on the pricing page, checkout and printed on invoices. */
+  refundPolicyEn: string;
+  refundPolicyAr: string;
   updatedAt: string;
+}
+
+/** The usage quota granted to an account (paid plan limits or free tier). */
+export interface UsageQuota {
+  planId: string;
+  planName: string;
+  planNameAr: string;
+  isPaid: boolean;
+  analysesPerMonth: number; // -1 = unlimited
+  sitesLimit: number; // -1 = unlimited
+  pagesLimit: number; // -1 = unlimited
+  platforms: string[];
+  expiresAt: string | null;
+  subscriptionStatus: SubscriptionStatus | "free";
 }
 
 export interface PaymobStoreData {

@@ -1,27 +1,13 @@
 // =============================================================================
-// Smart Land - Subscription Access Shield (server-side guard)
+// Smart Land - Subscription Access Shell (server-side) IMPORTANT: OPEN ACCESS
 // =============================================================================
-// Applied to protected (paid) server actions. A request is rejected with a
-// renewal message when the identified customer's subscription is expired,
-// cancelled, failed or still pending. Anonymous / free users stay allowed.
+// Smart Land is fully open to every visitor, so this guard no longer blocks ANY
+// request. It is kept as a harmless no-op so the analyze routes keep working
+// unchanged. There is no free-analysis limit and no paywall on the server.
 // =============================================================================
 
 import { NextRequest, NextResponse } from "next/server";
-import { getCustomerFromRequest, getAccessDecision } from "./subscription-service";
 
-export function enforceSubscription(request: NextRequest): NextResponse | null {
-  const customer = getCustomerFromRequest(request);
-  const decision = getAccessDecision(customer?.email);
-  if (!decision.allowed) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: decision.messageEn,
-        errorAr: decision.messageAr,
-        code: "SUBSCRIPTION_REQUIRED",
-      },
-      { status: 403 }
-    );
-  }
+export function enforceSubscription(_request: NextRequest): NextResponse | null {
   return null;
 }

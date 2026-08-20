@@ -25,6 +25,7 @@ import type {
 
 // ---------------------------------------------------------------------------
 // Default plans (seeded once). Prices are in CENTS (Paymob's amount format).
+// Billing supports monthly / yearly / one_time — all editable by the admin.
 // ---------------------------------------------------------------------------
 export function buildDefaultPlans(): Plan[] {
   const now = new Date().toISOString();
@@ -33,16 +34,18 @@ export function buildDefaultPlans(): Plan[] {
       id: "free",
       name: "Free",
       nameAr: "المجاني",
-      description: "2 free analyses to try Smart Land",
-      descriptionAr: "تحليلان مجانيان لتجربة Smart Land",
+      description: "Unlimited & completely free for every visitor",
+      descriptionAr: "مفتوح وغير محدود لكل زائر",
       priceCents: 0,
       currency: "USD",
       durationMonths: 0,
       billing: "one_time",
-      features: ["2 free analyses", "Website analysis", "Basic score breakdown", "PDF report"],
+      features: ["Unlimited analyses", "All platforms (7+)", "Advanced insights & recommendations", "PDF report"],
       limits: {
-        analysesPerMonth: 2,
-        platforms: ["website"],
+        analysesPerMonth: -1,
+        platforms: ["*"],
+        sitesLimit: -1,
+        pagesLimit: -1,
         competitorComparison: false,
         pdfReports: true,
         prioritySupport: false,
@@ -56,15 +59,17 @@ export function buildDefaultPlans(): Plan[] {
       id: "pro",
       name: "Pro",
       nameAr: "الاحترافية",
-      description: "Your paid plan. Unlock everything in one payment.",
-      descriptionAr: "باقتك المدفوعة. افتح كل المزايا بدفعة واحدة.",
-      priceCents: 500, // $5.00 USD one-time
+      description: "Unlock everything with a monthly subscription.",
+      descriptionAr: "افتح كل المزايا باشتراك شهري.",
+      priceCents: 500, // $5.00 USD / month
       currency: "USD",
-      durationMonths: 120, // 10-year lifetime "paid" plan
-      billing: "one_time",
+      durationMonths: 1,
+      billing: "monthly",
       features: [
         "Unlimited analyses",
         "All platforms (7+)",
+        "Up to 5 websites",
+        "Up to 50 pages per audit",
         "Advanced insights & recommendations",
         "Competitor comparison",
         "Analysis history & tracking",
@@ -73,6 +78,8 @@ export function buildDefaultPlans(): Plan[] {
       limits: {
         analysesPerMonth: -1,
         platforms: ["*"],
+        sitesLimit: 5,
+        pagesLimit: 50,
         competitorComparison: true,
         pdfReports: true,
         prioritySupport: true,
@@ -83,12 +90,46 @@ export function buildDefaultPlans(): Plan[] {
       updatedAt: now,
     },
     {
+      id: "pro-yearly",
+      name: "Pro Yearly",
+      nameAr: "الاحترافية سنوياً",
+      description: "Best value — save 2 months compared to monthly billing.",
+      descriptionAr: "أفضل قيمة — وفّر شهرين مقارنة بالفوترة الشهرية.",
+      priceCents: 5000, // $50.00 USD / year
+      currency: "USD",
+      durationMonths: 12,
+      billing: "yearly",
+      features: [
+        "Unlimited analyses",
+        "All platforms (7+)",
+        "Up to 10 websites",
+        "Up to 100 pages per audit",
+        "Advanced insights & recommendations",
+        "Competitor comparison",
+        "Analysis history & tracking",
+        "Email invoice & priority support",
+      ],
+      limits: {
+        analysesPerMonth: -1,
+        platforms: ["*"],
+        sitesLimit: 10,
+        pagesLimit: 100,
+        competitorComparison: true,
+        pdfReports: true,
+        prioritySupport: true,
+      },
+      active: true,
+      sortOrder: 3,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
       id: "enterprise",
       name: "Enterprise",
       nameAr: "المؤسسات",
       description: "For agencies and large organizations",
       descriptionAr: "للوكالات والمؤسسات الكبيرة",
-      priceCents: 590000, // 5900.00 EGP
+      priceCents: 590000, // 5900.00 EGP / month
       currency: "EGP",
       durationMonths: 1,
       billing: "monthly",
@@ -103,12 +144,46 @@ export function buildDefaultPlans(): Plan[] {
       limits: {
         analysesPerMonth: -1,
         platforms: ["*"],
+        sitesLimit: -1,
+        pagesLimit: -1,
         competitorComparison: true,
         pdfReports: true,
         prioritySupport: true,
       },
       active: true,
-      sortOrder: 3,
+      sortOrder: 4,
+      createdAt: now,
+      updatedAt: now,
+    },
+    {
+      id: "enterprise-yearly",
+      name: "Enterprise Yearly",
+      nameAr: "المؤسسات سنوياً",
+      description: "For agencies and large organizations — yearly billing",
+      descriptionAr: "للوكالات والمؤسسات الكبيرة — فوترة سنوية",
+      priceCents: 5900000, // 59000.00 EGP / year
+      currency: "EGP",
+      durationMonths: 12,
+      billing: "yearly",
+      features: [
+        "Unlimited everything",
+        "API access",
+        "White-label reports",
+        "Dedicated account manager",
+        "Custom integrations",
+        "SLA & priority support",
+      ],
+      limits: {
+        analysesPerMonth: -1,
+        platforms: ["*"],
+        sitesLimit: -1,
+        pagesLimit: -1,
+        competitorComparison: true,
+        pdfReports: true,
+        prioritySupport: true,
+      },
+      active: true,
+      sortOrder: 5,
       createdAt: now,
       updatedAt: now,
     },
@@ -121,6 +196,10 @@ export const DEFAULT_PAYMENT_SETTINGS: PaymentGatewaySettings = {
   iframeId: "",
   webhookUrl: "",
   webhookActive: false,
+  refundPolicyEn:
+    "Paid subscriptions are non-refundable. You can try the service for free before subscribing.",
+  refundPolicyAr:
+    "الاشتراكات المدفوعة غير قابلة للاسترداد، يمكنك تجربة الخدمة مجاناً أولاً.",
   updatedAt: new Date().toISOString(),
 };
 
@@ -183,10 +262,25 @@ function buildDefaultStore(): PaymobStoreData {
   };
 }
 
+function normalizeLimits(limits?: Partial<Plan["limits"]>): Plan["limits"] {
+  return {
+    analysesPerMonth: limits?.analysesPerMonth === undefined ? -1 : Number(limits.analysesPerMonth) || 0,
+    platforms: Array.isArray(limits?.platforms) ? limits.platforms : ["*"],
+    sitesLimit: limits?.sitesLimit === undefined ? -1 : Number(limits.sitesLimit) || 0,
+    pagesLimit: limits?.pagesLimit === undefined ? -1 : Number(limits.pagesLimit) || 0,
+    competitorComparison: !!limits?.competitorComparison,
+    pdfReports: limits?.pdfReports === undefined ? true : !!limits.pdfReports,
+    prioritySupport: !!limits?.prioritySupport,
+  };
+}
+
 function normalize(parsed: Partial<PaymobStoreData>): PaymobStoreData {
   const base = buildDefaultStore();
   return {
-    plans: Array.isArray(parsed.plans) && parsed.plans.length > 0 ? parsed.plans : base.plans,
+    plans:
+      Array.isArray(parsed.plans) && parsed.plans.length > 0
+        ? parsed.plans.map((p) => ({ ...p, limits: normalizeLimits(p.limits) }))
+        : base.plans,
     subscriptions: Array.isArray(parsed.subscriptions) ? parsed.subscriptions : [],
     transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
     settings: parsed.settings ? { ...base.settings, ...parsed.settings } : base.settings,
@@ -211,20 +305,23 @@ export function writeData(data: PaymobStoreData): void {
 }
 
 // ---------------------------------------------------------------------------
-// Auto-expiry: subscriptions past their end date become expired (server-side)
+// Auto-expiry: subscriptions past their end date become expired (server-side).
+// Called on every subscription read (middleware-style lazy check) and by the
+// scheduled cron job. Returns the number of subscriptions ended by this pass.
 // ---------------------------------------------------------------------------
-export function applyExpiredSubscriptions(): void {
+export function applyExpiredSubscriptions(): number {
   const data = readData();
   const now = Date.now();
-  let changed = false;
+  let changed = 0;
   for (const sub of data.subscriptions) {
     if (sub.status === "active" && sub.endDate && new Date(sub.endDate).getTime() < now) {
       sub.status = "expired";
       sub.updatedAt = new Date().toISOString();
-      changed = true;
+      changed++;
     }
   }
-  if (changed) writeData(data);
+  if (changed > 0) writeData(data);
+  return changed;
 }
 // ---------------------------------------------------------------------------
 // Plans CRUD
@@ -375,7 +472,18 @@ export function updateTransaction(id: string, patch: Partial<PaymentTransaction>
 // ---------------------------------------------------------------------------
 export function getPaymentSettings(): PaymentGatewaySettings {
   const data = readData();
-  return { ...DEFAULT_PAYMENT_SETTINGS, ...data.settings };
+  const merged: PaymentGatewaySettings = { ...DEFAULT_PAYMENT_SETTINGS, ...data.settings };
+  if (!merged.refundPolicyEn) merged.refundPolicyEn = DEFAULT_PAYMENT_SETTINGS.refundPolicyEn;
+  if (!merged.refundPolicyAr) merged.refundPolicyAr = DEFAULT_PAYMENT_SETTINGS.refundPolicyAr;
+  return merged;
+}
+
+/** Refund policy text in a locale, with a sensible default when unset. */
+export function getRefundPolicy(locale: "en" | "ar" = "en"): string {
+  const settings = getPaymentSettings();
+  return locale === "ar"
+    ? settings.refundPolicyAr || DEFAULT_PAYMENT_SETTINGS.refundPolicyAr
+    : settings.refundPolicyEn || DEFAULT_PAYMENT_SETTINGS.refundPolicyEn;
 }
 
 export function savePaymentSettings(

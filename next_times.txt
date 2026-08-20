@@ -1,0 +1,12 @@
+ Volume in drive C has no label.
+ Volume Serial Number is 0C6F-183C
+
+ Directory of C:\Users\Fast\OneDrive\Desktop\new smart land\.next
+
+08/18/2026  03:00 AM            10,158 app-build-manifest.json
+
+ Directory of C:\Users\Fast\OneDrive\Desktop\new smart land\.next
+
+08/18/2026  03:09 AM             1,173 prerender-manifest.json
+               2 File(s)         11,331 bytes
+               0 Dir(s)  179,936,047,104 bytes free

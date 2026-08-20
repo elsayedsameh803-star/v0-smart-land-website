@@ -50,15 +50,14 @@ See **`docs/LAUNCH_HANDOVER.md` §3** for the full, required list. Key ones:
 | `NEXT_PUBLIC_SITE_URL` | Final public domain (feeds sitemap/robots/referral/webhooks) |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `ADMIN_ALLOWED_EMAILS` | **Admin login via Google OAuth (password login is removed)** |
 | `ADMIN_SESSION_SECRET` | Admin session cookie signing (required) |
-| `FREE_ANALYSES_LIMIT` | Freemium: number of free analyses before the paid plan (default `2`) |
 | `PAYMOB_MODE`, `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_INTEGRATION_ID`, `PAYMOB_IFRAME_ID`, `PAYMOB_HMAC_SECRET`, `PAYMOB_CUSTOMER_SECRET` | Paymob payments (start with `PAYMOB_MODE=test`) |
 | `EMAIL_FROM` / `RESEND_API_KEY` | Optional — sends the invoice confirmation email after a successful payment |
 | `GEMINI_API_KEY` / `GOOGLE_API_KEY` | Gemini AI + YouTube Data API (optional) |
 
-> ℹ️ The paid plan is **$5 one-time**. Anonymous users get `FREE_ANALYSES_LIMIT`
-> free analyses before being prompted to subscribe. Payment buttons support
-> Paymob, and **Stripe/PayPal are shown in Test mode** (routed through the
-> sandbox until their SDKs/keys are wired in the live flow).
+> ℹ️ Smart Land is currently **open and completely free for every visitor** — no
+> account required, no free-analysis limit, and no paywall. Every platform can
+> be analyzed freely. The Paymob hooks / admin billing pages still exist behind
+> the scenes, but nothing gates access to the product for visitors.
 
 ## Analyzers & data sources
 

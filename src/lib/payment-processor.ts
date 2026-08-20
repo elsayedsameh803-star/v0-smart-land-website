@@ -109,7 +109,7 @@ export function processPaymentResult(params: {
     const plan = findPlanByIdOrAmount(params.planId || null, amountCents, currency);
     const email = (params.customerEmail || "").trim().toLowerCase();
     if (plan && email) {
-      activateSubscription({
+      const activated = activateSubscription({
         customer: {
           id: existing?.id || `c-${Date.now()}`,
           name: params.customerName || email,
@@ -122,6 +122,8 @@ export function processPaymentResult(params: {
       });
 
       // Best-effort invoice confirmation email (never blocks the payment flow).
+      // The PDF receipt is generated & attached automatically.
+      const settings = getPaymentSettings();
       sendInvoiceEmail({
         customerEmail: email,
         customerName: params.customerName || email,
@@ -130,6 +132,8 @@ export function processPaymentResult(params: {
         currency,
         transactionId,
         paymentDate: new Date().toISOString(),
+        endDate: activated?.endDate || null,
+        refundPolicy: settings.refundPolicyEn,
       }).catch(() => {}); // sendInvoiceEmail must never throw, extra safety
     }
   }

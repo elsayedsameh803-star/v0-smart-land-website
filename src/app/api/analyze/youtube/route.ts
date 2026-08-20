@@ -49,10 +49,10 @@ export async function POST(request: NextRequest) {
         const categoryMatch = html.match(/"category":"([^"]+)"/);
         const tagsMatch = html.match(/"keywords":\[([^\]]+)\]/);
 
-        const views = viewsMatch ? parseInt(viewsMatch[1]) : 0;
-        const likes = likesMatch ? parseInt(likesMatch[1]) : 0;
-        const commentCount = commentCountMatch ? parseInt(commentCountMatch[1]) : 0;
-        const duration = durationMatch ? parseInt(durationMatch[1]) : 0;
+        const views = viewsMatch ? parseInt(viewsMatch[1]) : undefined;
+        const likes = likesMatch ? parseInt(likesMatch[1]) : undefined;
+        const commentCount = commentCountMatch ? parseInt(commentCountMatch[1]) : undefined;
+        const duration = durationMatch ? parseInt(durationMatch[1]) : undefined;
         const subscriberText = subsMatch?.[1] || null;
         const description = descMatch?.[1]?.replace(/\\n/g, " ").replace(/\\"/g, '"') || null;
         const channelName = channelNameMatch?.[1] || null;
@@ -64,15 +64,18 @@ export async function POST(request: NextRequest) {
         const hashtags = description ? description.match(/#[a-zA-Z0-9_]+/g) || [] : [];
 
         // Calculate engagement rate (real metric)
-        const engagementRate = views > 0 ? ((likes + commentCount) / views) * 100 : 0;
+        const engagementRate =
+          views !== undefined && likes !== undefined && commentCount !== undefined && views > 0
+            ? ((likes + commentCount) / views) * 100
+            : undefined;
 
-        // Parse subscriber text like "1.2M" or "1,234"
-        let subscribers = 0;
+        // Parse subscriber text like "1.2M" or "1,234" (undefined when unavailable — never fake 0)
+        let subscribers: number | undefined;
         if (subscriberText) {
           const cleaned = subscriberText.replace(/[^0-9.KM]/gi, "");
           if (cleaned.endsWith("M")) subscribers = parseFloat(cleaned) * 1000000;
           else if (cleaned.endsWith("K")) subscribers = parseFloat(cleaned) * 1000;
-          else subscribers = parseFloat(cleaned) || 0;
+          else if (cleaned) subscribers = parseFloat(cleaned) || undefined;
         }
 
         profileData = {
@@ -95,7 +98,6 @@ export async function POST(request: NextRequest) {
           fullName: channelName || videoId,
           bio: description || "",
           bioHashtags: hashtags,
-          postsCount: 0,
           followers: subscribers,
         };
       }
@@ -238,27 +240,27 @@ async function fetchYouTubeApiData(
     profile: {
       title: snippet.title || null,
       description: description || null,
-      views,
-      likes,
-      commentCount,
-      subscribers,
-      subscribersText: formatCount(subscribers),
-      followers: subscribers,
-      postsCount: videoCount,
+      views: views > 0 ? views : undefined,
+      likes: likes > 0 ? likes : undefined,
+      commentCount: commentCount > 0 ? commentCount : undefined,
+      subscribers: subscribers > 0 ? subscribers : undefined,
+      subscribersText: subscribers > 0 ? formatCount(subscribers) : undefined,
+      followers: subscribers > 0 ? subscribers : undefined,
+      postsCount: videoCount > 0 ? videoCount : undefined,
       channelId,
       channelName: channelTitle,
       displayName: channelTitle,
       fullName: channelTitle,
       avatarUrl: thumbnail,
       category: snippet.categoryId || null,
-      duration,
+      duration: duration > 0 ? duration : undefined,
       tags,
       hashtags: hashtags.map((h: string) => h.replace("#", "")),
-      engagementRate: Math.round(engagement * 100) / 100,
+      engagementRate: engagement > 0 ? Math.round(engagement * 100) / 100 : undefined,
       publishedAt: snippet.publishedAt || null,
-      channelSubscribers: subscribers,
-      channelVideoCount: videoCount,
-      channelViewCount: channelViews,
+      channelSubscribers: subscribers > 0 ? subscribers : undefined,
+      channelVideoCount: videoCount > 0 ? videoCount : undefined,
+      channelViewCount: channelViews > 0 ? channelViews : undefined,
       dataSource: "youtube-data-api",
     },
   };

@@ -1,0 +1,33 @@
+
+> smart-land@2.1.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+  - Experiments (use with caution):
+    · optimizeCss
+    · scrollRestoration
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/app/admin/plans/page.tsx:65:16
+Type error: Argument of type '(e: Record<string, Partial<Plan>>) => { [x: string]: Partial<Plan> | { limits: {}; id?: string | undefined; name?: string | undefined; nameAr?: string | undefined; ... 5 more ...; billing?: string | undefined; }; }' is not assignable to parameter of type 'SetStateAction<Record<string, Partial<Plan>>>'.
+  Type '(e: Record<string, Partial<Plan>>) => { [x: string]: Partial<Plan> | { limits: {}; id?: string | undefined; name?: string | undefined; nameAr?: string | undefined; ... 5 more ...; billing?: string | undefined; }; }' is not assignable to type '(prevState: Record<string, Partial<Plan>>) => Record<string, Partial<Plan>>'.
+    Type '{ [x: string]: Partial<Plan> | { limits: {}; id?: string | undefined; name?: string | undefined; nameAr?: string | undefined; priceCents?: number | undefined; durationMonths?: number | undefined; active?: boolean | undefined; sortOrder?: number | undefined; features?: string[] | undefined; billing?: string | undefin...' is not assignable to type 'Record<string, Partial<Plan>>'.
+      'string' index signatures are incompatible.
+        Type 'Partial<Plan> | { limits: {}; id?: string | undefined; name?: string | undefined; nameAr?: string | undefined; priceCents?: number | undefined; durationMonths?: number | undefined; active?: boolean | undefined; sortOrder?: number | undefined; features?: string[] | undefined; billing?: string | undefined; }' is not assignable to type 'Partial<Plan>'.
+          Type '{ limits: {}; id?: string | undefined; name?: string | undefined; nameAr?: string | undefined; priceCents?: number | undefined; durationMonths?: number | undefined; active?: boolean | undefined; sortOrder?: number | undefined; features?: string[] | undefined; billing?: string | undefined; }' is not assignable to type 'Partial<Plan>'.
+            Types of property 'limits' are incompatible.
+              Type '{}' is missing the following properties from type '{ sitesLimit: number; pagesLimit: number; }': sitesLimit, pagesLimit
+
+[0m [90m 63 |[39m   [36mconst[39m [36mset[39m [33m=[39m (id[33m:[39m string[33m,[39m k[33m:[39m keyof [33mPlan[39m[33m,[39m v[33m:[39m any) [33m=>[39m setEditing((e) [33m=>[39m ({ [33m...[39me[33m,[39m [id][33m:[39m { [33m...[39m(e[id] [33m||[39m {})[33m,[39m [k][33m:[39m v } }))[33m;[39m[0m
+[0m [90m 64 |[39m   [36mconst[39m setLimit [33m=[39m (id[33m:[39m string[33m,[39m key[33m:[39m [32m"sitesLimit"[39m [33m|[39m [32m"pagesLimit"[39m[33m,[39m val[33m:[39m number) [33m=>[39m[0m
+[0m[31m[1m>[22m[39m[90m 65 |[39m     setEditing((e) [33m=>[39m {[0m
+[0m [90m    |[39m                [31m[1m^[22m[39m[0m
+[0m [90m 66 |[39m       [36mconst[39m base [33m=[39m (e[id][33m?[39m[33m.[39mlimits [33m?[39m[33m?[39m (plans[33m.[39mfind((p) [33m=>[39m p[33m.[39mid [33m===[39m id)[33m?[39m[33m.[39mlimits)) [33m||[39m {}[33m;[39m[0m
+[0m [90m 67 |[39m       [36mreturn[39m { [33m...[39me[33m,[39m [id][33m:[39m { [33m...[39m(e[id] [33m||[39m {})[33m,[39m limits[33m:[39m { [33m...[39mbase[33m,[39m [key][33m:[39m val } } }[33m;[39m[0m
+[0m [90m 68 |[39m     })[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null
