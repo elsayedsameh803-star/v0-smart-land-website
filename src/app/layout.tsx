@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { Inter, Cairo } from "next/font/google";
 import { GoogleAnalyticsScript, SearchConsoleVerification } from "@/components/GoogleAnalytics";
 import { SITE_URL } from "@/lib/constants";
+import { SessionProvider } from "@/components/auth/Provider";
 import "./globals.css";
 
 const inter = Inter({ 
@@ -263,7 +264,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen bg-dark-950 text-gold-100 antialiased">
-        {children}
+        <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
   );

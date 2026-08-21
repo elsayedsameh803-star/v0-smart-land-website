@@ -45,6 +45,7 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
     { href: `/${locale}/contact`, label: "Contact" },
     { href: `/${locale}/faq`, label: "FAQ" },
     { href: `/${locale}/account`, label: locale === "ar" ? "حسابي" : "My Account" },
+    { href: `/${locale}/social`, label: locale === "ar" ? "السوشيال" : "Social" },
     { href: "/admin", label: dictionary.nav.admin },
   ];
 
