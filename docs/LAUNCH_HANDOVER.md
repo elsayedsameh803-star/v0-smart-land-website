@@ -59,6 +59,10 @@
 | `PAYMOB_CUSTOMER_SECRET` | غائب | ⚠️ مطلوب الآن | بعد إصلاح #1 (أو يرث `ADMIN_SESSION_SECRET`) |
 | `GEMINI_API_KEY` | غائب | اختياري (للـ AI) | يُفضَّل لإثراء التحليل عبر Gemini |
 | `GOOGLE_API_KEY` | موجود محليًا | اختياري | لـ YouTube Data API + Gemini fallback |
+| `TIKTOK_CLIENT_KEY` | موجود في Vercel | **مطلوب للتكامل الرسمي** | مفتاح تطبيق TikTok for Developers — server-side فقط |
+| `TIKTOK_CLIENT_SECRET` | موجود في Vercel | **مطلوب للتكامل الرسمي** | سريّ — يُقرأ في الخادم فقط ويمنع وضعه في الواجهة أو السجلات |
+| `TIKTOK_CLIENT_KEY` | موجود في Vercel | **مطلوب للتكامل الرسمي** | مفتاح تطبيق TikTok for Developers (server-side فقط — لا يُمرَّر للمتصفح) |
+| `TIKTOK_CLIENT_SECRET` | موجود في Vercel | **مطلوب للتكامل الرسمي** | سريّ — يُقرأ في الخادم فقط ويمنع منعًا باتًا وضعه في الواجهة أو السجلات |
 
 > ⛔ **أمان** : يوجد في `.env.local` المحلي `VERCEL_OIDC_TOKEN` — وهو حساس جدًا (يغمر بوصول لمشروع Vercel). **أزِله من أي ملف محلي** واحتفظ به فقط في أسرار Vercel، ودائر أي مفتاح سبق نشره.
 > تأكّد أيضًا: `.gitignore` يستثني `.env*` (فعلًا) — لا تُرفع أي `.env` إلى git.
@@ -110,7 +114,7 @@ npm start           # ثم جرّب يدويًا
 | Website | HTML، headers، meta، headings، links، img، ssl… | أداء Core Web Vitals حقيقي لا يستلزم headless | فحص مباشر من الخادم |
 | Instagram | الملف العام، المتابعون، المنشورات، engagement من عينة | بيانات غير عامة/حساب خاص | صفحة عامة + sharedData |
 | Facebook | سلوك صفحة/فولو/الأوصاف (عند توفّره) | كثير محجوب خلف login wall | صفحة/ملف mbasic |
-| TikTok | oembed + صفحة عامة + قيم stats | إن غابت الـ stats فنُحمى «غير متاح» (بعد إصلاح #2) | صفحة عامة |
+| TikTok | oEmbed (عنوان/مؤلف/صورة) + **Research API** (مشاهدات/إعجابات/تعليقات/مشاركات/مدة/هاشتاجات) + **Display API** (عند تفويض الزائر لحسابه) | كل مقياس لا يُجلب من API يُعرض «غير متاح»؛ لا أرقام مختلقة | API رسمي TikTok for Developers + oEmbed |
 | YouTube | YouTube Data API (عند المفتاح) + صفحة | إن لم يتوفّر المفتاح نبقى على scrape | API رسمي |
 | LinkedIn | وصف/تعريف/Skills من الصفحة | الموظفون/verification/خصوصية | صفحة عامة |
 | Snapchat | name/bio/links/og | followers/توثيق (بعد إصلاح #3) | صفحة عامة |
@@ -123,6 +127,23 @@ npm start           # ثم جرّب يدويًا
 - **YouTube/Gemini**: `GOOGLE_API_KEY` فقط.
 - **إثراء مستقبلي (اختياري)**: Facebook/Instagram Graph API → يتطلب App Review + permissions
   (`pages_read_engagement`, `instagram_business_basic`, `public_profile`) — مشروع منفصل.
+
+### TikTok — الواقع الدقيق للمصدر (تقرير صريح)
+
+لا يمكن تحليل **فيديو تيك توك عام بمجرد وضع رابطه** عبر Display API إلا إذا كان
+الفيديو مملوكًا لحسابٍ فاوضك (OAuth). لذلك النظام يستخدم - بالترتيب -:
+
+| المسار | الـ API / `Product` | المطلوب | بيانات تُقرأ فعلًا |
+|--------|--------------------|---------|--------------------|
+| 1 | **oEmbed** `GET tiktok.com/oembed?url=` | لا مفاتيح | `title`, `author_name`, `author_url`, `thumbnail_url` فقط |
+| 2 | **Research API** `POST /v2/research/video/query/` | موافقة مشروع Research + `TIKTOK_CLIENT_KEY/SECRET` + client access token | لكل فيديو: `view_count`, `like_count`, `comment_count`, `share_count`, `play_count`, `duration`, `video_description`, `hashtag_info`, `music_info`, `create_time` |
+| 3 | **Research API** `POST /v2/research/user/info/` | مشروع Research (كما أعلاه) | `display_name`, `bio_description`, `avatar_url`, `is_verified`, `follower_count`, `following_count`, `likes_count`, `video_count` |
+| 4 | **Display API** `/v2/user/info/`, `/v2/video/list/`, `/v2/video/query/` | تطبيق معتمد **Login Kit + TikTok API** مع scopes `user.info.basic`, `video.list` + **تفويض الزائر** عبر OAuth (Authorization Code) | نفس مقاييس الفيديو + `create_time`, `cover_image_url`, `share_url`, `hashtag_names`, ومعلومات المستخدم (المتابِعون، المهتم) |
+
+- **هل يحتاج المستخدم دعوة وحساب TikTok والموافقة؟** نعم — لتشغيل `Display API` للمقاييس على **فيديوهات خاصة به**، يبدأ OAuth عبر زر "ربط حساب تيك توك" في الواجهة (`/api/tiktok/oauth/start`). أمّا Research API (نفس مفاتيح `TIKTOK_CLIENT_KEY/SECRET`) فلا يتطلب تسجيل دخول من الزائر بل **موافقة مشروع Research** على مستوى التطبيق.
+- **ماذا لو كان المطلوب فقط تحليل فيديو عام بدون OAuth؟** المسار الوحيد المأذون لقراءة المقاييس العامة لفيديو عشوائي هو Research API (`/v2/research/video/query/` بحقل `video_id`). بدون موافقة Research يعرض النظام العنوان/المؤلف/الصورة فقط ولا يختلق أرقامًا.
+- **ممنوع scraping**: لا يَستخدم الكود فحص HTML للصفحة العامة إطلاقًا. كل قراءة ملهـ API رسمي.
+- **الأسرار**: `TIKTOK_CLIENT_SECRET` يُقرأ من `process.env` في الخادم فقط؛ tokens تُخزن في كوكي `HttpOnly/Secure` مشفرة؛ ولا تُسجَّل أي مفاتيح في السجلات (`src/lib/tiktok-log.ts` تستبدل كل ما يشبه سرًا).
 
 ---
 

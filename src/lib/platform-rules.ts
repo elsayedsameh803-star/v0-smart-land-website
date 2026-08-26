@@ -329,7 +329,8 @@ const MEASURABLE = [
   "avgLikesPerPost", "avgCommentsPerPost", "avgViewsPerVideo", "bio", "about",
   "aboutText", "description", "verified", "isPrivate", "bioHashtags", "bioLinks",
   "fullName", "pageName", "profilePicUrl", "avatarUrl", "metaImage", "subscribers",
-  "videoCount", "totalVideos", "views", "followerCount", "followingCount",
+  "videoCount", "totalVideos", "views", "followerCount", "followingCount", "comments",
+  "commentCount", "shares", "shareCount", "duration",
 ];
 
 export function computeScoreBreakdown(

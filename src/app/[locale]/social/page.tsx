@@ -1,4 +1,5 @@
 import { MetaConnect } from "@/components/auth/MetaConnect";
+import { TikTokConnectCard } from "@/components/analysis/TikTokConnectCard";
 
 export const metadata = {
   title: "Facebook & Instagram Analytics",
@@ -30,6 +31,7 @@ export default function SocialPage({
         </p>
 
         <MetaConnect locale={locale} />
+        <TikTokConnectCard locale={locale} />
       </div>
     </div>
   );

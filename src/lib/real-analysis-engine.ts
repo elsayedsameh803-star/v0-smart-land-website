@@ -98,7 +98,8 @@ export async function performRealAnalysis(
     let errorMsg = `Server returned HTTP ${response.status}`;
     try {
       const errBody = await response.json();
-      if (errBody.error) errorMsg = errBody.error;
+      if (locale === "ar" && errBody.errorAr) errorMsg = errBody.errorAr;
+      else if (errBody.error) errorMsg = errBody.error;
     } catch { /* ignore parse errors */ }
     throw new Error(errorMsg);
   }
@@ -339,7 +340,8 @@ export async function performRealSocialAnalysis(
     let errorMsg = `Server returned HTTP ${response.status}`;
     try {
       const errBody = await response.json();
-      if (errBody.error) errorMsg = errBody.error;
+      if (locale === "ar" && errBody.errorAr) errorMsg = errBody.errorAr;
+      else if (errBody.error) errorMsg = errBody.error;
     } catch { /* ignore parse errors */ }
     throw new Error(errorMsg);
   }
@@ -421,6 +423,7 @@ export async function performRealSocialAnalysis(
       sourceConfidence: data.metadata?.sourceConfidence || "medium",
       dataAvailability: data.metadata?.dataAvailability,
     },
+    socialData: data,
   };
 
   callbacks?.onStageComplete?.("preparing");

@@ -17,7 +17,34 @@ interface HeaderProps {
 const Header = ({ locale, dictionary }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [showAnnouncement, setShowAnnouncement] = useState(false);
   const pathname = usePathname();
+
+  // Show the announcement bar ONCE per visitor. After the visitor sees it
+  // (or dismisses it) the flag is persisted in localStorage, independent of
+  // navigation, reloads and React re-renders. Re-login not required.
+  useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const seen = localStorage.getItem("sl_announcement_seen") === "1";
+        if (!seen) {
+          localStorage.setItem("sl_announcement_seen", "1");
+          setShowAnnouncement(true);
+        }
+      }
+    } catch {
+      // storage unavailable — keep the bar hidden this session if unknown
+    }
+  }, []);
+
+  const dismissAnnouncement = () => {
+    try {
+      localStorage.setItem("sl_announcement_seen", "1");
+    } catch {
+      // ignore
+    }
+    setShowAnnouncement(false);
+  };
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -45,6 +72,7 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
     { href: `/${locale}/contact`, label: "Contact" },
     { href: `/${locale}/faq`, label: "FAQ" },
     { href: `/${locale}/account`, label: locale === "ar" ? "حسابي" : "My Account" },
+    { href: `/${locale}/login`, label: locale === "ar" ? "تسجيل الدخول" : "Sign in" },
     { href: `/${locale}/social`, label: locale === "ar" ? "السوشيال" : "Social" },
     { href: "/admin", label: dictionary.nav.admin },
   ];
@@ -59,20 +87,29 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
         ? 'glass-deep shadow-lg shadow-gold-500/5' 
         : 'bg-transparent'
     )}>
-      {/* Top Announcement Bar */}
-      <div className="relative w-full bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-dark-950 px-4 py-2 border-b border-gold-700/40">
-        <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-semibold flex-wrap text-center">
-          <span>
-            {locale === "ar" ? "شكراً لاهتمامك، الباقة مدفوعة 🎉" : "Thank you for your interest — the plan is now paid! 🎉"}
-          </span>
-          <Link
-            href="/checkout"
-            className="inline-flex items-center gap-1 rounded-full bg-dark-950 px-3 py-0.5 text-xs font-bold text-gold-400 hover:bg-dark-900 transition"
-          >
-            <Sparkles className="w-3.5 h-3.5" /> $5
-          </Link>
+      {/* Top Announcement Bar — shown ONE time per visitor (see above) */}
+      {showAnnouncement && (
+        <div className="relative w-full bg-gradient-to-r from-gold-600 via-gold-500 to-gold-600 text-dark-950 px-4 py-2 border-b border-gold-700/40">
+          <div className="max-w-7xl mx-auto flex items-center justify-center gap-2 sm:gap-3 text-xs sm:text-sm font-semibold flex-wrap text-center">
+            <span>
+              {locale === "ar" ? "شكراً لاهتمامك، الباقة مدفوعة 🎉" : "Thank you for your interest — the plan is now paid! 🎉"}
+            </span>
+            <Link
+              href="/checkout"
+              className="inline-flex items-center gap-1 rounded-full bg-dark-950 px-3 py-0.5 text-xs font-bold text-gold-400 hover:bg-dark-900 transition"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> $5
+            </Link>
+            <button
+              onClick={dismissAnnouncement}
+              aria-label={locale === "ar" ? "إغلاق الإعلان" : "Dismiss announcement"}
+              className="ml-1 inline-flex items-center justify-center rounded-full bg-dark-950 px-2 py-1 text-gold-400 hover:bg-dark-900 transition"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
       <nav aria-label={locale === "ar" ? "التنقل الرئيسي" : "Main navigation"} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 lg:h-24">
           {/* Logo - Bigger and more prominent */}

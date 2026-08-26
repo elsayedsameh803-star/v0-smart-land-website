@@ -8,7 +8,10 @@
 // Used by sitemap, robots, referral links and webhook URLs.
 // =============================================================================
 
-const DEFAULT_SITE_URL = "https://smart-land.vercel.app";
+// IMPORTANT: this fallback is only used when NEXT_PUBLIC_SITE_URL is not set.
+// It MUST point to the real production domain (smart-land-theta.vercel.app),
+// otherwise sitemap.xml / robots.txt / canonicals leak a wrong or preview URL.
+const DEFAULT_SITE_URL = "https://smart-land-theta.vercel.app";
 
 export function getSiteUrl(): string {
   const fromEnv = process.env.NEXT_PUBLIC_SITE_URL;

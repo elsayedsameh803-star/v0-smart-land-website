@@ -1,0 +1,2 @@
+src/app/api/tiktok/oauth/callback/route.ts(57,9): error TS2451: Cannot redeclare block-scoped variable 'tokenData'.
+src/app/api/tiktok/oauth/callback/route.ts(62,9): error TS2451: Cannot redeclare block-scoped variable 'tokenData'.

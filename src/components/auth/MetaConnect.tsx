@@ -3,6 +3,7 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { Facebook, Instagram, RefreshCw, LogOut, CheckCircle2, Loader2 } from "lucide-react";
+import { saveConnectedSocialAccount, removeConnectedSocialAccount } from "@/lib/social-links";
 
 interface MetaOverview {
   pages?: Array<{
@@ -40,6 +41,31 @@ export function MetaConnect({ locale = "en" }: { locale?: string }) {
       const json = await res.json();
       if (!res.ok) throw new Error(json?.error || "Failed to load analytics");
       setOverview(json);
+      // Persist the connected accounts so we never re-request OAuth while valid.
+      try {
+        if (Array.isArray(json?.pages) && json.pages.length > 0) {
+          saveConnectedSocialAccount({
+            platform: "facebook",
+            accountId: json.pages[0].id,
+            name: json.pages[0].name,
+            linkedAt: new Date().toISOString(),
+            connectedAt: Date.now(),
+            valid: true,
+          });
+        }
+        if (json?.pages?.some((p: any) => p?.instagram)) {
+          saveConnectedSocialAccount({
+            platform: "instagram",
+            accountId: "instagram-" + Date.now(),
+            name: "Instagram",
+            linkedAt: new Date().toISOString(),
+            connectedAt: Date.now(),
+            valid: true,
+          });
+        }
+      } catch {
+        // non-fatal
+      }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Failed to load analytics");
     } finally {
@@ -64,15 +90,15 @@ export function MetaConnect({ locale = "en" }: { locale?: string }) {
         </h2>
         <p className="text-sm text-dark-400">
           {isAr
-            ? "سجّل الدخول بحساب فيسبوك لتحليل صفحاتك وحساب إنستجرام بصلاحيات دقيقة (الجمهور، التفاعل، الوصول)."
-            : "Sign in with Facebook to analyze your Pages and Instagram account with precise insights (audience, engagement, reach)."}
+            ? "سجّل الدخول بحساب فيسبوك لتحليل صفحاتك وحساب إنستجرام بصلاحيات دقيقة (الجمهور، التفاعل، الوصول). الربط إجراء صريح منفصل عن تسجيل دخولك لسمارت لاند."
+            : "Sign in with Facebook to analyze your Pages and Instagram account with precise insights (audience, engagement, reach). Linking is an explicit action, separate from your Smart Land login."}
         </p>
         <button
-          onClick={() => signIn("facebook", { callbackUrl: `/${locale}/social` })}
+          onClick={() => signIn("facebook-meta", { callbackUrl: `/${locale}/social` })}
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-[#1877F2] hover:bg-[#0d65d9] transition"
         >
           <Facebook className="w-4 h-4" />
-          {isAr ? "المتابعة عبر فيسبوك" : "Continue with Facebook"}
+          {isAr ? "ربط فيسبوك للتحليلات" : "Link Facebook for analytics"}
         </button>
       </div>
     );
@@ -88,7 +114,15 @@ export function MetaConnect({ locale = "en" }: { locale?: string }) {
           </span>
         </div>
         <button
-          onClick={() => signOut()}
+          onClick={() => {
+            try {
+              removeConnectedSocialAccount("facebook");
+              removeConnectedSocialAccount("instagram");
+            } catch {
+              // ignore
+            }
+            signOut();
+          }}
           className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 border border-red-500/30 hover:bg-red-500/10 transition"
         >
           <LogOut className="w-4 h-4" /> {isAr ? "تسجيل الخروج" : "Sign out"}

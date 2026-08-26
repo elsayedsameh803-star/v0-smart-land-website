@@ -64,6 +64,12 @@ export interface AnalysisResult {
   criticalIssues: Finding[];
   metadata: AnalysisMetadata;
   detailedMetrics?: DetailedMetrics;
+  /**
+   * Raw real data extracted for social platforms (TikTok views/likes/comments/
+   * shares/duration, etc.). Present only when the API returned real values.
+   * Never contains tokens or secrets.
+   */
+  socialData?: Record<string, any>;
 }
 
 export interface CategoryScores {

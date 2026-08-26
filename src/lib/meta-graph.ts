@@ -27,8 +27,12 @@ export interface MetaConfig {
 export function getMetaConfig(): MetaConfig {
   return {
     appId:
-      process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || process.env.FACEBOOK_APP_ID || "",
-    appSecret: process.env.FACEBOOK_APP_SECRET || "",
+      process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ||
+      process.env.FACEBOOK_APP_ID ||
+      process.env.META_APP_ID ||
+      "",
+    appSecret:
+      process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET || "",
   };
 }
 

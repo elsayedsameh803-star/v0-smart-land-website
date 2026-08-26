@@ -3,6 +3,7 @@ import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-
 import { safeFetch } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
 import { enforceSubscription } from "@/lib/subscription-shield";
+import { getMetaConfig } from "@/lib/meta-graph";
 
 export const dynamic = "force-dynamic";
 
@@ -113,6 +114,67 @@ export async function POST(request: NextRequest) {
     const normalizedData = normalizeProfileData("facebook", profileData);
     const normalizedUrl = `https://www.facebook.com/${pageId}/`;
 
+    // ===== 1b. Optional: Meta Graph API enrichment (REAL official source) =====
+    // When the site owner's Meta App credentials are configured on the server
+    // (FACEBOOK_APP_ID / FACEBOOK_APP_SECRET, or META_APP_ID / META_APP_SECRET),
+    // pull genuinely public Page fields with an APP access token (appId|appSecret).
+    // These public fields (name, about, link, website, fan_count, picture,
+    // category) need no App Review. Best-effort only: any failure keeps the
+    // public HTML extraction result untouched — no metric is ever invented.
+    let enrichedViaGraph = false;
+    const metaCfg = getMetaConfig();
+    if (metaCfg.appId && metaCfg.appSecret) {
+      try {
+        const graphParams = new URLSearchParams({
+          fields: "name,about,link,website,fan_count,category,picture.type(large)",
+          access_token: `${metaCfg.appId}|${metaCfg.appSecret}`,
+        });
+        const graphRes = await safeFetch(
+          `https://graph.facebook.com/v20.0/${encodeURIComponent(pageId)}?${graphParams.toString()}`,
+          { headers: { Accept: "application/json" }, cache: "no-store" },
+          12000
+        );
+        if (graphRes.ok) {
+          const graphData: any = await graphRes.json().catch(() => null);
+          if (graphData && !graphData.error) {
+            if (typeof graphData.name === "string" && graphData.name.length > 0) {
+              profileData.pageName = decodeEntities(graphData.name);
+            }
+            if (typeof graphData.about === "string" && graphData.about.trim().length > 0) {
+              const aboutTxt = decodeEntities(graphData.about).replace(/\s+/g, " ").trim();
+              profileData.about = aboutTxt;
+              profileData.aboutText = aboutTxt;
+              profileData.hasAbout = aboutTxt.length > 20;
+            }
+            const parsedFans = Number(graphData.fan_count);
+            if (Number.isFinite(parsedFans) && parsedFans > 0) {
+              profileData.followers = parsedFans;
+              profileData.followersText = formatFollowerText(parsedFans);
+            }
+            const graphLinks: string[] = [];
+            if (typeof graphData.website === "string" && graphData.website.length > 0)
+              graphLinks.push(graphData.website);
+            if (typeof graphData.link === "string" && graphData.link.length > 0)
+              graphLinks.push(graphData.link);
+            if (graphLinks.length > 0) {
+              profileData.links = Array.from(new Set(graphLinks));
+            }
+            if (typeof graphData.category === "string" && graphData.category.length > 0) {
+              profileData.category = graphData.category;
+            }
+            const picUrl = graphData?.picture?.data?.url;
+            if (typeof picUrl === "string" && picUrl.length > 0) {
+              profileData.profilePicUrl = picUrl;
+              profileData.metaImage = picUrl;
+            }
+            enrichedViaGraph = true;
+          }
+        }
+      } catch {
+        // Best-effort: keep the public HTML extraction result untouched.
+      }
+    }
+
     // Honest confidence: pageId/pageName are structural (derived from the URL).
     // "high" is only warranted when genuinely extracted signals exist.
     const realSignalCount =
@@ -121,8 +183,15 @@ export async function POST(request: NextRequest) {
       (profileData.metaImage ? 1 : 0) +
       (profileData.verified ? 1 : 0) +
       ((profileData.visiblePosts || 0) > 0 ? 1 : 0);
-    const hasSourceData = realSignalCount > 0;
+    const hasSourceData = realSignalCount > 0 || enrichedViaGraph;
     const sourceConfidence = hasSourceData ? "high" : "low";
+    const dataSources: string[] = [];
+    if (enrichedViaGraph) dataSources.push("facebook-graph-api");
+    if (hasSourceData) {
+      if (!dataSources.includes("facebook-public-page")) dataSources.push("facebook-public-page");
+      if (!dataSources.includes("facebook-og")) dataSources.push("facebook-og");
+    }
+    if (dataSources.length === 0) dataSources.push("facebook-public-page");
 
     recordAnalysis("facebook", true);
     return NextResponse.json(
@@ -138,7 +207,7 @@ export async function POST(request: NextRequest) {
         extraData: {
           metaImage: profileData.metaImage || null,
         },
-        dataSources: hasSourceData ? ["facebook-public-page", "facebook-og"] : ["facebook-public-page"],
+        dataSources,
         sourceConfidence,
         startTime,
       })

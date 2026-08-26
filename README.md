@@ -53,6 +53,9 @@ See **`docs/LAUNCH_HANDOVER.md` §3** for the full, required list. Key ones:
 | `PAYMOB_MODE`, `PAYMOB_SECRET_KEY`, `PAYMOB_PUBLIC_KEY`, `PAYMOB_INTEGRATION_ID`, `PAYMOB_IFRAME_ID`, `PAYMOB_HMAC_SECRET`, `PAYMOB_CUSTOMER_SECRET` | Paymob payments (start with `PAYMOB_MODE=test`) |
 | `EMAIL_FROM` / `RESEND_API_KEY` | Optional — sends the invoice confirmation email after a successful payment |
 | `GEMINI_API_KEY` / `GOOGLE_API_KEY` | Gemini AI + YouTube Data API (optional) |
+| `NEXTAUTH_SECRET` | Secret used to sign user session cookies (NextAuth). Required for the optional user login page. |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `FACEBOOK_APP_ID`, `FACEBOOK_APP_SECRET` (or `META_APP_ID`, `META_APP_SECRET`), `APPLE_CLIENT_ID`, `APPLE_CLIENT_SECRET` | **Optional user sign-in** via NextAuth (Google / Facebook / Apple / Email). Separate from social-analytics linking — logging in never links a social account automatically. |
+| `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET` | **TikTok for Developers** integration (server-side only). Enables the Research API (real video metrics with the `client_credentials` grant when your app is approved) and the Display API (metrics for a visitor's own account after OAuth consent). Never exposed to the browser. |
 
 > ℹ️ Smart Land is currently **open and completely free for every visitor** — no
 > account required, no free-analysis limit, and no paywall. Every platform can
@@ -65,7 +68,8 @@ See **`docs/LAUNCH_HANDOVER.md` §3** for the full, required list. Key ones:
 |------|-------------|
 | Website | Live DOM/header/HTTP inspection (SSRF-protected) |
 | YouTube | Official YouTube Data API v3 + page |
-| TikTok / Instagram / Facebook / LinkedIn / Snapchat | Official/public web endpoints + page JSON (no mock) |
+| TikTok | **Official TikTok for Developers API** (oEmbed always; Research API metrics when the app is Research-approved; Display API metrics when the visitor authorizes OAuth). No page scraping, no mock fallback. |
+| Instagram / Facebook / LinkedIn / Snapchat | Official/public web endpoints + page JSON (no mock) |
 
 ## Documentation
 

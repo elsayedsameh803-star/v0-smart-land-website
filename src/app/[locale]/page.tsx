@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HeroSection } from "@/components/home/HeroSection";
 import { OnboardingSteps } from "@/components/home/OnboardingSteps";
 import { VideoSection } from "@/components/home/VideoSection";
@@ -17,6 +17,8 @@ import { CompetitorComparison } from "@/components/analysis/CompetitorComparison
 import { AnalysisHistory } from "@/components/analysis/AnalysisHistory";
 import { PdfReport } from "@/components/analysis/PdfReport";
 import { MethodologySection } from "@/components/home/MethodologySection";
+import { TikTokDataPanel } from "@/components/analysis/TikTokDataPanel";
+import { TikTokConnectCard } from "@/components/analysis/TikTokConnectCard";
 import { analyzeUrl, getAnalysisStages } from "@/lib/analysis-engine";
 import { saveAnalysis, getAnalysisHistory } from "@/lib/storage";
 import type { AnalysisResult, AnalysisStage, Finding } from "@/lib/types";
@@ -41,6 +43,14 @@ export default function HomePage({ params }: PageProps) {
     setUrl(submittedUrl);
     setPlatform(selectedPlatform || "website");
     setError(null);
+
+    // Remember the pending URL so a TikTok OAuth return can resume it.
+    try {
+      sessionStorage.setItem("sl_pending_url", submittedUrl);
+      sessionStorage.setItem("sl_pending_platform", selectedPlatform || "website");
+    } catch {
+      // ignore
+    }
 
     // Initialize real stages IMMEDIATELY before any network calls
     // This ensures the user sees the stages list right away, not "0 من 0 مراحل"
@@ -80,6 +90,25 @@ export default function HomePage({ params }: PageProps) {
       setIsAnalyzing(false);
     }
   };
+
+  useEffect(() => {
+    // Auto-resume the analysis after a TikTok OAuth return.
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("tiktok_oauth") === "success") {
+        const pendingUrl = sessionStorage.getItem("sl_pending_url");
+        const pendingPlatform = sessionStorage.getItem("sl_pending_platform") || "website";
+        sessionStorage.removeItem("sl_pending_url");
+        sessionStorage.removeItem("sl_pending_platform");
+        if (pendingUrl) {
+          handleAnalyze(pendingUrl, pendingPlatform);
+        }
+      }
+    } catch {
+      // ignore — the flag is best-effort only
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleReAnalyze = () => {
     if (url) handleAnalyze(url, platform);
@@ -163,6 +192,13 @@ export default function HomePage({ params }: PageProps) {
             </div>
 
             <ScoreBreakdown overallScore={analysisResult.overallScore} scores={analysisResult.scores} locale={locale} />
+
+            {platform === "tiktok" && (
+              <div className="space-y-4">
+                <TikTokConnectCard locale={locale} />
+                <TikTokDataPanel result={analysisResult} locale={locale} />
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="rounded-xl p-6 bg-dark-800/60 border border-gold-500/10">
