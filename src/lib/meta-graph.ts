@@ -32,7 +32,10 @@ export function getMetaConfig(): MetaConfig {
       process.env.META_APP_ID ||
       "",
     appSecret:
-      process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET || "",
+      process.env.FACEBOOK_CLIENT_SECRET ||
+      process.env.FACEBOOK_APP_SECRET ||
+      process.env.META_APP_SECRET ||
+      "",
   };
 }
 

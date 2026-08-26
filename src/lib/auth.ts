@@ -80,7 +80,10 @@ export const authOptions: NextAuthOptions = {
         process.env.META_APP_ID ||
         "",
       clientSecret:
-        process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET || "",
+        process.env.FACEBOOK_CLIENT_SECRET ||
+        process.env.FACEBOOK_APP_SECRET ||
+        process.env.META_APP_SECRET ||
+        "",
       authorization: {
         params: { scope: "email,public_profile" },
       },
@@ -96,13 +99,16 @@ export const authOptions: NextAuthOptions = {
         process.env.META_APP_ID ||
         "",
       clientSecret:
-        process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET || "",
+        process.env.FACEBOOK_CLIENT_SECRET ||
+        process.env.FACEBOOK_APP_SECRET ||
+        process.env.META_APP_SECRET ||
+        "",
       authorization: {
         params: { scope: FACEBOOK_SCOPES },
       },
     }),
   ],
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || process.env.ADMIN_SESSION_SECRET,
   session: {
     strategy: "jwt",
     // ~60 day persistent session. Re-connect only needed after it expires.
