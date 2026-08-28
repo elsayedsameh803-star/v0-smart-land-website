@@ -276,19 +276,116 @@ function formatFollowerText(n: number): string {
   return String(n);
 }
 
-function extractFacebookPageId(url: string): string | null {
-  // Handle facebook.com/username
-  const match = url.match(/(?:facebook\.com|fb\.com)\/(?:pages\/[^/]+\/)?([a-zA-Z0-9\.\-_]+)/i);
-  if (match) {
-    const id = match[1].replace(/[\/?#].*$/, "");
-    if (id !== "profile.php" && id !== "share" && id !== "login" && id !== "groups") {
-      return id.replace(/^@/, "");
-    }
+/**
+ * Robustly extract a Facebook page / profile identifier from a broad set of
+ * URL shapes. Handles every common Facebook link format:
+ *
+ *   - https://www.facebook.com/{username}
+ *   - https://www.facebook.com/{username}?ref=...&locale=ar
+ *   - https://facebook.com/@{username}
+ *   - https://m.facebook.com/{username}          (mobile subdomain)
+ *   - https://web.facebook.com/{username}        (independent JS subdomain)
+ *   - https://l.facebook.com/l.php?u=...         (link shim maybe an alias)
+ *   - https://www.facebook.com/profile.php?id=...&ref=...   (numeric profile)
+ *   - https://www.facebook.com/pages/{slug}/{id} (classic pages route)
+ *   - https://www.facebook.com/people/{Name}/{id}(modern people route)
+ *   - https://www.facebook.com/groups/.../...    (groups: rejected, not a page)
+ *
+ * Returns the clean identifier (slug or numeric id) or null when the URL does
+ * not point to a verifiable page/profile.
+ */
+// Sub-paths that follow a page/profile URL and must be skipped when resolving
+// the actual identifier (e.g. facebook.com/people/John/ID/about).
+const SUB_PAGE_SEGMENTS = new Set([
+  "about", "posts", "photos", "videos", "reels", "followers", "following",
+  "likes", "events", "reviews", "community", "info", "intro",
+]);
+
+/**
+ * Extract a clean Facebook page / profile identifier from a URL.
+ */
+function extractFacebookPageId(inputUrl: string): string | null {
+  if (!inputUrl || typeof inputUrl !== "string") return null;
+  const trimmed = inputUrl.trim();
+  if (!trimmed) return null;
+
+  // Normalize into a parseable absolute URL (accept bare hostnames).
+  let parsed: URL;
+  try {
+    parsed = new URL(/^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+  } catch {
+    return null;
   }
 
-  // Handle profile.php?id=XXXX
-  const profileMatch = url.match(/profile\.php\?id=(\d+)/i);
-  if (profileMatch) return profileMatch[1];
+  // Only accept genuine Facebook hosts (incl. mobile/web subdomains).
+  const host = parsed.hostname.toLowerCase();
+  const isFbHost =
+    host === "facebook.com" ||
+    host === "fb.com" ||
+    host === "www.facebook.com" ||
+    host === "m.facebook.com" ||
+    host === "web.facebook.com" ||
+    host === "mobile.facebook.com" ||
+    host === "fb.me" ||
+    host.endsWith(".facebook.com");
+  if (!isFbHost) return null;
+
+  // Use the pathname (query/hash stripped) and split into segments.
+  const segments = parsed.pathname
+    .replace(/^\/+|\/+$/g, "")
+    .split("/")
+    .filter(Boolean);
+
+  if (segments.length === 0) return null;
+
+  // ---- profile.php?id=... (id may appear anywhere in the query string) ----
+  if (segments[0] === "profile.php") {
+    const searchId = parsed.searchParams.get("id");
+    if (searchId && /^\d+$/.test(searchId.trim())) return searchId.trim();
+    return null;
+  }
+
+  // ---- people/{Name}/{id}/...  (skip trailing sub-paths like /about /posts) ----
+  if (segments[0] === "people") {
+    for (let i = segments.length - 1; i >= 1; i--) {
+      const candidate = segments[i];
+      if (/^\d+$/.test(candidate)) return candidate; // numeric page id
+      if (/^[a-zA-Z0-9.\-_]+$/.test(candidate) && !SUB_PAGE_SEGMENTS.has(candidate.toLowerCase())) {
+        return candidate; // name slug
+      }
+    }
+    return null;
+  }
+
+  // ---- pages/{slug}/{id}/...  or  pages/{id} ----
+  if (segments[0] === "pages") {
+    for (let i = segments.length - 1; i >= 1; i--) {
+      const candidate = segments[i];
+      if (/^\d+$/.test(candidate)) return candidate;
+      if (/^[a-zA-Z0-9.\-_]+$/.test(candidate) && !SUB_PAGE_SEGMENTS.has(candidate.toLowerCase())) {
+        return candidate;
+      }
+    }
+    return null;
+  }
+
+  // ---- Reject Facebook routes that are NOT a page/profile ----
+  const nonPageRoutes = new Set([
+    "profile.php", "home.php", "index.php", "login", "login.php", "signup",
+    "recover", "share", "sharer.php", "groups", "friends", "events",
+    "watch", "reel", "reels", "stories", "videos", "photos", "photo.php",
+    "video.php", "story.php", "marketplace", "settings", "help",
+    "messages", "notifications", "saved", "pages", "people", "timeline",
+  ]);
+  if (nonPageRoutes.has(segments[0].toLowerCase())) return null;
+
+  // ---- Generic username/page slug: first path segment ----
+  let id = segments[0];
+  if (id.startsWith("@")) id = id.slice(1);
+  // A dot at the START usually means a disguised alias, strip it.
+  if (id.startsWith(".")) id = id.replace(/^\.+/, "");
+
+  if (/^[a-zA-Z0-9.\-_]+$/.test(id)) return id;
 
   return null;
 }
