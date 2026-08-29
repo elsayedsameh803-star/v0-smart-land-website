@@ -3,7 +3,8 @@ import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = {
   title: "Sign in | Smart Land",
-  description: "Sign in to Smart Land with Google, Facebook, Apple or Email.",
+  description:
+    "Sign in once to Smart Land with Google, GitHub, Facebook, Apple or Email — your session stays active, no repeated logins.",
 };
 
 interface PageProps {

@@ -125,6 +125,15 @@ export async function POST(request: NextRequest) {
     const sourceConfidence = hasSourceData ? "high" : "low";
 
     recordAnalysis("instagram", true);
+
+    // ---- Social linking gate ----
+    // Public accounts are always analyzed from public data. A private account —
+    // or one hidden behind Instagram's login wall — has no verifiable public
+    // metrics, so we transparently ask the visitor to LINK their own Facebook /
+    // Instagram (Meta OAuth) once; they are redirected straight back after it.
+    const isPrivateAccount = profileData.isPrivate === true;
+    const requiresLinking = !hasSourceData || isPrivateAccount;
+
     return NextResponse.json(
       await buildSocialAnalysisResponse({
         platform: "instagram",
@@ -138,6 +147,14 @@ export async function POST(request: NextRequest) {
         extraData: {
           profilePicUrl: profileData.profilePicUrl || null,
           postSamples: profileData.postSamples || [],
+          requiresLinking,
+          isPrivate: isPrivateAccount,
+          linkingHintEn: requiresLinking
+            ? "This Instagram account is private or hidden behind a login wall. Link your Facebook account once to unlock precise Instagram analytics on Smart Land (for accounts you manage)."
+            : "",
+          linkingHintAr: requiresLinking
+            ? "حساب إنستغرام هذا خاص أو محجوب خلف جدار تسجيل الدخول. اربط حساب فيسبوك مرة واحدة لفتح تحليلات دقيقة لإنستغرام على سمارت لاند (للحسابات التي تديرها)."
+            : "",
         },
         dataSources: hasSourceData ? ["instagram-public-profile", "instagram-sharedData"] : ["instagram-public-profile"],
         sourceConfidence,

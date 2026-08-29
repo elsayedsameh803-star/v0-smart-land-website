@@ -1,0 +1,10 @@
+ M README.md
+ M src/app/[locale]/login/login-form.tsx
+ M src/app/[locale]/login/page.tsx
+ M src/app/[locale]/page.tsx
+ M src/app/api/analyze/facebook/route.ts
+ M src/app/api/analyze/instagram/route.ts
+ M src/app/api/analyze/tiktok/route.ts
+ M src/lib/auth.ts
+?? src/components/analysis/SocialLinkPrompt.tsx
+?? status2.txt

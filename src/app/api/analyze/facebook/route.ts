@@ -193,6 +193,14 @@ export async function POST(request: NextRequest) {
     }
     if (dataSources.length === 0) dataSources.push("facebook-public-page");
 
+    // ---- Social linking gate ----
+    // Public pages always work. When the page is private, commercial-restricted
+    // or hidden behind Facebook's login wall, no public metric could be verified
+    // → we transparently ask the visitor to LINK their own Facebook account
+    // (Meta OAuth, once, instant redirect back). This also covers the case of
+    // the visitor's OWN pages where linked analytics are much richer.
+    const requiresLinking = !hasSourceData || profileData.isPrivate === true;
+
     recordAnalysis("facebook", true);
     return NextResponse.json(
       await buildSocialAnalysisResponse({
@@ -206,6 +214,14 @@ export async function POST(request: NextRequest) {
         },
         extraData: {
           metaImage: profileData.metaImage || null,
+          requiresLinking,
+          isPrivate: profileData.isPrivate === true,
+          linkingHintEn: requiresLinking
+            ? "This page is private or hidden behind Facebook's login wall. Link your Facebook account once to unlock precise Page analytics on Smart Land."
+            : "",
+          linkingHintAr: requiresLinking
+            ? "هذه الصفحة خاصة أو محجوبة خلف جدار تسجيل الدخول في فيسبوك. اربط حساب فيسبوك مرة واحدة لفتح تحليلات دقيقة للصفحة على سمارت لاند."
+            : "",
         },
         dataSources,
         sourceConfidence,

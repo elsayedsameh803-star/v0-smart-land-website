@@ -4,7 +4,7 @@
 // SEPARATION (important): logging in to Smart Land is DIFFERENT from linking
 // a Social account for analytics.
 //
-//   * Login providers  : Google, Facebook, Apple, Email (identity only).
+//   * Login providers  : Google, GitHub, Facebook, Apple, Email (identity only).
 //   * Social linking   : Facebook (Meta) via the `facebook-meta` provider id
 //                         — used ONLY by the /social page and the explicit
 //                         "connect for analytics" action. The analytics access
@@ -14,6 +14,7 @@
 // =============================================================================
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import GitHubProvider from "next-auth/providers/github";
 import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
 import FacebookProvider from "next-auth/providers/facebook";
@@ -46,6 +47,12 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+    }),
+    // Identity-first login with GitHub (optional — depends on env keys).
+    GitHubProvider({
+      clientId: process.env.GITHUB_CLIENT_ID || "",
+      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
+      authorization: { params: { scope: "read:user user:email" } },
     }),
     // Identity-first login with Apple (optional).
     AppleProvider({

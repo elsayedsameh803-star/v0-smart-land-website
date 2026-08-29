@@ -2,7 +2,7 @@
 
 import { useState, Suspense } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
-import { Chrome, Facebook, Apple, Mail, Loader2, AlertTriangle, ArrowLeft, LogOut, CheckCircle2 } from "lucide-react";
+import { Chrome, Github, Facebook, Apple, Mail, Loader2, AlertTriangle, ArrowLeft, LogOut, CheckCircle2 } from "lucide-react";
 
 const dicts: Record<string, any> = {
   ar: {
@@ -11,6 +11,7 @@ const dicts: Record<string, any> = {
     subtitle:
       "سجّل دخولك لاستخدام لوحة حسابك. تسجيل الدخول لا يربط أي حساب تواصل اجتماعي تلقائياً — الربط يتم عند الطلب فقط.",
     google: "المتابعة باستخدام Google",
+    github: "المتابعة باستخدام GitHub",
     facebook: "المتابعة باستخدام Facebook",
     apple: "المتابعة باستخدام Apple",
     email: "المتابعة باستخدام البريد الإلكتروني",
@@ -28,6 +29,7 @@ const dicts: Record<string, any> = {
     subtitle:
       "Sign in to use your dashboard. Signing in does NOT link any social account automatically — linking happens only when you explicitly ask for it.",
     google: "Continue with Google",
+    github: "Continue with GitHub",
     facebook: "Continue with Facebook",
     apple: "Continue with Apple",
     email: "Continue with Email",
@@ -138,6 +140,19 @@ function LoginFormInner({ locale }: { locale: string }) {
             <Chrome className="w-4 h-4 text-gold-600" />
           )}
           {t.google}
+        </button>
+
+        <button
+          onClick={() => handleProvider("github")}
+          disabled={!!loading}
+          className={`${providerBtn} bg-[#24292E] hover:bg-[#1d2125] text-white disabled:opacity-50`}
+        >
+          {loading === "github" ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Github className="w-4 h-4" />
+          )}
+          {t.github}
         </button>
 
         <button

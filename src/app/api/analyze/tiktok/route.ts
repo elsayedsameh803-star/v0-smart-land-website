@@ -101,6 +101,11 @@ if (!outcome) {
     const normalized = normalizeProfileData("tiktok", outcome.profileData);
     const mergedProfile = { ...outcome.profileData, ...normalized };
 
+    // Linking gate: when we only got the public oEmbed data (no account stats)
+    // and the visitor has not authorized TikTok, connecting their own account
+    // unlocks real metrics — one click, instant redirect back.
+    const requiresLinking = !session?.accessToken && outcome.via === "oembed-only";
+
     recordAnalysis("tiktok", true);
 
     const response = NextResponse.json(
@@ -110,7 +115,16 @@ if (!outcome) {
         url: outcome.url,
         locale,
         profileData: mergedProfile,
-        extraData: outcome.extraData,
+        extraData: {
+          ...outcome.extraData,
+          requiresLinking,
+          linkingHintEn: requiresLinking
+            ? "TikTok only exposed public info for this video/profile. Connect your TikTok account once to read real metrics (views, likes, comments) for your own videos."
+            : "",
+          linkingHintAr: requiresLinking
+            ? "عرض تيك توك بيانات عامة فقط لهذا الفيديو/الحساب. اربط حساب تيك توك مرة واحدة لقراءة المقاييس الحقيقية (المشاهدات، الإعجابات، التعليقات) لفيديوهاتك الخاصة."
+            : "",
+        },
         dataSources: outcome.dataSources,
         sourceConfidence: outcome.sourceConfidence,
         startTime,

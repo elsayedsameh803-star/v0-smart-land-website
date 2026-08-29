@@ -19,6 +19,7 @@ import { PdfReport } from "@/components/analysis/PdfReport";
 import { MethodologySection } from "@/components/home/MethodologySection";
 import { TikTokDataPanel } from "@/components/analysis/TikTokDataPanel";
 import { TikTokConnectCard } from "@/components/analysis/TikTokConnectCard";
+import { SocialLinkPrompt } from "@/components/analysis/SocialLinkPrompt";
 import { analyzeUrl, getAnalysisStages } from "@/lib/analysis-engine";
 import { saveAnalysis, getAnalysisHistory } from "@/lib/storage";
 import type { AnalysisResult, AnalysisStage, Finding } from "@/lib/types";
@@ -92,14 +93,28 @@ export default function HomePage({ params }: PageProps) {
   };
 
   useEffect(() => {
-    // Auto-resume the analysis after a TikTok OAuth return.
+    // Auto-resume the analysis after a TikTok or Meta (Facebook/Instagram)
+    // OAuth return — the visitor lands back here in seconds, no re-login.
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("tiktok_oauth") === "success") {
+      const oauthFlag =
+        params.get("tiktok_oauth") === "success" ||
+        params.get("meta_oauth") === "success";
+      if (oauthFlag) {
         const pendingUrl = sessionStorage.getItem("sl_pending_url");
         const pendingPlatform = sessionStorage.getItem("sl_pending_platform") || "website";
         sessionStorage.removeItem("sl_pending_url");
         sessionStorage.removeItem("sl_pending_platform");
+        // Clean the marker params so they can never re-trigger on reload.
+        params.delete("tiktok_oauth");
+        params.delete("meta_oauth");
+        window.history.replaceState(
+          {},
+          "",
+          params.toString() === ""
+            ? window.location.pathname
+            : `${window.location.pathname}?${params.toString()}`
+        );
         if (pendingUrl) {
           handleAnalyze(pendingUrl, pendingPlatform);
         }
@@ -192,6 +207,10 @@ export default function HomePage({ params }: PageProps) {
             </div>
 
             <ScoreBreakdown overallScore={analysisResult.overallScore} scores={analysisResult.scores} locale={locale} />
+
+            {/* Linking gate: public analysis stays open; private/hidden pages
+                get a one-click connect prompt that returns here instantly */}
+            <SocialLinkPrompt platform={platform} result={analysisResult} locale={locale} />
 
             {platform === "tiktok" && (
               <div className="space-y-4">
