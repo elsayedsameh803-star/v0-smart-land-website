@@ -1,1 +1,0 @@
-ERROR: The search filter cannot be recognized.
