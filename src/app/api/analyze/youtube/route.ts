@@ -3,12 +3,18 @@ import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-
 import { safeFetch } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
 import { enforceSubscription } from "@/lib/subscription-shield";
+import { checkAnalysisAccess } from "@/lib/analysis-gate";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
     const { url, locale } = await request.json();
+
+    // --- Analysis gate: require login + platform connection ---
+    const gate = await checkAnalysisAccess(request, "youtube");
+    if (!gate.ok) return gate.response;
+
     const blocked = enforceSubscription(request);
     if (blocked) return blocked;
     if (!url) {

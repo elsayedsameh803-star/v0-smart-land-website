@@ -18,6 +18,7 @@ import type {
 } from "./types";
 import { generateId, normalizeUrl, formatScore } from "./utils";
 import { performRealAnalysis, performRealSocialAnalysis, getRealAnalysisStages, type AnalysisCallbacks } from "./real-analysis-engine";
+import { GateError } from "./analysis-gate";
 
 // =============================================================================
 // PUBLIC API - MAIN ANALYSIS FUNCTION

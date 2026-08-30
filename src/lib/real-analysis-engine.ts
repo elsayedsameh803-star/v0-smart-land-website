@@ -14,6 +14,7 @@ import type {
   AnalysisStage,
 } from "./types";
 import { generateId, normalizeUrl, formatScore } from "./utils";
+import { GateError } from "./analysis-gate";
 
 // =============================================================================
 // TYPES
@@ -36,6 +37,36 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
       setTimeout(() => reject(new Error(`⏱ ${label}`)), ms)
     ),
   ]);
+}
+
+/**
+ * Translates a non-OK analysis-response into either a `GateError` (when the
+ * server returned a recognized auth/connection code so the UI can redirect the
+ * user to the right next step — login / connect / reconnect) or a generic
+ * Error for any other failure.
+ */
+type GateCode = "auth_required" | "connection_required" | "token_expired";
+async function handleApiError(
+  response: Response,
+  locale: string,
+  platform: string
+): Promise<never> {
+  let errorMsg = `Server returned HTTP ${response.status}`;
+  let code: string | undefined;
+  let plat: string | undefined;
+  try {
+    const errBody = await response.json();
+    if (locale === "ar" && errBody.errorAr) errorMsg = errBody.errorAr;
+    else if (errBody.error) errorMsg = errBody.error;
+    code = errBody.code;
+    plat = errBody.platform ?? platform;
+  } catch {
+    /* ignore parse errors — fall back to the generic message */
+  }
+  if (code === "auth_required" || code === "connection_required" || code === "token_expired") {
+    throw new GateError(errorMsg, code as GateCode, plat);
+  }
+  throw new Error(errorMsg);
 }
 
 // =============================================================================

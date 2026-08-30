@@ -17,6 +17,7 @@ import {
   tiktokErrorTitle,
 } from "@/lib/tiktok-utils";
 import { logTikTok } from "@/lib/tiktok-log";
+import { checkAnalysisAccess } from "@/lib/analysis-gate";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +27,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => null);
     const url = body?.url;
     const locale = body?.locale || "en";
+
+    // --- Analysis gate: require login + platform connection ---
+    const gate = await checkAnalysisAccess(request, "tiktok");
+    if (!gate.ok) return gate.response;
 
     const blocked = enforceSubscription(request);
     if (blocked) return blocked;
@@ -89,7 +94,7 @@ export async function POST(request: NextRequest) {
         400
       );
     }
-if (!outcome) {
+    if (!outcome) {
       throw new TikTokError(
         "INVALID_URL",
         "The link does not look like a TikTok profile or video URL.",

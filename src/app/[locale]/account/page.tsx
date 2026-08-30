@@ -14,7 +14,23 @@ import {
   Zap,
   Globe,
   FileBarChart,
+  Link2,
+  Unlink,
 } from "lucide-react";
+
+import { PLATFORMS } from "@/lib/platforms";
+
+interface ConnectionStatusInfo {
+  platform: string;
+  connected: boolean;
+  usable: boolean;
+  displayName: string;
+  accountId: string;
+  connectedAt: string | null;
+  scope: string;
+  needsReconnect: boolean;
+  canRefresh: boolean;
+}
 
 type Subscription = {
   id: string;
@@ -80,6 +96,13 @@ const T: Record<string, any> = {
     invoicesTitle: "Invoices",
     invoiceNum: "Invoice",
     visitSite: "Back to home",
+    connectedAccounts: "Connected Accounts",
+    connected: "Connected",
+    notConnected: "Not Connected",
+    needsReconnect: "Needs Reconnect",
+    connect: "Connect",
+    reconnect: "Reconnect",
+    disconnect: "Disconnect",
   },
   ar: {
     title: "حسابي",
@@ -112,6 +135,13 @@ const T: Record<string, any> = {
     invoicesTitle: "الإيصالات",
     invoiceNum: "الإيصال",
     visitSite: "العودة للرئيسية",
+    connectedAccounts: "الحسابات المرتبطة",
+    connected: "متصل",
+    notConnected: "غير مرتبط",
+    needsReconnect: "يحتاج إعادة ربط",
+    connect: "ربط",
+    reconnect: "إعادة الربط",
+    disconnect: "إلغاء الربط",
   },
 };
 
@@ -136,6 +166,81 @@ export default function AccountPage({ params }: PageProps) {
   const [loading, setLoading] = useState(true);
   const [downloading, setDownloading] = useState(false);
   const [message, setMessage] = useState("");
+
+  const [connections, setConnections] = useState<Record<string, ConnectionStatusInfo>>({});
+  const [connecting, setConnecting] = useState<string | null>(null);
+  const [disconnecting, setDisconnecting] = useState<string | null>(null);
+  const [connectionsLoaded, setConnectionsLoaded] = useState(false);
+
+  const loadConnections = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections");
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.connections && Array.isArray(data.connections)) {
+          const record: Record<string, ConnectionStatusInfo> = {};
+          for (const c of data.connections) {
+            if (c?.platform) record[c.platform] = c;
+          }
+          setConnections(record);
+        }
+      }
+    } catch {
+      // ignore
+    } finally {
+      setConnectionsLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadConnections();
+  }, [loadConnections]);
+
+  const handleConnect = useCallback(async (platformId: string) => {
+    setConnecting(platformId);
+    try {
+      const meta = PLATFORMS.find((p) => p.id === platformId);
+      if (!meta) return;
+      if (platformId === "tiktok") {
+        const res = await fetch("/api/tiktok/oauth/start", { method: "POST" });
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.url) window.location.href = data.url;
+        } else if (meta.connectPath) {
+          window.location.href = meta.connectPath;
+        }
+      } else if (meta.connectPath) {
+        window.location.href = meta.connectPath;
+      }
+    } catch {
+      // ignore
+    } finally {
+      setConnecting(null);
+    }
+  }, []);
+
+  const handleDisconnect = useCallback(async (platformId: string) => {
+    setDisconnecting(platformId);
+    try {
+      const meta = PLATFORMS.find((p) => p.id === platformId);
+      if (!meta) return;
+      let res;
+      if (platformId === "tiktok") {
+        res = await fetch("/api/tiktok/oauth/disconnect", { method: "POST" });
+      } else if (meta.disconnectPath) {
+        res = await fetch(meta.disconnectPath, { method: "POST" });
+      }
+      if (res && res.ok) {
+        await loadConnections();
+      }
+    } catch {
+      // ignore
+    } finally {
+      setDisconnecting(null);
+    }
+  }, [loadConnections]);
+
+
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -306,7 +411,61 @@ export default function AccountPage({ params }: PageProps) {
 
 
 
-            {/* Usage quota */}
+            {/* Connected Accounts */}
+            <div className="rounded-2xl bg-dark-900 border border-gold-500/10 p-6">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-5">
+                <Link2 className="w-5 h-5 text-gold-400" /> {t.connectedAccounts || "الحسابات المرتبطة"}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {PLATFORMS
+                  .filter((p) => p.requiresConnection)
+                  .map((p) => {
+                    const status = connections[p.id];
+                    const isConnected = status?.connected && !status?.needsReconnect;
+                    const needsReconnect = status?.connected && status?.needsReconnect;
+                    const displayStatus = needsReconnect ? "needsReconnect" : isConnected ? "connected" : "disconnected";
+                    return (
+                      <div
+                        key={p.id}
+                        className="rounded-xl bg-dark-800/60 border border-gold-500/10 p-4 flex items-center gap-3"
+                      >
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white bg-dark-700">
+                          <Globe className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-white">{locale === "ar" ? p.nameAr : p.name}</p>
+                          <p className={`text-xs mt-0.5 ${displayStatus === "connected" ? "text-emerald-300" : displayStatus === "needsReconnect" ? "text-amber-300" : "text-dark-400"}`}>
+                            {displayStatus === "connected" ? (t.connected || "متصل") : displayStatus === "needsReconnect" ? (t.needsReconnect || "يحتاج إعادة ربط") : (t.notConnected || "غير مرتبط")}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {isConnected ? (
+                            <button
+                              onClick={() => handleDisconnect(p.id)}
+                              disabled={disconnecting === p.id}
+                              className="inline-flex items-center gap-1 rounded-lg bg-rose-500/15 border border-rose-500/30 px-3 py-1.5 text-xs font-semibold text-rose-300 hover:bg-rose-500/25 transition disabled:opacity-50"
+                            >
+                              {disconnecting === p.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Unlink className="w-3 h-3" />}
+                              {t.disconnect || "إلغاء الربط"}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleConnect(p.id)}
+                              disabled={connecting === p.id}
+                              className="inline-flex items-center gap-1 rounded-lg bg-gradient-to-r from-gold-600 to-gold-500 px-3 py-1.5 text-xs font-bold text-dark-950 hover:from-gold-500 hover:to-gold-400 transition disabled:opacity-50"
+                            >
+                              {connecting === p.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Link2 className="w-3 h-3" />}
+                              {needsReconnect ? (t.reconnect || "إعادة الربط") : (t.connect || "ربط")}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+
+
             <div className="rounded-2xl bg-dark-900 border border-gold-500/10 p-6">
               <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-5">
                 <FileBarChart className="w-5 h-5 text-gold-400" /> {t.quota}

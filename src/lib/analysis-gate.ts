@@ -1,0 +1,123 @@
+// =============================================================================
+// Smart Land - Analysis access gate (server-side)
+// =============================================================================
+// Central authorization used by EVERY analyze route. It enforces the SaaS
+// contract in one place so the platform-specific routes never duplicate it:
+//
+//   1. Authentication -> a valid NextAuth session is required (one Smart Land
+//      account per user). Anonymous visitors get a 401 with `code: "auth_required"`.
+//   2. Platform connection -> social platforms (everything except "website")
+//      require an active, usable connection. The connection is refreshed
+//      transparently when possible; a missing/expired one yields a 401 with
+//      `code: "connection_required"` (or `"token_expired"` when a reconnect is
+//      needed without re-authorization).
+//
+// The home page / analysis UI consumes these `code`s to redirect the user to
+// exactly the right step — login, connect, or reconnect — and NEVER restarts
+// the flow from scratch.
+// =============================================================================
+
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { resolveUsableConnection, PlatformId } from "@/lib/connections";
+
+export type AccessError =
+  | { code: "auth_required"; message: string }
+  | { code: "connection_required"; platform: string; message: string }
+  | { code: "token_expired"; platform: string; message: string };
+
+const SOCIAL_PLATFORMS: PlatformId[] = [
+  "facebook",
+  "instagram",
+  "youtube",
+  "tiktok",
+  "snapchat",
+  "linkedin",
+];
+
+/**
+ * Returns `{ ok: true, session, connection }` when the request is authorized to
+ * run an analysis for `platform`, or `{ ok: false, response }` with a
+ * machine-readable `code` the client can branch on.
+ *
+ * `platform` is the lowercase platform id ("website" | "facebook" | ...).
+ */
+export async function checkAnalysisAccess(
+  request: NextRequest,
+  platform: string
+): Promise<{ ok: true; session: AnySession; connection: any } | { ok: false; response: NextResponse }> {
+  // --- 1. Authentication -----------------------------------------------------
+  let session: AnySession | null = null;
+  try {
+    session = await getServerSession(authOptions);
+  } catch {
+    session = null;
+  }
+
+  if (!session?.user) {
+    const resp: AccessError = {
+      code: "auth_required",
+      message: "Sign in first to continue.",
+    };
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { success: false, error: resp.message, code: resp.code, platform },
+        { status: 401 }
+      ),
+    };
+  }
+
+  // --- 2. Platform connection (social platforms only) -----------------------
+  const isSocial = SOCIAL_PLATFORMS.includes(platform as PlatformId);
+  if (!isSocial) {
+    // "website" analysis needs a login but no platform connection.
+    return { ok: true, session, connection: null };
+  }
+
+  const connection = await resolveUsableConnection(request.cookies, platform as PlatformId);
+
+  if (!connection) {
+    // Distinguish "expired, needs reconnect" from "never connected".
+    const stale = request.cookies.get(`sl_conn_${platform}`)?.value || (platform === "tiktok" && request.cookies.get("sl_tiktok_session")?.value);
+    const err: AccessError =
+      stale && stale !== ""
+        ? { code: "token_expired", platform, message: `Your ${platform} connection needs to be refreshed.` }
+        : { code: "connection_required", platform, message: `Connect your ${platform} account to analyze it.` };
+
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { success: false, error: err.message, code: err.code, platform },
+        { status: 401 }
+      ),
+    };
+  }
+
+  return { ok: true, session, connection };
+}
+
+// Minimal shape — we only care that a user identity exists.
+interface AnySession {
+  user?: { name?: string; email?: string; image?: string } | null;
+  [key: string]: unknown;
+}
+
+// -----------------------------------------------------------------------------
+// Client-facing gate error. The home page catches this and routes the user to
+// the correct step (login / connect / reconnect) — never back to scratch.
+// The `code` mirrors the JSON `code` returned by the server gate.
+// -----------------------------------------------------------------------------
+export class GateError extends Error {
+  code: AccessError["code"];
+  platform?: string;
+  constructor(message: string, code: AccessError["code"], platform?: string) {
+    super(message);
+    this.name = "GateError";
+    this.code = code;
+    this.platform = platform;
+  }
+}
+

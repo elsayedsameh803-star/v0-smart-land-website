@@ -4,12 +4,14 @@ import { safeFetch } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
 import { enforceSubscription } from "@/lib/subscription-shield";
 import { getMetaConfig } from "@/lib/meta-graph";
+import { checkAnalysisAccess } from "@/lib/analysis-gate";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
     const { url, locale } = await request.json();
+
     const blocked = enforceSubscription(request);
     if (blocked) return blocked;
     if (!url) {
@@ -194,12 +196,24 @@ export async function POST(request: NextRequest) {
     if (dataSources.length === 0) dataSources.push("facebook-public-page");
 
     // ---- Social linking gate ----
-    // Public pages always work. When the page is private, commercial-restricted
-    // or hidden behind Facebook's login wall, no public metric could be verified
-    // → we transparently ask the visitor to LINK their own Facebook account
-    // (Meta OAuth, once, instant redirect back). This also covers the case of
-    // the visitor's OWN pages where linked analytics are much richer.
-    const requiresLinking = !hasSourceData || profileData.isPrivate === true;
+    // Public profiles and pages work without OAuth. When the page is private,
+    // commercial-restricted or hidden behind Facebook's login wall, no public
+    // metric could be verified → we transparently ask the visitor to LINK their
+    // own Facebook account (Meta OAuth, once, instant redirect back).
+    // This also covers the case of the visitor's OWN pages where linked
+    // analytics are much richer.
+    const isPrivate = profileData.isPrivate === true;
+    const requiresLinking = !hasSourceData || isPrivate;
+
+    // If linking is required, verify the user has an active Facebook connection
+    // (this gates Pages/Groups that need OAuth while allowing public profiles)
+    let linkError = false;
+    if (requiresLinking) {
+      const gate = await checkAnalysisAccess(request, "facebook");
+      if (!gate.ok) {
+        linkError = true;
+      }
+    }
 
     recordAnalysis("facebook", true);
     return NextResponse.json(
@@ -214,12 +228,12 @@ export async function POST(request: NextRequest) {
         },
         extraData: {
           metaImage: profileData.metaImage || null,
-          requiresLinking,
-          isPrivate: profileData.isPrivate === true,
-          linkingHintEn: requiresLinking
+          requiresLinking: requiresLinking && linkError,
+          isPrivate: isPrivate,
+          linkingHintEn: requiresLinking && linkError
             ? "This page is private or hidden behind Facebook's login wall. Link your Facebook account once to unlock precise Page analytics on Smart Land."
             : "",
-          linkingHintAr: requiresLinking
+          linkingHintAr: requiresLinking && linkError
             ? "هذه الصفحة خاصة أو محجوبة خلف جدار تسجيل الدخول في فيسبوك. اربط حساب فيسبوك مرة واحدة لفتح تحليلات دقيقة للصفحة على سمارت لاند."
             : "",
         },

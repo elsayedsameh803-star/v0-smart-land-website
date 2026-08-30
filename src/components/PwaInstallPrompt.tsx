@@ -15,18 +15,30 @@ const FEATURES = [
   { icon: Star, label: "Premium Experience" },
 ];
 
+const DISMISSAL_KEY = "sl_pwa_dismissed_at";
+const DISMISSAL_DURATION_MS = 3 * 24 * 60 * 60 * 1000; // 3 days
+
 export function PwaInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
   const [showIOSInstructions, setShowIOSInstructions] = useState(false);
 
+  const wasDismissedRecently = useCallback(() => {
+    try {
+      const dismissedAt = localStorage.getItem(DISMISSAL_KEY);
+      if (!dismissedAt) return false;
+      return Date.now() - parseInt(dismissedAt, 10) < DISMISSAL_DURATION_MS;
+    } catch {
+      return false;
+    }
+  }, []);
+
   const showPrompt = useCallback(() => {
-    if (!dismissed) setIsVisible(true);
-  }, [dismissed]);
+    if (!wasDismissedRecently()) setIsVisible(true);
+  }, [wasDismissedRecently]);
 
   useEffect(() => {
     // Check if already in standalone mode
@@ -84,9 +96,11 @@ export function PwaInstallPrompt() {
 
   const handleDismiss = () => {
     setIsVisible(false);
-    setDismissed(true);
-    // Show again after 3 days if dismissed
-    setTimeout(() => setDismissed(false), 3 * 24 * 60 * 60 * 1000);
+    try {
+      localStorage.setItem(DISMISSAL_KEY, String(Date.now()));
+    } catch {
+      // ignore storage errors
+    }
   };
 
   if (isStandalone || !isVisible) return null;
