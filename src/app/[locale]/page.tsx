@@ -20,6 +20,7 @@ import { MethodologySection } from "@/components/home/MethodologySection";
 import { TikTokDataPanel } from "@/components/analysis/TikTokDataPanel";
 import { TikTokConnectCard } from "@/components/analysis/TikTokConnectCard";
 import { SocialLinkPrompt } from "@/components/analysis/SocialLinkPrompt";
+import { ConnectionGate } from "@/components/analysis/ConnectionGate";
 import { analyzeUrl, getAnalysisStages } from "@/lib/analysis-engine";
 import { saveAnalysis, getAnalysisHistory } from "@/lib/storage";
 import type { AnalysisResult, AnalysisStage, Finding } from "@/lib/types";
@@ -39,10 +40,23 @@ export default function HomePage({ params }: PageProps) {
   const [activeFinding, setActiveFinding] = useState<Finding | null>(null);
   const [showFixAssistant, setShowFixAssistant] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [connectionVerified, setConnectionVerified] = useState<boolean>(true);
+
+  const socialPlatforms = ["facebook", "instagram", "youtube", "tiktok", "snapchat", "linkedin"];
+  const isSocialPlatform = socialPlatforms.includes(platform);
 
   const handleAnalyze = async (submittedUrl: string, selectedPlatform?: string) => {
+    // Check connection before starting analysis for social platforms
+    const newPlatform = selectedPlatform || "website";
+    if (socialPlatforms.includes(newPlatform) && !connectionVerified) {
+      setError(locale === "ar" 
+        ? `يرجى ربط حساب ${newPlatform} أولاً قبل بدء التحليل` 
+        : `Please connect your ${newPlatform} account before starting analysis`);
+      return;
+    }
+
     setUrl(submittedUrl);
-    setPlatform(selectedPlatform || "website");
+    setPlatform(newPlatform);
     setError(null);
 
     // Remember the pending URL so a TikTok OAuth return can resume it.
@@ -166,6 +180,11 @@ export default function HomePage({ params }: PageProps) {
       {currentView === "analyzing" && (
         <div id="page-analyzing" className="pt-24 pb-16 px-4 bg-dark-950 min-h-screen">
           <div className="max-w-4xl mx-auto">
+            <ConnectionGate 
+              locale={locale} 
+              selectedPlatform={platform}
+              onConnectionVerified={setConnectionVerified}
+            />
             <AnalysisProgress stages={stages} url={url} error={error} locale={locale} />
             {error && (
               <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
