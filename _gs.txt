@@ -1,0 +1,4 @@
+?? _gs.txt
+3165983 fix(auth): pin NEXTAUTH_URL on Vercel, guard provider registration, explicit email-login redirect
+a52b7e8 fix(fonts): drop next/font build-time fetch, use runtime CDN link for offline-safe builds
+41f25d6 chore: drop transient deploy log from repository
