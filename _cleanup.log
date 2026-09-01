@@ -1,0 +1,5 @@
+CLEANUP_STARTED 08:22:15
+TXT_DELETED
+rm 'check_env.ps1'
+rm 'git-push.ps1'
+

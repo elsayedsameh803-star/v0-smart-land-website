@@ -25,8 +25,7 @@ const STATE_COOKIE = "sl_meta_state";
 const RETURN_COOKIE = "sl_meta_return";
 
 export async function GET(request: NextRequest) {
-  const { appId } = getMetaConfig();
-  const appSecret = getMetaConfig().appSecret;
+  const { appId, appSecret } = getMetaConfig();
   if (!appId || !appSecret) {
     return NextResponse.json(
       { success: false, code: "not_configured", error: "Meta app credentials are not configured on the server." },

@@ -10,7 +10,6 @@ import {
   TrendingUp,
   Activity,
 } from "lucide-react";
-import type { AnalyticsMetric } from "@/app/api/analytics/overview/route";
 
 export interface SummaryTotals {
   followers: number | null;
