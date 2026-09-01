@@ -1,0 +1,19 @@
+DEPLOY_STARTED 07:38:34
+CLEANUP_DONE
+GIT_STATUS_BEFORE:
+ M src/app/api/connections/route.ts
+ M src/components/layout/Header.tsx
+?? deploy.ps1
+?? deploy_log.txt
+?? src/app/[locale]/analytics/
+?? src/app/api/analytics/
+?? src/app/api/linkedin/
+?? src/app/api/meta/oauth/
+?? src/app/api/snapchat/
+?? src/app/api/youtube/
+?? src/components/analytics/
+?? src/components/connect/
+?? src/lib/oauth-config.ts
+?? src/lib/oauth-utils.ts
+?? src/lib/platform-oauth.ts
+

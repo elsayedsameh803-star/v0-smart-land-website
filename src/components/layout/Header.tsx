@@ -70,6 +70,7 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
     { href: `/${locale}/referral`, label: locale === "ar" ? "الإحالات" : "Referral" },
     { href: `/${locale}/about`, label: "About" },
     { href: `/${locale}/contact`, label: "Contact" },
+    { href: `/${locale}/analytics`, label: locale === "ar" ? "التحليلات" : "Analytics" },
     { href: `/${locale}/faq`, label: "FAQ" },
     { href: `/${locale}/account`, label: locale === "ar" ? "حسابي" : "My Account" },
     { href: `/${locale}/login`, label: locale === "ar" ? "تسجيل الدخول" : "Sign in" },

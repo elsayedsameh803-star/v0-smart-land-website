@@ -18,6 +18,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { SOCIAL_PLATFORM_IDS, type PlatformId } from "@/lib/platforms";
+import { isPlatformConfigured } from "@/lib/oauth-config";
 import {
   readConnection,
   isConnectionUsable,
@@ -37,6 +38,8 @@ interface ConnectionStatus {
   scope: string;
   needsReconnect: boolean;
   canRefresh: boolean;
+  /** True when this platform's OAuth credentials are present on the server. */
+  configured: boolean;
 }
 
 function baseStatus(platform: PlatformId, connected: boolean): ConnectionStatus {
@@ -50,6 +53,7 @@ function baseStatus(platform: PlatformId, connected: boolean): ConnectionStatus 
     scope: "",
     needsReconnect: false,
     canRefresh: false,
+    configured: isPlatformConfigured(platform),
   };
 }
 
