@@ -42,16 +42,22 @@ declare module "next-auth/jwt" {
 }
 
 // Facebook identity uses several possible env-var names — resolve once.
-const facebookAppId =
+// Values pasted into Vercel sometimes carry a trailing newline or stray
+// spaces — Google/Meta reject such secrets with `invalid_client`, so every
+// credential is trimmed once here before use.
+const clean = (v: string | undefined): string => (v || "").trim();
+const facebookAppId = clean(
   process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ||
-  process.env.FACEBOOK_APP_ID ||
-  process.env.META_APP_ID ||
-  "";
-const facebookAppSecret =
+    process.env.FACEBOOK_APP_ID ||
+    process.env.META_APP_ID
+);
+const facebookAppSecret = clean(
   process.env.FACEBOOK_CLIENT_SECRET ||
-  process.env.FACEBOOK_APP_SECRET ||
-  process.env.META_APP_SECRET ||
-  "";
+    process.env.FACEBOOK_APP_SECRET ||
+    process.env.META_APP_SECRET
+);
+const googleClientId = clean(process.env.GOOGLE_CLIENT_ID);
+const googleClientSecret = clean(process.env.GOOGLE_CLIENT_SECRET);
 // NOTE: in production NEXTAUTH_URL MUST be set (e.g. https://smart-land-theta.vercel.app)
 // so the OAuth redirect_uri and cookies are pinned to ONE origin. Without it
 // NextAuth infers the host per-request, which can break the Google state/CSRF
@@ -62,11 +68,11 @@ export const authOptions: NextAuthOptions = {
   // clientId renders dead provider buttons and can corrupt the callback flow.
   providers: [
     // Identity-first login with Google (optional — depends on env keys).
-    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ...(googleClientId && googleClientSecret
       ? [
           GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            clientId: googleClientId,
+            clientSecret: googleClientSecret,
           }),
         ]
       : []),
@@ -84,8 +90,8 @@ export const authOptions: NextAuthOptions = {
     ...(process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET
       ? [
           AppleProvider({
-            clientId: process.env.APPLE_CLIENT_ID,
-            clientSecret: process.env.APPLE_CLIENT_SECRET,
+            clientId: clean(process.env.APPLE_CLIENT_ID),
+            clientSecret: clean(process.env.APPLE_CLIENT_SECRET),
           }),
         ]
       : []),
@@ -133,7 +139,18 @@ export const authOptions: NextAuthOptions = {
         ]
       : []),
   ],
-  secret: process.env.NEXTAUTH_SECRET || process.env.ADMIN_SESSION_SECRET,
+  secret: clean(process.env.NEXTAUTH_SECRET) || clean(process.env.ADMIN_SESSION_SECRET),
+  // Surface the REAL OAuth failure reason in the server (Vercel) logs —
+  // e.g. invalid_client (bad secret) or access_denied (Testing mode).
+  // Grep the runtime logs for "nextauth-error" to see the exact cause.
+  logger: {
+    error(code: string, ...message: unknown[]): void {
+      console.error("[nextauth-error]", code, ...message);
+    },
+    warn(code: string, ...message: unknown[]): void {
+      console.warn("[nextauth-warn]", code, ...message);
+    },
+  },
   session: {
     strategy: "jwt",
     // ~60 day persistent session. Re-connect only needed after it expires.
@@ -141,7 +158,11 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: "/login",
-    error: "/login?error=oauth",
+    // NOTE: do NOT bake a pre-filled `?error=…` into this URL. NextAuth
+    // APPENDS the real error code (OAuthCallback / AccessDenied / …) itself;
+    // a pre-filled duplicate `error` param MASKS the actual code in the URL
+    // (the browser keeps the FIRST value) and makes diagnosis impossible.
+    error: "/login",
   },
   callbacks: {
     async jwt({ token, account }) {

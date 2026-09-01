@@ -61,19 +61,60 @@ function LoginFormInner({ locale }: { locale: string }) {
   const [loading, setLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
+  const [oauthError, setOauthError] = useState<{ code: string; text: string } | null>(null);
 
-  // Surface OAuth failures that land back on this page as ?error=…
-  // (e.g. state/CSRF mismatch) instead of silently showing the buttons again.
+  // Surface OAuth failures that land back on this page as ?error=<CODE> and
+  // explain the EXACT NextAuth error code instead of a generic message — the
+  // real cause (bad client secret / Google Testing mode / state mismatch)
+  // must be visible to fix it, not hidden behind "try again".
   useEffect(() => {
     try {
-      const oauthError = new URLSearchParams(window.location.search).get("error");
-      if (oauthError) {
-        setError(
-          locale === "ar"
-            ? "تعذّر إكمال تسجيل الدخول عبر المزوّد. حاول مرة أخرى."
-            : "Provider sign-in could not be completed. Please try again."
-        );
-      }
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("error");
+      if (!code) return;
+      const M: Record<string, { ar: string; en: string }> = {
+        OAuthCallback: {
+          ar: "فشل تبادل الرموز مع Google بعد موافقتك. السبب الأكثر شيوعاً: سر العميل (Client Secret) غير صحيح أو منسوخ من عميل OAuth آخر. انسخه كاملاً من نفس العميل (يبدأ بـ GOCSPX-) ثم حدّثه في Vercel وأعد النشر.",
+          en: "Token exchange with Google failed after consent. Most common cause: an incorrect Client Secret (or one from a different OAuth client). Copy it fully (starts with GOCSPX-) from the SAME client, update it in Vercel and redeploy.",
+        },
+        OAuthSignin: {
+          ar: "تعذّر بدء اتصال Google. حاول مرة أخرى.",
+          en: "Could not start the Google flow. Please retry.",
+        },
+        OAuthCreateAccount: {
+          ar: "تعذّر إنشاء الجلسة بعد الموافقة. حاول مرة أخرى.",
+          en: "Could not create the session after consent. Please retry.",
+        },
+        Callback: {
+          ar: "خطأ في مسار العودة من المزوّد. حاول مرة أخرى.",
+          en: "Provider callback error. Please retry.",
+        },
+        AccessDenied: {
+          ar: "رُفض الوصول. إن كان تطبيق Google في وضع Testing فيجب إضافة بريدك كمستخدم اختباري (Test user) من إعدادات شاشة الموافقة في Google Cloud.",
+          en: "Access denied. If the Google app is in Testing mode, add your email as a Test user in the OAuth consent screen settings.",
+        },
+        OAuthAccountNotLinked: {
+          ar: "هذا البريد مسجَّل بطريقة دخول أخرى. استخدم نفس الطريقة الأصلية.",
+          en: "This email is linked to a different sign-in method. Use the original one.",
+        },
+        Configuration: {
+          ar: "إعدادات الخادم غير مكتملة — تأكد من NEXTAUTH_SECRET و NEXTAUTH_URL على Vercel.",
+          en: "Server configuration incomplete — verify NEXTAUTH_SECRET and NEXTAUTH_URL on Vercel.",
+        },
+        Verification: {
+          ar: "انتهت صلاحية رابط التحقق. حاول مرة أخرى.",
+          en: "The verification link expired. Please retry.",
+        },
+        CredentialsSignin: {
+          ar: "فشل التحقق من بيانات الدخول.",
+          en: "Credential check failed.",
+        },
+      };
+      const m = M[code] || {
+        ar: "تعذّر إكمال تسجيل الدخول عبر المزوّد. حاول مرة أخرى.",
+        en: "Provider sign-in could not be completed. Please try again.",
+      };
+      setOauthError({ code, text: locale === "ar" ? m.ar : m.en });
     } catch {
       // ignore
     }
@@ -140,6 +181,22 @@ function LoginFormInner({ locale }: { locale: string }) {
           </div>
         )}
       </div>
+
+      {/* Detailed OAuth failure — shows the REAL NextAuth error code + fix */}
+      {oauthError && (
+        <div className="flex items-start gap-2 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-lg px-3 py-2.5">
+          <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+          <div className="space-y-1">
+            <p className="font-semibold text-amber-200">
+              {locale === "ar" ? "فشل تسجيل الدخول عبر Google" : "Google sign-in failed"}
+              <span className="ml-2 rounded bg-dark-800 px-1.5 py-0.5 text-[10px] font-mono text-dark-300">
+                {oauthError.code}
+              </span>
+            </p>
+            <p className="leading-relaxed text-dark-300">{oauthError.text}</p>
+          </div>
+        </div>
+      )}
 
       {error && (
         <div className="flex items-start gap-2 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
