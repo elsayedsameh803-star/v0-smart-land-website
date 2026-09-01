@@ -1,24 +1,17 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { Inter, Cairo } from "next/font/google";
 import { GoogleAnalyticsScript, SearchConsoleVerification } from "@/components/GoogleAnalytics";
 import { SITE_URL } from "@/lib/constants";
 import { SessionProvider } from "@/components/auth/Provider";
 import "./globals.css";
 
-const inter = Inter({ 
-  subsets: ["latin"], 
-  variable: "--font-inter",
-  display: "swap",
-  preload: false,
-});
-
-const cairo = Cairo({
-  subsets: ["arabic"],
-  variable: "--font-cairo",
-  display: "swap",
-  preload: false,
-});
+// Fonts are loaded at runtime via <link> in <head> (see below), NOT via
+// next/font/google. Rationale: next/font downloads font files at BUILD time,
+// which makes `next build` fail outright on networks that block Google
+// endpoints. A runtime <link> keeps builds 100% offline-safe while the
+// deployed site still serves Cairo/Inter from the Google Fonts CDN (with
+// graceful fallback to system-ui when unreachable). The preconnect + DNS
+// prefetch hints below keep loading fast.
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -189,7 +182,7 @@ export default function RootLayout({
   };
 
   return (
-    <html lang={locale} dir={dir} className={`${inter.variable} ${cairo.variable}`}>
+    <html lang={locale} dir={dir}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -211,6 +204,17 @@ export default function RootLayout({
         {/* Preconnect to critical origins */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* Google Fonts (runtime CDN load — build-safe offline).
+            eslint-disable justified: the no-page-custom-font rule targets the
+            Pages Router, where a <link> inside a page loads for that page only.
+            This <link> lives in the ROOT App Router layout, which wraps every
+            route, so the font applies globally — exactly the rule's intent. */}
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Cairo:wght@200..1000&family=Inter:wght@100..900&display=swap"
+        />
         
         {/* DNS prefetch */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
