@@ -41,24 +41,54 @@ declare module "next-auth/jwt" {
   }
 }
 
+// Facebook identity uses several possible env-var names — resolve once.
+const facebookAppId =
+  process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ||
+  process.env.FACEBOOK_APP_ID ||
+  process.env.META_APP_ID ||
+  "";
+const facebookAppSecret =
+  process.env.FACEBOOK_CLIENT_SECRET ||
+  process.env.FACEBOOK_APP_SECRET ||
+  process.env.META_APP_SECRET ||
+  "";
+// NOTE: in production NEXTAUTH_URL MUST be set (e.g. https://smart-land-theta.vercel.app)
+// so the OAuth redirect_uri and cookies are pinned to ONE origin. Without it
+// NextAuth infers the host per-request, which can break the Google state/CSRF
+// check and bounce the visitor back to /login after consent (login loop).
+
 export const authOptions: NextAuthOptions = {
+  // Register OAuth providers ONLY when their credentials exist. An empty
+  // clientId renders dead provider buttons and can corrupt the callback flow.
   providers: [
     // Identity-first login with Google (optional — depends on env keys).
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    }),
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+      ? [
+          GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
     // Identity-first login with GitHub (optional — depends on env keys).
-    GitHubProvider({
-      clientId: process.env.GITHUB_CLIENT_ID || "",
-      clientSecret: process.env.GITHUB_CLIENT_SECRET || "",
-      authorization: { params: { scope: "read:user user:email" } },
-    }),
+    ...(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET
+      ? [
+          GitHubProvider({
+            clientId: process.env.GITHUB_CLIENT_ID,
+            clientSecret: process.env.GITHUB_CLIENT_SECRET,
+            authorization: { params: { scope: "read:user user:email" } },
+          }),
+        ]
+      : []),
     // Identity-first login with Apple (optional).
-    AppleProvider({
-      clientId: process.env.APPLE_CLIENT_ID || "",
-      clientSecret: process.env.APPLE_CLIENT_SECRET || "",
-    }),
+    ...(process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET
+      ? [
+          AppleProvider({
+            clientId: process.env.APPLE_CLIENT_ID,
+            clientSecret: process.env.APPLE_CLIENT_SECRET,
+          }),
+        ]
+      : []),
     // Email login via OTP/credentials (optional).
     CredentialsProvider({
       id: "email",
@@ -78,42 +108,30 @@ export const authOptions: NextAuthOptions = {
       },
     }),
     // Login with Facebook = IDENTITY only (scope below carries no analytics).
-    FacebookProvider({
-      id: "facebook",
-      name: "Facebook",
-      clientId:
-        process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ||
-        process.env.FACEBOOK_APP_ID ||
-        process.env.META_APP_ID ||
-        "",
-      clientSecret:
-        process.env.FACEBOOK_CLIENT_SECRET ||
-        process.env.FACEBOOK_APP_SECRET ||
-        process.env.META_APP_SECRET ||
-        "",
-      authorization: {
-        params: { scope: "email,public_profile" },
-      },
-    }),
-    // Explicit social LINK (analytics). Separate provider id so the analytics
-    // token is ONLY granted after this explicit connection.
-    FacebookProvider({
-      id: "facebook-meta",
-      name: "Facebook Analytics",
-      clientId:
-        process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ||
-        process.env.FACEBOOK_APP_ID ||
-        process.env.META_APP_ID ||
-        "",
-      clientSecret:
-        process.env.FACEBOOK_CLIENT_SECRET ||
-        process.env.FACEBOOK_APP_SECRET ||
-        process.env.META_APP_SECRET ||
-        "",
-      authorization: {
-        params: { scope: FACEBOOK_SCOPES },
-      },
-    }),
+    // Explicit social LINK (analytics) = separate provider id so the analytics
+    // token is ONLY granted after that explicit connection.
+    ...(facebookAppId && facebookAppSecret
+      ? [
+          FacebookProvider({
+            id: "facebook",
+            name: "Facebook",
+            clientId: facebookAppId,
+            clientSecret: facebookAppSecret,
+            authorization: {
+              params: { scope: "email,public_profile" },
+            },
+          }),
+          FacebookProvider({
+            id: "facebook-meta",
+            name: "Facebook Analytics",
+            clientId: facebookAppId,
+            clientSecret: facebookAppSecret,
+            authorization: {
+              params: { scope: FACEBOOK_SCOPES },
+            },
+          }),
+        ]
+      : []),
   ],
   secret: process.env.NEXTAUTH_SECRET || process.env.ADMIN_SESSION_SECRET,
   session: {

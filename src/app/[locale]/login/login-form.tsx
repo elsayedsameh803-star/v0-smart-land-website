@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Chrome, Github, Facebook, Apple, Mail, Loader2, AlertTriangle, ArrowLeft, LogOut, CheckCircle2 } from "lucide-react";
 
@@ -62,6 +62,23 @@ function LoginFormInner({ locale }: { locale: string }) {
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
 
+  // Surface OAuth failures that land back on this page as ?error=…
+  // (e.g. state/CSRF mismatch) instead of silently showing the buttons again.
+  useEffect(() => {
+    try {
+      const oauthError = new URLSearchParams(window.location.search).get("error");
+      if (oauthError) {
+        setError(
+          locale === "ar"
+            ? "تعذّر إكمال تسجيل الدخول عبر المزوّد. حاول مرة أخرى."
+            : "Provider sign-in could not be completed. Please try again."
+        );
+      }
+    } catch {
+      // ignore
+    }
+  }, [locale]);
+
   async function handleProvider(provider: string, event?: React.FormEvent) {
     event?.preventDefault();
     if (loading) return;
@@ -73,22 +90,24 @@ function LoginFormInner({ locale }: { locale: string }) {
     }
     setLoading(provider);
     setError(null);
+    const callbackUrl = buildCallbackUrl() || "/";
     try {
-      const callbackUrl = buildCallbackUrl() || "/";
       if (provider === "email") {
-        await signIn("email", { email, redirect: false });
-      } else {
-        const res = await signIn(provider, { redirect: false, callbackUrl });
+        const res = await signIn("email", { email, redirect: false });
         if (res?.error) {
           setError(t.errorMsg);
           setLoading(null);
           return;
         }
-        if (res?.url) {
-          window.location.href = res.url;
-          return;
-        }
+        // Credentials sign-in resolves inline — navigate EXPLICITLY, otherwise
+        // the visitor stays stuck on the login page after a successful sign-in.
+        window.location.href = callbackUrl;
+        return;
       }
+      // OAuth: one full-page redirect through NextAuth (single hop — the most
+      // reliable path for the provider state/CSRF round-trip).
+      await signIn(provider, { callbackUrl });
+      // If navigation was blocked and we are still here, reset the button.
       setLoading(null);
     } catch {
       setError(t.errorMsg);
