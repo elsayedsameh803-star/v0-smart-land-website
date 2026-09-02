@@ -248,7 +248,8 @@ export async function refreshConnectionIfNeeded(
 
 export async function resolveUsableConnection(
   cookies: CookieStore | undefined,
-  platform: PlatformId
+  platform: PlatformId,
+  setCookie?: SetCookieFn
 ): Promise<PlatformConnection | null> {
   if (platform === "tiktok") {
     const mod = await import("@/lib/tiktok-session");
@@ -258,6 +259,21 @@ export async function resolveUsableConnection(
     if (!mod.isAccessTokenUsable(sess)) {
       const refreshed = await mod.refreshTikTokSessionIfNeeded(sess);
       if (!refreshed) return null;
+      // Persist rotated tokens so the next request is a cheap cookie read
+      // (and rotating providers never lose their refresh token).
+      if (setCookie) {
+        setCookie(
+          mod.TIKTOK_SESSION_COOKIE,
+          mod.encryptTikTokSession(refreshed),
+          {
+            path: "/",
+            httpOnly: true,
+            secure: true,
+            sameSite: "lax",
+            maxAge: 31536000,
+          } as any
+        );
+      }
       return mapTikTokSession(refreshed);
     }
     return mapTikTokSession(sess);
@@ -267,7 +283,134 @@ export async function resolveUsableConnection(
   if (!conn) return null;
   if (isConnectionUsable(conn)) return conn;
   const refreshed = await refreshConnectionIfNeeded(conn);
-  return refreshed ?? null;
+  if (!refreshed) return null;
+  // Persist the rotated tokens (LinkedIn rotates its refresh token on every
+  // refresh — discarding it here broke the NEXT refresh and forced re-link).
+  if (setCookie) persistRenewedConnection(setCookie, platform, refreshed);
+  return refreshed;
+}
+
+// -----------------------------------------------------------------------------
+// "Full health picture" used by the analysis gate + BOTH status endpoints so
+// every consumer reports the SAME state for the SAME cookie:
+//   connected      — a connection record exists (even if its token expired)
+//   usable         — usable right now (after a best-effort server-side refresh)
+//   needsReconnect — connected but even the refresh grant failed → re-link
+//   canRefresh     — a refresh token exists for this connection
+//
+// On refresh, the rotated tokens are persisted back into the platform cookie
+// through `setCookie` when the caller provides one, so:
+//   * the NEXT request never pays the refresh round-trip again, and
+//   * platforms that ROTATE their refresh token (LinkedIn) never lose the
+//     ability to refresh (previously the rotated token was discarded, so the
+//     second refresh always failed and the user was forced to re-link).
+//
+// The refresher registry (platform-oauth.ts) is imported dynamically here so
+// no consumer can forget it — refresh works in EVERY bundle by construction.
+// -----------------------------------------------------------------------------
+export interface ConnectionHealth {
+  connected: boolean;
+  usable: boolean;
+  needsReconnect: boolean;
+  canRefresh: boolean;
+  connection: PlatformConnection | null;
+}
+
+export async function resolveConnectionHealth(
+  cookies: CookieStore | undefined,
+  platform: PlatformId,
+  setCookie?: SetCookieFn
+): Promise<ConnectionHealth> {
+  // Guarantee refresh strategies are registered regardless of the consumer's
+  // imports (platform-oauth.ts only registers at module load).
+  try {
+    await import("./platform-oauth");
+  } catch {
+    // registry unavailable -> refresh simply won't happen (fail closed)
+  }
+
+  const disconnected: ConnectionHealth = {
+    connected: false,
+    usable: false,
+    needsReconnect: false,
+    canRefresh: false,
+    connection: null,
+  };
+
+  if (platform === "tiktok") {
+    const mod = await import("@/lib/tiktok-session");
+    const raw = cookies?.get("sl_tiktok_session")?.value;
+    const sess = mod.parseTikTokSessionCookie(raw ?? null);
+    if (!sess || !sess.accessToken) return disconnected;
+    const canRefresh = Boolean(sess.refreshToken);
+    if (mod.isAccessTokenUsable(sess)) {
+      return {
+        connected: true,
+        usable: true,
+        needsReconnect: false,
+        canRefresh,
+        connection: mapTikTokSession(sess),
+      };
+    }
+    const refreshed = await mod.refreshTikTokSessionIfNeeded(sess);
+    if (!refreshed) {
+      return {
+        connected: true,
+        usable: false,
+        needsReconnect: true,
+        canRefresh,
+        connection: mapTikTokSession(sess),
+      };
+    }
+    // Persist the rotated tokens so the next request is a cheap cookie read.
+    if (setCookie) {
+      setCookie(
+        mod.TIKTOK_SESSION_COOKIE,
+        mod.encryptTikTokSession(refreshed),
+        {
+          path: "/",
+          httpOnly: true,
+          secure: true,
+          sameSite: "lax",
+          maxAge: 31536000,
+        } as any
+      );
+    }
+    return {
+      connected: true,
+      usable: true,
+      needsReconnect: false,
+      canRefresh,
+      connection: mapTikTokSession(refreshed),
+    };
+  }
+
+  const conn = readConnection(cookies, platform);
+  if (!conn) return disconnected;
+  const canRefresh = Boolean(conn.token.refreshToken);
+  if (isConnectionUsable(conn)) {
+    return { connected: true, usable: true, needsReconnect: false, canRefresh, connection: conn };
+  }
+  const refreshed = await refreshConnectionIfNeeded(conn);
+  if (!refreshed) {
+    return { connected: true, usable: false, needsReconnect: true, canRefresh, connection: conn };
+  }
+  if (setCookie) persistRenewedConnection(setCookie, platform, refreshed);
+  return { connected: true, usable: true, needsReconnect: false, canRefresh, connection: refreshed };
+}
+
+/**
+ * Persist tokens that were refreshed in-memory back into the platform cookie,
+ * so the rotation survives this request. Without it, platforms that rotate
+ * their refresh token (LinkedIn) can only be refreshed ONCE per link.
+ */
+export function persistRenewedConnection(
+  setCookie: SetCookieFn,
+  platform: PlatformId,
+  conn: PlatformConnection
+): void {
+  if (platform === "tiktok") return; // TikTok persists via tiktok-session.ts
+  writeConnection(setCookie, platform, conn);
 }
 
 function mapTikTokSession(sess: Awaited<ReturnType<typeof import("@/lib/tiktok-session").parseTikTokSessionCookie>>): PlatformConnection | null {

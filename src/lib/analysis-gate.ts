@@ -21,7 +21,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { resolveUsableConnection, PlatformId } from "@/lib/connections";
+import { resolveConnectionHealth, PlatformId } from "@/lib/connections";
 
 export type AccessError =
   | { code: "auth_required"; message: string }
@@ -77,26 +77,42 @@ export async function checkAnalysisAccess(
     return { ok: true, session, connection: null };
   }
 
-  const connection = await resolveUsableConnection(request.cookies, platform as PlatformId);
+  // Collect any refreshed-token cookies written during the health check and
+  // attach them to WHICHEVER response we end up returning, so the rotation
+  // survives and the user is never asked to re-link needlessly.
+  const cookieJar: Array<{ name: string; value: string; options?: unknown }> = [];
+  const health = await resolveConnectionHealth(
+    request.cookies,
+    platform as PlatformId,
+    (name, value, options) => {
+      cookieJar.push({ name, value, options });
+    }
+  );
+  const finalize = (resp: NextResponse): NextResponse => {
+    for (const c of cookieJar) {
+      resp.cookies.set(c.name, c.value, c.options as any);
+    }
+    return resp;
+  };
 
-  if (!connection) {
+  if (!health.usable) {
     // Distinguish "expired, needs reconnect" from "never connected".
-    const stale = request.cookies.get(`sl_conn_${platform}`)?.value || (platform === "tiktok" && request.cookies.get("sl_tiktok_session")?.value);
-    const err: AccessError =
-      stale && stale !== ""
-        ? { code: "token_expired", platform, message: `Your ${platform} connection needs to be refreshed.` }
-        : { code: "connection_required", platform, message: `Connect your ${platform} account to analyze it.` };
+    const err: AccessError = health.connected
+      ? { code: "token_expired", platform, message: `Your ${platform} connection needs to be refreshed.` }
+      : { code: "connection_required", platform, message: `Connect your ${platform} account to analyze it.` };
 
     return {
       ok: false,
-      response: NextResponse.json(
-        { success: false, error: err.message, code: err.code, platform },
-        { status: 401 }
+      response: finalize(
+        NextResponse.json(
+          { success: false, error: err.message, code: err.code, platform },
+          { status: 401 }
+        )
       ),
     };
   }
 
-  return { ok: true, session, connection };
+  return { ok: true, session, connection: health.connection };
 }
 
 // Minimal shape — we only care that a user identity exists.

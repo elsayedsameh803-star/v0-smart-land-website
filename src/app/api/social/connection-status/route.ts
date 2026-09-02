@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { resolveUsableConnection, PlatformId } from "@/lib/connections";
+import { resolveConnectionHealth, PlatformId } from "@/lib/connections";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +14,10 @@ interface ConnectionStatus {
 }
 
 /**
- * Check connection status for all social platforms
- * Returns which platforms are connected and which need connection
+ * Check connection status for all social platforms.
+ * Uses resolveConnectionHealth so an expired-but-refreshable token is
+ * transparently refreshed server-side (and the rotated tokens are persisted
+ * back into the cookie) instead of being reported as "needs re-link".
  */
 export async function GET(request: NextRequest) {
   try {
@@ -31,14 +33,17 @@ export async function GET(request: NextRequest) {
     const platforms: PlatformId[] = ["facebook", "instagram", "youtube", "tiktok", "snapchat", "linkedin"];
     const statuses: ConnectionStatus[] = [];
 
+    // Collect refreshed-token cookies and attach them to the response so the
+    // rotation survives this request.
+    const cookieJar: Array<{ name: string; value: string; options?: unknown }> = [];
+    const sink = (name: string, value: string, options?: unknown) => {
+      cookieJar.push({ name, value, options });
+    };
+
     for (const platform of platforms) {
-      const connection = await resolveUsableConnection(request.cookies, platform);
-      const isConnected = !!connection;
-      
-      // Check for stale/expired connection
-      const stale = request.cookies.get(`sl_conn_${platform}`)?.value || 
-                    (platform === "tiktok" && request.cookies.get("sl_tiktok_session")?.value);
-      const isExpired = stale && stale !== "" && !isConnected;
+      const health = await resolveConnectionHealth(request.cookies, platform, sink);
+      const isConnected = health.usable;
+      const isExpired = health.needsReconnect;
 
       let message = "";
       let messageAr = "";
@@ -63,12 +68,16 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    return NextResponse.json({
+    const resp = NextResponse.json({
       success: true,
       platforms: statuses,
       allConnected: statuses.every(s => s.connected),
       anyExpired: statuses.some(s => !s.connected && s.message.includes("expired")),
     });
+    for (const c of cookieJar) {
+      resp.cookies.set(c.name, c.value, c.options as any);
+    }
+    return resp;
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error?.message || "Failed to check connections" },
@@ -100,14 +109,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const connection = await resolveUsableConnection(request.cookies, platform as PlatformId);
-    const isConnected = !!connection;
-    
-    // Check for stale/expired connection
-    const stale = request.cookies.get(`sl_conn_${platform}`)?.value || 
-                  (platform === "tiktok" && request.cookies.get("sl_tiktok_session")?.value);
-    const isExpired = stale && stale !== "" && !isConnected;
-
     const platformNames: Record<string, { en: string; ar: string }> = {
       facebook: { en: "Facebook", ar: "فيسبوك" },
       instagram: { en: "Instagram", ar: "إنستجرام" },
@@ -118,6 +119,20 @@ export async function POST(request: NextRequest) {
     };
 
     const platformName = platformNames[platform] || { en: platform, ar: platform };
+
+    // Collect refreshed-token cookies so the rotation survives this request
+    // (previously an in-memory refresh was thrown away, forcing a re-link).
+    const cookieJar: Array<{ name: string; value: string; options?: unknown }> = [];
+    const health = await resolveConnectionHealth(
+      request.cookies,
+      platform as PlatformId,
+      (name, value, options) => {
+        cookieJar.push({ name, value, options });
+      }
+    );
+
+    const isConnected = health.usable;
+    const isExpired = health.needsReconnect;
 
     let message = "";
     let messageAr = "";
@@ -137,7 +152,7 @@ export async function POST(request: NextRequest) {
       code = "connection_required";
     }
 
-    return NextResponse.json({
+    const resp = NextResponse.json({
       success: true,
       platform,
       connected: isConnected,
@@ -147,6 +162,10 @@ export async function POST(request: NextRequest) {
       messageAr,
       code,
     });
+    for (const c of cookieJar) {
+      resp.cookies.set(c.name, c.value, c.options as any);
+    }
+    return resp;
   } catch (error: any) {
     return NextResponse.json(
       { success: false, error: error?.message || "Failed to check connection" },

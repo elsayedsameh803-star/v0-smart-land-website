@@ -74,6 +74,16 @@ export function buildTikTokSessionCookieValue(data: TikTokOAuthSessionData): str
   return `${TIKTOK_SESSION_COOKIE}=${payload}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=31536000`;
 }
 
+/**
+ * The raw encrypted session payload ONLY — for `response.cookies.set()`
+ * callers. `buildTikTokSessionCookieValue` is a full Set-Cookie header string
+ * and MUST NOT be passed as a cookie value (it double-prefixes and corrupts
+ * the stored session, forcing users to re-link on every request).
+ */
+export function encryptTikTokSession(data: TikTokOAuthSessionData): string {
+  return encryptSession(data);
+}
+
 export function parseTikTokSessionCookie(token: string | undefined | null): TikTokOAuthSessionData | null {
   if (!token) return null;
   return decryptSession(token);

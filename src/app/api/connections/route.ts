@@ -20,11 +20,9 @@ import { authOptions } from "@/lib/auth";
 import { SOCIAL_PLATFORM_IDS, type PlatformId } from "@/lib/platforms";
 import { isPlatformConfigured } from "@/lib/oauth-config";
 import {
-  readConnection,
-  isConnectionUsable,
+  resolveConnectionHealth,
   type PlatformConnection,
 } from "@/lib/connections";
-import { parseTikTokSessionCookie, isAccessTokenUsable } from "@/lib/tiktok-session";
 
 export const dynamic = "force-dynamic";
 
@@ -66,49 +64,43 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Collect refreshed-token cookies written during health checks and attach
+  // them to the outgoing response so the rotation survives this request.
+  const cookieJar: Array<{ name: string; value: string; options?: unknown }> = [];
+  const sink = (name: string, value: string, options?: unknown) => {
+    cookieJar.push({ name, value, options });
+  };
+
   const connections = await Promise.all(
     SOCIAL_PLATFORM_IDS.map(async (platform): Promise<ConnectionStatus> => {
-      if (platform === "tiktok") {
-        const raw = request.cookies.get("sl_tiktok_session")?.value ?? null;
-        const sess = parseTikTokSessionCookie(raw);
-        if (!sess || !sess.accessToken) {
-          return baseStatus("tiktok", false);
-        }
-        const usable = isAccessTokenUsable(sess);
-        return {
-          ...baseStatus("tiktok", true),
-          displayName: sess.displayName || "TikTok",
-          accountId: sess.openId || "tiktok",
-          connectedAt: sess.connectedAt,
-          scope: "user.info.basic,video.list",
-          usable,
-          needsReconnect: !usable,
-          canRefresh: Boolean(sess.refreshToken),
-        };
-      }
+      // Uniform health path for EVERY platform: an expired-but-refreshable
+      // token is refreshed server-side here (rotated tokens are persisted via
+      // sink) so connected accounts do NOT flip to "needs reconnect" on every
+      // visit — the root cause of repeated re-link prompts.
+      const health = await resolveConnectionHealth(request.cookies, platform, sink);
 
-      const conn = readConnection(request.cookies, platform);
-      if (!conn) {
+      if (!health.connection) {
         return baseStatus(platform, false);
       }
-      const usable = isConnectionUsable(conn);
-      // A refresh is possible only when the platform has a registered
-      // refresher (registered at module load by each platform's oauth module).
-      const canRefresh = Boolean(conn.token.refreshToken);
+
       return {
-        ...baseStatus(platform, true),
-        displayName: conn.displayName,
-        accountId: conn.accountId,
-        connectedAt: conn.connectedAt,
-        scope: conn.token.scope ?? "",
-        usable,
-        needsReconnect: !usable,
-        canRefresh,
+        ...baseStatus(platform, health.connected),
+        displayName: health.connection.displayName,
+        accountId: health.connection.accountId,
+        connectedAt: health.connection.connectedAt,
+        scope: health.connection.token.scope ?? "",
+        usable: health.usable,
+        needsReconnect: health.needsReconnect,
+        canRefresh: health.canRefresh,
       };
     })
   );
 
-          return NextResponse.json({ success: true, connections });
+  const resp = NextResponse.json({ success: true, connections });
+  for (const c of cookieJar) {
+    resp.cookies.set(c.name, c.value, c.options as any);
+  }
+  return resp;
 }
 
 

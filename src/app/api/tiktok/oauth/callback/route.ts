@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { exchangeTokenForCode, displayUserInfo } from "@/lib/tiktok-api";
 import {
   buildTikTokSessionCookieValue,
+  encryptTikTokSession,
   clearTikTokSessionCookie,
   type TikTokOAuthSessionData,
 } from "@/lib/tiktok-session";
@@ -97,7 +98,11 @@ export async function GET(request: NextRequest) {
   const final = NextResponse.redirect(redirectTarget);
   final.cookies.delete(STATE_COOKIE);
   final.cookies.delete(RETURN_URL_COOKIE);
-  final.cookies.set("sl_tiktok_session", buildTikTokSessionCookieValue(sessionData), {
+  // FIX: write ONLY the encrypted payload as the cookie value. Passing
+  // buildTikTokSessionCookieValue() here stored a full Set-Cookie header
+  // string INSIDE the cookie value, which could never be decrypted again —
+  // TikTok users were forced to re-link on every single request.
+  final.cookies.set("sl_tiktok_session", encryptTikTokSession(sessionData), {
     path: "/",
     httpOnly: true,
     secure: true,

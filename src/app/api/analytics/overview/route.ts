@@ -691,9 +691,16 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  // Collect refreshed-token cookies written while resolving connections and
+  // attach them to the outgoing response, so the rotation survives this
+  // request (otherwise every dashboard load re-refreshes and rotating
+  // providers like LinkedIn eventually break → forced re-link).
+  const cookieJar: Array<{ name: string; value: string; options?: unknown }> = [];
   const connFor = async (p: PlatformId): Promise<PlatformConnection | null> => {
     try {
-      return await resolveUsableConnection(request.cookies, p);
+      return await resolveUsableConnection(request.cookies, p, (name, value, options) => {
+        cookieJar.push({ name, value, options });
+      });
     } catch {
       return null;
     }
@@ -743,7 +750,7 @@ export async function GET(request: NextRequest) {
     likes: sumAcross("likes"),
   };
 
-  return NextResponse.json({
+  const resp = NextResponse.json({
     success: true,
     generatedAt: new Date().toISOString(),
     totalPlatforms: SOCIAL_PLATFORM_IDS.length,
@@ -752,4 +759,8 @@ export async function GET(request: NextRequest) {
     summary,
     platforms,
   });
+  for (const c of cookieJar) {
+    resp.cookies.set(c.name, c.value, c.options as any);
+  }
+  return resp;
 }
