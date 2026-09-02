@@ -108,3 +108,11 @@ build_output*.txt
 _tree.txt
 _gitout.txt
 _giterr.txt
+
+# Local diagnostic / deploy-log artifacts (never commit these)
+_*.txt
+_*.bat
+_*.ps1
+_*.mjs
+_*.log
+_nul
