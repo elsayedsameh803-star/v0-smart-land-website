@@ -115,4 +115,17 @@ _*.bat
 _*.ps1
 _*.mjs
 _*.log
+# Local diagnostic / deploy-log artifacts (never commit these)
+_*.txt
+_*.bat
+_*.ps1
+_*.mjs
+_*.log
+_nul
+build_probe.txt
+build_probe*.txt
+git_status_check.bat
+run_checks.bat
+run_tsc*.bat
+tsc_check.bat
 _nul
