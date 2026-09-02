@@ -59,6 +59,9 @@
 | `PAYMOB_CUSTOMER_SECRET` | غائب | ⚠️ مطلوب الآن | بعد إصلاح #1 (أو يرث `ADMIN_SESSION_SECRET`) |
 | `GEMINI_API_KEY` | غائب | اختياري (للـ AI) | يُفضَّل لإثراء التحليل عبر Gemini |
 | `GOOGLE_API_KEY` | موجود محليًا | اختياري | لـ YouTube Data API + Gemini fallback |
+| `NEXT_PUBLIC_GA_ID` | غائب | اختياري (موصى به) | معرف GA4 بصيغة `G-XXXXXXXXXX` من analytics.google.com — يُحمّل gtag.js بعد موافقة الزائر على الكوكيز |
+| `NEXT_PUBLIC_GA_ID` | غائب | اختياري (موصى به) | معرف GA4 بصيغة `G-XXXXXXXXXX` من analytics.google.com — يُحمّل gtag.js بعد موافقة الزائر على الكوكيز |
+| `NEXT_PUBLIC_GSC_VERIFICATION` | مضمّن كاحتياط في الكود | اختياري | وسم التحقق من Google Search Console — القيمة الحالية `JMwP_nJ4KRNImPNKdVqfgJb3yze-zjBbkEEmnlrkfso` |
 | `TIKTOK_CLIENT_KEY` | موجود في Vercel | **مطلوب للتكامل الرسمي** | مفتاح تطبيق TikTok for Developers — server-side فقط |
 | `TIKTOK_CLIENT_SECRET` | موجود في Vercel | **مطلوب للتكامل الرسمي** | سريّ — يُقرأ في الخادم فقط ويمنع وضعه في الواجهة أو السجلات |
 | `TIKTOK_CLIENT_KEY` | موجود في Vercel | **مطلوب للتكامل الرسمي** | مفتاح تطبيق TikTok for Developers (server-side فقط — لا يُمرَّر للمتصفح) |

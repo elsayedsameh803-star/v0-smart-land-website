@@ -34,6 +34,9 @@ export interface PlatformMeta {
   hasPublicFallback: boolean;
   /** OAuth scopes requested (documentation / display). */
   scopes: string;
+  /** Query flag THIS platform's OAuth callback appends on return
+   *  (e.g. "snapchat_oauth"). Empty for platforms without an OAuth flow. */
+  oauthFlagParam: string;
 }
 
 export const PLATFORMS: PlatformMeta[] = [
@@ -49,6 +52,7 @@ export const PLATFORMS: PlatformMeta[] = [
     requiresConnection: false,
     hasPublicFallback: false,
     scopes: "",
+    oauthFlagParam: "",
   },
   {
     id: "facebook",
@@ -63,6 +67,7 @@ export const PLATFORMS: PlatformMeta[] = [
     hasPublicFallback: true,
     scopes:
       "email,public_profile,pages_show_list,pages_read_engagement,instagram_basic,instagram_manage_insights",
+    oauthFlagParam: "meta_oauth",
   },
   {
     id: "instagram",
@@ -77,6 +82,7 @@ export const PLATFORMS: PlatformMeta[] = [
     hasPublicFallback: true,
     scopes:
       "email,public_profile,pages_show_list,pages_read_engagement,instagram_basic,instagram_manage_insights",
+    oauthFlagParam: "meta_oauth",
   },
   {
     id: "youtube",
@@ -90,6 +96,7 @@ export const PLATFORMS: PlatformMeta[] = [
     requiresConnection: true,
     hasPublicFallback: true,
     scopes: "https://www.googleapis.com/auth/youtube.readonly openid email profile",
+    oauthFlagParam: "youtube_oauth",
   },
   {
     id: "tiktok",
@@ -103,6 +110,7 @@ export const PLATFORMS: PlatformMeta[] = [
     requiresConnection: true,
     hasPublicFallback: true,
     scopes: "user.info.basic,video.list",
+    oauthFlagParam: "tiktok_oauth",
   },
   {
     id: "snapchat",
@@ -116,6 +124,7 @@ export const PLATFORMS: PlatformMeta[] = [
     requiresConnection: true,
     hasPublicFallback: true,
     scopes: "user_bitmoji,user_snaps",
+    oauthFlagParam: "snapchat_oauth",
   },
   {
     id: "linkedin",
@@ -129,6 +138,7 @@ export const PLATFORMS: PlatformMeta[] = [
     requiresConnection: true,
     hasPublicFallback: true,
     scopes: "r_liteprofile r_emailaddress offline_access",
+    oauthFlagParam: "linkedin_oauth",
   },
 ];
 

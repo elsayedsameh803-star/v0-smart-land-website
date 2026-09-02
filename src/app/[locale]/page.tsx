@@ -23,6 +23,7 @@ import { SocialLinkPrompt } from "@/components/analysis/SocialLinkPrompt";
 import { ConnectionGate } from "@/components/analysis/ConnectionGate";
 import { analyzeUrl, getAnalysisStages } from "@/lib/analysis-engine";
 import { saveAnalysis, getAnalysisHistory } from "@/lib/storage";
+import { PLATFORMS, getPlatformMeta, type PlatformId } from "@/lib/platforms";
 import type { AnalysisResult, AnalysisStage, Finding } from "@/lib/types";
 
 interface PageProps {
@@ -42,16 +43,18 @@ export default function HomePage({ params }: PageProps) {
   const [error, setError] = useState<string | null>(null);
   const [connectionVerified, setConnectionVerified] = useState<boolean>(true);
 
-  const socialPlatforms = ["facebook", "instagram", "youtube", "tiktok", "snapchat", "linkedin"];
-  const isSocialPlatform = socialPlatforms.includes(platform);
+  // Social platforms come from the single registry (src/lib/platforms.ts).
+  const socialPlatforms = PLATFORMS.filter((p) => p.requiresConnection).map((p) => p.id);
+  const isSocialPlatform = socialPlatforms.includes(platform as PlatformId);
 
   const handleAnalyze = async (submittedUrl: string, selectedPlatform?: string) => {
     // Check connection before starting analysis for social platforms
     const newPlatform = selectedPlatform || "website";
-    if (socialPlatforms.includes(newPlatform) && !connectionVerified) {
+    if (socialPlatforms.includes(newPlatform as PlatformId) && !connectionVerified) {
+      const platformName = getPlatformMeta(newPlatform);
       setError(locale === "ar" 
-        ? `يرجى ربط حساب ${newPlatform} أولاً قبل بدء التحليل` 
-        : `Please connect your ${newPlatform} account before starting analysis`);
+        ? `يرجى ربط حساب ${platformName?.nameAr || newPlatform} أولاً قبل بدء التحليل` 
+        : `Please connect your ${platformName?.name || newPlatform} account before starting analysis`);
       return;
     }
 
@@ -59,7 +62,7 @@ export default function HomePage({ params }: PageProps) {
     setPlatform(newPlatform);
     setError(null);
 
-    // Remember the pending URL so a TikTok OAuth return can resume it.
+    // Remember the pending URL so ANY platform's OAuth return can resume it.
     try {
       sessionStorage.setItem("sl_pending_url", submittedUrl);
       sessionStorage.setItem("sl_pending_platform", selectedPlatform || "website");
@@ -107,31 +110,39 @@ export default function HomePage({ params }: PageProps) {
   };
 
   useEffect(() => {
-    // Auto-resume the analysis after a TikTok or Meta (Facebook/Instagram)
-    // OAuth return — the visitor lands back here in seconds, no re-login.
+    // Auto-resume the pending analysis after ANY platform's OAuth return.
+    // Each platform comes back with ITS OWN flag (meta_oauth / youtube_oauth /
+    // tiktok_oauth / snapchat_oauth / linkedin_oauth) — see PLATFORMS[*].
+    // oauthFlagParam. Only a `success` flag resumes; `failed` is surfaced by
+    // the ConnectionGate banner instead.
     try {
       const params = new URLSearchParams(window.location.search);
-      const oauthFlag =
-        params.get("tiktok_oauth") === "success" ||
-        params.get("meta_oauth") === "success";
-      if (oauthFlag) {
-        const pendingUrl = sessionStorage.getItem("sl_pending_url");
-        const pendingPlatform = sessionStorage.getItem("sl_pending_platform") || "website";
-        sessionStorage.removeItem("sl_pending_url");
-        sessionStorage.removeItem("sl_pending_platform");
-        // Clean the marker params so they can never re-trigger on reload.
-        params.delete("tiktok_oauth");
-        params.delete("meta_oauth");
-        window.history.replaceState(
-          {},
-          "",
-          params.toString() === ""
-            ? window.location.pathname
-            : `${window.location.pathname}?${params.toString()}`
-        );
-        if (pendingUrl) {
-          handleAnalyze(pendingUrl, pendingPlatform);
-        }
+      const returnedPlatform = PLATFORMS.find(
+        (p) => p.oauthFlagParam && params.get(p.oauthFlagParam) !== null
+      );
+      if (!returnedPlatform) return;
+
+      const flagValue = params.get(returnedPlatform.oauthFlagParam);
+      const pendingUrl = sessionStorage.getItem("sl_pending_url");
+      const pendingPlatform =
+        sessionStorage.getItem("sl_pending_platform") || "website";
+      sessionStorage.removeItem("sl_pending_url");
+      sessionStorage.removeItem("sl_pending_platform");
+
+      // Clean the marker params so they can never re-trigger on reload.
+      for (const p of PLATFORMS) {
+        if (p.oauthFlagParam) params.delete(p.oauthFlagParam);
+      }
+      window.history.replaceState(
+        {},
+        "",
+        params.toString() === ""
+          ? window.location.pathname
+          : `${window.location.pathname}?${params.toString()}`
+      );
+
+      if (flagValue === "success" && pendingUrl) {
+        handleAnalyze(pendingUrl, pendingPlatform);
       }
     } catch {
       // ignore — the flag is best-effort only
