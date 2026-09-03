@@ -11,12 +11,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { BarChart3, Globe, User, LogOut, Menu, X, Sparkles } from "lucide-react"
+import { BarChart3, Globe, User, LogOut, Menu, X, Loader2 } from "lucide-react"
 import { useState } from "react"
 
 export function Navbar() {
   const { language, setLanguage, t } = useLanguage()
-  const { user, logout } = useAuth()
+  const { user, isLoading, logout } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   return (
@@ -92,7 +92,11 @@ export function Navbar() {
             </Button>
 
             {/* User Menu */}
-            {user ? (
+            {isLoading ? (
+              <Button variant="outline" size="sm" disabled aria-label={t("جاري تحميل الحساب", "Loading account")}>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              </Button>
+            ) : user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="sm">
@@ -101,6 +105,9 @@ export function Navbar() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/account">{t("حسابي", "My account")}</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/dashboard">{t("لوحة التحكم", "Dashboard")}</Link>
                   </DropdownMenuItem>
@@ -143,6 +150,13 @@ export function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 {t("الرئيسية", "Home")}
+              </Link>
+              <Link
+                href="/account"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {t("حسابي", "My account")}
               </Link>
               <Link
                 href="/dashboard"

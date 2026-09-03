@@ -25,7 +25,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check for existing session
     const storedUser = localStorage.getItem("smartland_user")
     if (storedUser) {
-      setUser(JSON.parse(storedUser))
+      try {
+        const parsedUser = JSON.parse(storedUser) as Partial<User>
+        if (typeof parsedUser.email === "string" && typeof parsedUser.name === "string") {
+          setUser({ email: parsedUser.email, name: parsedUser.name })
+        } else {
+          localStorage.removeItem("smartland_user")
+        }
+      } catch {
+        localStorage.removeItem("smartland_user")
+      }
     }
     setIsLoading(false)
   }, [])
