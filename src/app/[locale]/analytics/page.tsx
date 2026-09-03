@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   RefreshCw,
   AlertCircle,
+  AlertTriangle,
   CheckCircle2,
   PieChart,
 } from "lucide-react";
@@ -51,6 +52,9 @@ const T: Record<string, Record<string, string>> = {
     signIn: "Sign in",
     retry: "Retry",
     justLinked: "Accounts linked successfully — fetching your metrics…",
+    reconnectNotice:
+      "Authorization for a linked account has expired — real analytics paused until you reconnect:",
+    reconnectBtn: "Reconnect",
   },
   ar: {
     title: "التحليلات الموحدة",
@@ -62,6 +66,9 @@ const T: Record<string, Record<string, string>> = {
     signIn: "تسجيل الدخول",
     retry: "إعادة المحاولة",
     justLinked: "تم ربط الحسابات بنجاح — جارٍ جلب المقاييس…",
+    reconnectNotice:
+      "انتهت صلاحية تفويض أحد الحسابات المرتبطة — أعد ربطه لاستئناف جلب التحليلات الحقيقية:",
+    reconnectBtn: "إعادة الربط",
   },
 };
 
@@ -236,6 +243,16 @@ function AnalyticsDashboard({ locale }: { locale: string }) {
           })
         );
 
+  // Platforms whose OAuth grant was rejected (401) — shown in a clear
+  // "reconnect your account" banner instead of a vague technical failure.
+  const reconnectPlatforms = Array.from(
+    new Set(
+      platforms
+        .filter((p) => p.needsReconnect)
+        .map((p) => p.platform)
+    )
+  );
+
   return (
     <div
       className="min-h-screen bg-dark-950 text-white"
@@ -270,6 +287,27 @@ function AnalyticsDashboard({ locale }: { locale: string }) {
           <div className="flex items-center gap-2 rounded-xl bg-emerald-500/10 border border-emerald-500/25 px-4 py-3 text-sm text-emerald-300">
             <CheckCircle2 className="w-4 h-4" />
             {t.justLinked}
+          </div>
+        )}
+
+        {/* Expired-link notice — clear "reconnect" ask (401 handling) */}
+        {reconnectPlatforms.length > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-amber-500/10 border border-amber-500/25 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-amber-400" />
+              <p className="text-sm text-amber-300">{t.reconnectNotice}</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2">
+              {reconnectPlatforms.map((p) => (
+                <button
+                  key={p}
+                  onClick={() => handleConnect(p)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-gold-600 to-gold-500 px-3 py-1.5 text-xs font-bold text-dark-950 hover:from-gold-500 hover:to-gold-400 transition"
+                >
+                  {p.charAt(0).toUpperCase() + p.slice(1)} · {t.reconnectBtn}
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
