@@ -183,10 +183,12 @@ export default function AccountPage({ params }: PageProps) {
 
   useEffect(() => {
     const user = session?.user;
-    if (status === "authenticated" && user?.email) {
+    if (status === "authenticated" && user && typeof user.email === "string" && user.email) {
+      const email = user.email;
+      const name = typeof user.name === "string" && user.name ? user.name : email;
       setCustomer((current) => current || {
-        email: user.email,
-        name: user.name || user.email,
+        email,
+        name,
       });
     }
   }, [session, status]);
