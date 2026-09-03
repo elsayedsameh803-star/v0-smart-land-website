@@ -31,10 +31,10 @@ export const TIKTOK_DISPLAY_SCOPES = "user.info.basic,video.list";
 // Env access (server-only)
 // ---------------------------------------------------------------------------
 export function getTikTokClientKey(): string {
-  return process.env.TIKTOK_CLIENT_KEY || "";
+  return process.env.TIKTOK_CLIENT_KEY || process.env.CLIENT_KEY_TIKTOK || "";
 }
 export function getTikTokClientSecret(): string {
-  return process.env.TIKTOK_CLIENT_SECRET || "";
+  return process.env.TIKTOK_CLIENT_SECRET || process.env.CLIENT_SECRET_TIKTOK || "";
 }
 
 export function getTikTokRedirectUri(): string {

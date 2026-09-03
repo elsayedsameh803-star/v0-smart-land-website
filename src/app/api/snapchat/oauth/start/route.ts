@@ -16,7 +16,7 @@ import {
   getCallbackUrl,
   SNAPCHAT_OAUTH_SCOPES,
 } from "@/lib/oauth-config";
-import { newStateToken, safeReturnPath, stateCookieOptions } from "@/lib/oauth-utils";
+import { newStateToken, safeReturnPath, stateCookieOptions, buildOAuthErrorRedirect } from "@/lib/oauth-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -27,10 +27,7 @@ export async function GET(request: NextRequest) {
   const clientId = getSnapchatClientId();
   const clientSecret = getSnapchatClientSecret();
   if (!clientId || !clientSecret) {
-    return NextResponse.json(
-      { success: false, code: "not_configured", error: "Snapchat app credentials are not configured on the server." },
-      { status: 503 }
-    );
+    return buildOAuthErrorRedirect(request.nextUrl.searchParams.get("return"), "snapchat", "Snapchat app credentials are not configured on the server.");
   }
 
   const state = newStateToken();

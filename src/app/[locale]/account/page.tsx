@@ -176,6 +176,7 @@ export default function AccountPage({ params }: PageProps) {
   const [connecting, setConnecting] = useState<string | null>(null);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const [connectionsLoaded, setConnectionsLoaded] = useState(false);
+  const [oauthError, setOauthError] = useState("");
 
   const handleLogout = useCallback(() => {
     void signOut({ callbackUrl: `/${locale}` });
@@ -216,6 +217,16 @@ export default function AccountPage({ params }: PageProps) {
   useEffect(() => {
     loadConnections();
   }, [loadConnections]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const provider = params.get("oauth_error");
+    const message = params.get("error_message");
+    if (provider && message) {
+      setOauthError(message);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
 
   const handleConnect = useCallback(async (platformId: string) => {
     setConnecting(platformId);
@@ -336,6 +347,11 @@ export default function AccountPage({ params }: PageProps) {
   return (
     <div dir={dir} className="min-h-screen bg-dark-950 text-gold-100 pt-32 pb-20 px-4">
       <div className="max-w-4xl mx-auto space-y-6 animate-in">
+        {oauthError && (
+          <div role="alert" className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-4 text-sm text-rose-200">
+            {oauthError}
+          </div>
+        )}
         <div className="text-center space-y-2">
           <div className="inline-flex mx-auto items-center gap-2 rounded-full bg-gold-500/10 border border-gold-500/20 px-3 py-1 text-xs text-gold-300">
             <ShieldCheck className="w-4 h-4" /> Smart Land

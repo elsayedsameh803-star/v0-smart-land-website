@@ -55,3 +55,18 @@ export function buildOAuthRedirect(
   const separator = target.includes("?") ? "&" : "?";
   return NextResponse.redirect(`${target}${separator}${flag}`);
 }
+
+export function buildOAuthErrorRedirect(
+  returnPath: string | null | undefined,
+  platform: string,
+  message: string
+): NextResponse {
+  const site = getSiteUrl().replace(/\/+$/, "");
+  const safe = safeReturnPath(returnPath);
+  const target = safe ? `${site}${safe}` : `${site}/`;
+  const params = new URLSearchParams({
+    oauth_error: platform,
+    error_message: message,
+  });
+  return NextResponse.redirect(`${target}${target.includes("?") ? "&" : "?"}${params}`);
+}

@@ -15,7 +15,7 @@ import {
   getCallbackUrl,
   LINKEDIN_OAUTH_SCOPES,
 } from "@/lib/oauth-config";
-import { newStateToken, safeReturnPath, stateCookieOptions } from "@/lib/oauth-utils";
+import { newStateToken, safeReturnPath, stateCookieOptions, buildOAuthErrorRedirect } from "@/lib/oauth-utils";
 
 export const dynamic = "force-dynamic";
 
@@ -26,10 +26,7 @@ export async function GET(request: NextRequest) {
   const clientId = getLinkedInClientId();
   const clientSecret = getLinkedInClientSecret();
   if (!clientId || !clientSecret) {
-    return NextResponse.json(
-      { success: false, code: "not_configured", error: "LinkedIn app credentials are not configured on the server." },
-      { status: 503 }
-    );
+    return buildOAuthErrorRedirect(request.nextUrl.searchParams.get("return"), "linkedin", "LinkedIn app credentials are not configured on the server.");
   }
 
   const state = newStateToken();
