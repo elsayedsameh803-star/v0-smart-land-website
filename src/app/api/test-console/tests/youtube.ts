@@ -1,3 +1,5 @@
+import { getYouTubeApiKey } from "@/lib/oauth-config";
+
 export interface TestResult {
   platform: string;
   status: "success" | "error" | "warning" | "skipped";
@@ -13,14 +15,14 @@ export interface TestResult {
  */
 export async function testYouTubeAPI(): Promise<TestResult> {
   const start = Date.now();
-  const apiKey = process.env.GOOGLE_API_KEY;
+  const apiKey = getYouTubeApiKey();
 
   if (!apiKey) {
     return {
       platform: "YouTube",
       status: "warning",
-      message: "GOOGLE_API_KEY not configured",
-      messageAr: "مفتاح GOOGLE_API_KEY غير مُكوّن",
+      message: "YouTube API key not configured (set GOOGLE_API_KEY or YOUTUBE_API_KEY)",
+      messageAr: "مفتاح YouTube API غير مُكوّن (GOOGLE_API_KEY أو YOUTUBE_API_KEY)",
       responseTime: Date.now() - start,
     };
   }

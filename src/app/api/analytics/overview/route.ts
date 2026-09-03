@@ -24,7 +24,7 @@ import { SOCIAL_PLATFORM_IDS, type PlatformId } from "@/lib/platforms";
 import { resolveUsableConnection } from "@/lib/connections";
 import type { PlatformConnection } from "@/lib/connections";
 import { displayUserInfo, displayVideoList } from "@/lib/tiktok-api";
-import { isPlatformConfigured } from "@/lib/oauth-config";
+import { isPlatformConfigured, getYouTubeApiKey } from "@/lib/oauth-config";
 import "@/lib/platform-oauth";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +52,15 @@ export interface PlatformAnalytics {
   avatarUrl: string | null;
   updatedAt: string | null;
   metrics: AnalyticsMetric[];
+  /**
+   * TRUE when the platform link still exists but its OAuth token is no longer
+   * accepted (401 Unauthorized / expired / revoked). The UI shows a clear
+   * "reconnect your account" message instead of a vague technical failure.
+   */
+  needsReconnect?: boolean;
+  /** Clear, non-technical status shown to the user (EN / AR). */
+  statusMessage?: string | null;
+  statusMessageAr?: string | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -285,11 +294,49 @@ interface YouTubeAggregate {
   recentComments: number | null;
 }
 
+/**
+ * TRUE when Google rejected the OAuth access token (expired / revoked /
+ * missing scope). YouTube answers 401 for invalid credentials, and 403 with
+ * an auth reason in some cases — both mean "the link must be re-authorized".
+ * Quota errors (403 rateLimitExceeded / quotaExceeded) are NOT auth failures.
+ */
+function isYouTubeAuthFailure(status: number, body: any): boolean {
+  if (status === 401) return true;
+  if (status === 403) {
+    const reason: string =
+      body?.error?.errors?.[0]?.reason || body?.error?.status || "";
+    return (
+      reason === "authError" ||
+      reason === "required" ||
+      reason === "PERMISSION_DENIED" ||
+      reason === "insufficientPermissions" ||
+      reason === "invalidCredentials"
+    );
+  }
+  return false;
+}
+
 async function collectYouTube(
   conn: PlatformConnection
-): Promise<YouTubeAggregate | null> {
+): Promise<{ aggregate: YouTubeAggregate; tokenExpired: boolean } | null> {
   const token = conn.token.accessToken || "";
   if (!token) return null;
+
+  const expiredAggregate = (): { aggregate: YouTubeAggregate; tokenExpired: boolean } => ({
+    aggregate: {
+      displayName: conn.displayName || "YouTube",
+      accountId: conn.accountId,
+      avatarUrl: conn.avatarUrl ?? null,
+      subscribers: null,
+      channelViews: null,
+      videos: null,
+      recentViews: null,
+      recentLikes: null,
+      recentComments: null,
+    },
+    tokenExpired: true,
+  });
+
   try {
     const chRes = await fetch(
       `${YT_BASE}/channels?part=statistics,snippet&mine=true`,
@@ -299,6 +346,56 @@ async function collectYouTube(
         signal: AbortSignal.timeout(15000),
       }
     );
+
+    // --- 401 Unauthorized handling -------------------------------------------
+    // The stored OAuth token is expired/revoked. Try to keep showing REAL
+    // public channel data via the YouTube Data API key, and tell the caller
+    // the connection needs a re-link so the UI can ask the user to reconnect.
+    if (chRes.status === 401 || chRes.status === 403) {
+      const errBody: any = await chRes.json().catch(() => ({}));
+      if (isYouTubeAuthFailure(chRes.status, errBody)) {
+        const apiKey = getYouTubeApiKey();
+        if (apiKey && /^UC[\w-]{20,}$/.test(conn.accountId)) {
+          try {
+            const keyRes = await fetch(
+              `${YT_BASE}/channels?part=statistics,snippet&id=${encodeURIComponent(
+                conn.accountId
+              )}&key=${encodeURIComponent(apiKey)}`,
+              { cache: "no-store", signal: AbortSignal.timeout(12000) }
+            );
+            if (keyRes.ok) {
+              const keyData: any = await keyRes.json();
+              const keyed = keyData?.items?.[0];
+              if (keyed) {
+                return {
+                  aggregate: {
+                    displayName: keyed?.snippet?.title || conn.displayName,
+                    accountId: keyed?.id || conn.accountId,
+                    avatarUrl:
+                      keyed?.snippet?.thumbnails?.default?.url ||
+                      conn.avatarUrl ||
+                      null,
+                    subscribers: numOrNull(keyed?.statistics?.subscriberCount),
+                    channelViews: numOrNull(keyed?.statistics?.viewCount),
+                    videos: numOrNull(keyed?.statistics?.videoCount),
+                    recentViews: null,
+                    recentLikes: null,
+                    recentComments: null,
+                  },
+                  tokenExpired: true,
+                };
+              }
+            }
+          } catch {
+            // API-key fallback unavailable — surface the expired state below
+          }
+        }
+        // No fallback data — still surface the expired-token state clearly.
+        return expiredAggregate();
+      }
+      return null; // non-auth failure (quota etc.) — keep previous behavior
+    }
+
     if (!chRes.ok) return null;
     const chData: any = await chRes.json();
     const item = chData?.items?.[0];
@@ -377,7 +474,7 @@ async function collectYouTube(
     } catch {
       // optional enrichment failed — channel stats are still valid
     }
-    return agg;
+    return { aggregate: agg, tokenExpired: false };
   } catch {
     return null;
   }
@@ -519,7 +616,10 @@ function collectSnapchat(conn: PlatformConnection) {
 function unavailablePlatform(
   platform: PlatformId,
   configured: boolean,
-  conn: PlatformConnection | null
+  conn: PlatformConnection | null,
+  needsReconnect = false,
+  statusMessage: string | null = null,
+  statusMessageAr: string | null = null
 ): PlatformAnalytics {
   return {
     platform,
@@ -531,6 +631,9 @@ function unavailablePlatform(
     avatarUrl: conn?.avatarUrl ?? null,
     updatedAt: conn?.connectedAt ?? null,
     metrics: [],
+    needsReconnect,
+    statusMessage,
+    statusMessageAr,
   };
 }
 
@@ -606,20 +709,41 @@ async function buildPlatformAnalytics(
     case "youtube": {
       const yt = await collectYouTube(conn).catch(() => null);
       if (!yt) return unavailablePlatform(platform, configured, conn);
+      const { aggregate: ya, tokenExpired: ytExpired } = yt;
+      const ytHasData = [
+        ya.subscribers,
+        ya.channelViews,
+        ya.videos,
+        ya.recentViews,
+        ya.recentLikes,
+        ya.recentComments,
+      ].some((v) => v !== null);
       return {
         platform,
         connected: true,
         configured,
-        available: true,
-        displayName: yt.displayName,
-        accountId: yt.accountId,
-        avatarUrl: yt.avatarUrl,
+        available: ytHasData,
+        displayName: ya.displayName,
+        accountId: ya.accountId,
+        avatarUrl: ya.avatarUrl,
         updatedAt: conn.connectedAt,
+        needsReconnect: ytExpired,
+        statusMessage: ytExpired
+          ? "Your YouTube connection has expired — reconnect your account to refresh your analytics."
+          : null,
+        statusMessageAr: ytExpired
+          ? "انتهت صلاحية ربط حساب YouTube. أعد ربط حسابك لتحديث التحليلات."
+          : null,
         metrics: [
-          mkMetric("followers", "Subscribers", "المشتركون", yt.subscribers),
-          mkMetric("views", "Channel views", "مشاهدات القناة", yt.channelViews),
-          mkMetric("content", "Videos", "الفيديوهات", yt.videos),
-          mkMetric("engagement", "Recent video engagement", "تفاعل أحدث الفيديوهات", sumMerge(yt.recentLikes, yt.recentComments)),
+          mkMetric("followers", "Subscribers", "المشتركون", ya.subscribers),
+          mkMetric("views", "Channel views", "مشاهدات القناة", ya.channelViews),
+          mkMetric("content", "Videos", "الفيديوهات", ya.videos),
+          mkMetric(
+            "engagement",
+            "Recent video engagement",
+            "تفاعل أحدث الفيديوهات",
+            sumMerge(ya.recentLikes, ya.recentComments)
+          ),
         ],
       };
     }

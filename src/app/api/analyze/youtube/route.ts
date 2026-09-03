@@ -4,6 +4,7 @@ import { safeFetch } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
 import { enforceSubscription } from "@/lib/subscription-shield";
 import { checkAnalysisAccess } from "@/lib/analysis-gate";
+import { getYouTubeApiKey } from "@/lib/oauth-config";
 
 export const dynamic = "force-dynamic";
 
@@ -112,7 +113,9 @@ export async function POST(request: NextRequest) {
     }
 
     // ===== YouTube Data API v3 - authoritative real metrics (when API key is set) =====
-    const apiKey = process.env.GOOGLE_API_KEY;
+    // Supports every supported Vercel env alias: GOOGLE_API_KEY / YOUTUBE_API_KEY /
+    // YOUTUBE_DATA_API_KEY.
+    const apiKey = getYouTubeApiKey();
     if (apiKey) {
       try {
         const apiResult = await fetchYouTubeApiData(videoId, apiKey);
@@ -130,7 +133,7 @@ export async function POST(request: NextRequest) {
     const hasSourceData = Object.values(profileData).some((value) => value !== undefined && value !== null && value !== "");
     const sourceConfidence = hasSourceData ? "high" : "low";
     const dataSources = ["youtube-page-scrape"];
-    if (process.env.GOOGLE_API_KEY) dataSources.push("youtube-data-api");
+    if (getYouTubeApiKey()) dataSources.push("youtube-data-api");
 
     recordAnalysis("youtube", true);
     return NextResponse.json(
@@ -190,7 +193,18 @@ async function fetchYouTubeApiData(
     { headers: { Accept: "application/json" } },
     15000
   );
-  if (!videoRes.ok) return null;
+  if (!videoRes.ok) {
+    // Log a clear, actionable reason (invalid key / quota / bad request) but
+    // never hard-fail the analysis — the page-scrape data still flows through.
+    const errBody: any = await videoRes.json().catch(() => ({}));
+    const reason: string = errBody?.error?.errors?.[0]?.reason || "";
+    console.warn(
+      `[youtube-data-api] videos call failed with HTTP ${videoRes.status} ${
+        reason ? `(reason: ${reason})` : ""
+      } — falling back to page scrape. Check the YouTube API key (GOOGLE_API_KEY / YOUTUBE_API_KEY) and its quota in Google Cloud.`
+    );
+    return null;
+  }
   const videoJson = await videoRes.json();
   const item = videoJson?.items?.[0];
   if (!item) return null;

@@ -24,6 +24,26 @@ export function getYouTubeClientId(): string {
 export function getYouTubeClientSecret(): string {
   return process.env.GOOGLE_CLIENT_SECRET || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET || "";
 }
+
+/**
+ * YouTube Data API v3 key (public-data access, no OAuth needed).
+ * Accepts every supported alias so Vercel env vars can be named either
+ * GOOGLE_API_KEY (existing convention) or YOUTUBE_API_KEY /
+ * YOUTUBE_DATA_API_KEY (added via Vercel -> Settings -> Environment Variables).
+ */
+export function getYouTubeApiKey(): string {
+  return (
+    process.env.GOOGLE_API_KEY ||
+    process.env.YOUTUBE_API_KEY ||
+    process.env.YOUTUBE_DATA_API_KEY ||
+    ""
+  );
+}
+
+/** True when a YouTube Data API v3 key is present on the server. */
+export function isYouTubeApiKeyConfigured(): boolean {
+  return Boolean(getYouTubeApiKey());
+}
 export function getLinkedInClientId(): string {
   return process.env.LINKEDIN_CLIENT_ID || process.env.NEXT_PUBLIC_LINKEDIN_CLIENT_ID || "";
 }
