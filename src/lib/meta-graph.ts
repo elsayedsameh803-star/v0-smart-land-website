@@ -5,7 +5,8 @@
 // side only (they are never exposed to the browser).
 //
 // Required env vars (Vercel → Settings → Environment Variables):
-//   NEXT_PUBLIC_FACEBOOK_APP_ID (or FACEBOOK_APP_ID), FACEBOOK_APP_SECRET
+//   FACEBOOK_CLIENT_ID (or NEXT_PUBLIC_FACEBOOK_APP_ID / FACEBOOK_APP_ID),
+//   FACEBOOK_CLIENT_SECRET (or FACEBOOK_APP_SECRET)
 // =============================================================================
 
 const GRAPH_VERSION = "v20.0";
@@ -28,6 +29,7 @@ export function getMetaConfig(): MetaConfig {
   return {
     appId:
       process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ||
+      process.env.FACEBOOK_CLIENT_ID ||
       process.env.FACEBOOK_APP_ID ||
       process.env.META_APP_ID ||
       "",
@@ -43,6 +45,14 @@ export function getMetaConfig(): MetaConfig {
 export function isMetaConfigured(): boolean {
   const c = getMetaConfig();
   return Boolean(c.appId && c.appSecret);
+}
+
+export function getMissingMetaEnvVars(): string[] {
+  const config = getMetaConfig();
+  return [
+    ...(!config.appId ? ["FACEBOOK_CLIENT_ID (or FACEBOOK_APP_ID/META_APP_ID)"] : []),
+    ...(!config.appSecret ? ["FACEBOOK_CLIENT_SECRET (or FACEBOOK_APP_SECRET/META_APP_SECRET)"] : []),
+  ];
 }
 
 function graphUrl(

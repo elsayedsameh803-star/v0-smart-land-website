@@ -13,7 +13,7 @@ export interface TestResult {
  */
 export async function testInstagramAPI(): Promise<TestResult> {
   const start = Date.now();
-  const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || process.env.FACEBOOK_APP_ID || process.env.META_APP_ID;
+  const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || process.env.FACEBOOK_CLIENT_ID || process.env.FACEBOOK_APP_ID || process.env.META_APP_ID;
   const appSecret = process.env.FACEBOOK_CLIENT_SECRET || process.env.FACEBOOK_APP_SECRET || process.env.META_APP_SECRET;
 
   if (!appId) {

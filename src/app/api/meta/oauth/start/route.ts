@@ -15,7 +15,7 @@
 // =============================================================================
 
 import { NextRequest, NextResponse } from "next/server";
-import { getMetaConfig } from "@/lib/meta-graph";
+import { getMetaConfig, getMissingMetaEnvVars } from "@/lib/meta-graph";
 import { getCallbackUrl, META_OAUTH_SCOPES } from "@/lib/oauth-config";
 import { newStateToken, safeReturnPath, stateCookieOptions } from "@/lib/oauth-utils";
 
@@ -28,7 +28,11 @@ export async function GET(request: NextRequest) {
   const { appId, appSecret } = getMetaConfig();
   if (!appId || !appSecret) {
     return NextResponse.json(
-      { success: false, code: "not_configured", error: "Meta app credentials are not configured on the server." },
+      {
+        success: false,
+        code: "not_configured",
+        error: `Meta app credentials are not configured on the server. Missing: ${getMissingMetaEnvVars().join(", ")}`,
+      },
       { status: 503 }
     );
   }

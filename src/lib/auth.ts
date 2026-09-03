@@ -49,6 +49,7 @@ const clean = (v: string | undefined): string => (v || "").trim();
 const facebookAppId = clean(
   process.env.NEXT_PUBLIC_FACEBOOK_APP_ID ||
     process.env.FACEBOOK_APP_ID ||
+    process.env.FACEBOOK_CLIENT_ID ||
     process.env.META_APP_ID
 );
 const facebookAppSecret = clean(
