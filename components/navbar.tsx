@@ -193,6 +193,20 @@ export function Navbar() {
               >
                 {t("اتصل بنا", "Contact")}
               </Link>
+              {user && !isLoading && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-fit text-destructive hover:text-destructive"
+                  onClick={() => {
+                    logout()
+                    setMobileMenuOpen(false)
+                  }}
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  {t("تسجيل الخروج", "Logout")}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"

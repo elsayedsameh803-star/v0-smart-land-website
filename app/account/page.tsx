@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { AuthProvider, useAuth } from "@/lib/auth-context"
 import { LanguageProvider, useLanguage } from "@/lib/language-context"
 import { Navbar } from "@/components/navbar"
@@ -12,7 +13,8 @@ import { Loader2, User } from "lucide-react"
 
 function AccountContent() {
   const { t } = useLanguage()
-  const { user, isLoading } = useAuth()
+  const { user, isLoading, logout } = useAuth()
+  const router = useRouter()
 
   if (isLoading) {
     return <div className="flex min-h-[calc(100vh-200px)] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
@@ -29,13 +31,26 @@ function AccountContent() {
     )
   }
 
+  const handleLogout = () => {
+    logout()
+    router.replace("/")
+  }
+
   return (
     <div className="mx-auto flex min-h-[calc(100vh-200px)] max-w-3xl items-center justify-center px-4 py-12">
       <Card className="w-full">
         <CardHeader><CardTitle className="flex items-center gap-2"><User className="h-5 w-5" />{t("حسابي", "My account")}</CardTitle></CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           <p><span className="text-muted-foreground">{t("الاسم:", "Name:")}</span> {user.name}</p>
           <p><span className="text-muted-foreground">{t("البريد الإلكتروني:", "Email:")}</span> {user.email}</p>
+          <Button
+            type="button"
+            variant="outline"
+            className="text-destructive hover:text-destructive"
+            onClick={handleLogout}
+          >
+            {t("تسجيل الخروج", "Logout")}
+          </Button>
         </CardContent>
       </Card>
     </div>
