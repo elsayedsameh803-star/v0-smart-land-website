@@ -24,9 +24,9 @@ import { authOptions } from "@/lib/auth";
 import { resolveConnectionHealth, PlatformId } from "@/lib/connections";
 
 export type AccessError =
-  | { code: "auth_required"; message: string }
-  | { code: "connection_required"; platform: string; message: string }
-  | { code: "token_expired"; platform: string; message: string };
+  | { code: "auth_required"; message: string; messageAr: string }
+  | { code: "connection_required"; platform: string; message: string; messageAr: string }
+  | { code: "token_expired"; platform: string; message: string; messageAr: string };
 
 const SOCIAL_PLATFORMS: PlatformId[] = [
   "facebook",
@@ -60,11 +60,12 @@ export async function checkAnalysisAccess(
     const resp: AccessError = {
       code: "auth_required",
       message: "Sign in first to continue.",
+      messageAr: "يرجى تسجيل الدخول أولاً للمتابعة.",
     };
     return {
       ok: false,
       response: NextResponse.json(
-        { success: false, error: resp.message, code: resp.code, platform },
+        { success: false, error: resp.message, errorAr: resp.messageAr, code: resp.code, platform },
         { status: 401 }
       ),
     };
@@ -98,14 +99,24 @@ export async function checkAnalysisAccess(
   if (!health.usable) {
     // Distinguish "expired, needs reconnect" from "never connected".
     const err: AccessError = health.connected
-      ? { code: "token_expired", platform, message: `Your ${platform} connection needs to be refreshed.` }
-      : { code: "connection_required", platform, message: `Connect your ${platform} account to analyze it.` };
+      ? {
+          code: "token_expired",
+          platform,
+          message: `Your ${platform} connection has expired. Reconnect your ${platform} account to continue.`,
+          messageAr: `انتهت صلاحية ربط حساب ${platform}. أعد ربط حسابك للمتابعة.`,
+        }
+      : {
+          code: "connection_required",
+          platform,
+          message: `Connect your ${platform} account to analyze it.`,
+          messageAr: `يرجى ربط حساب ${platform} لتحليله.`,
+        };
 
     return {
       ok: false,
       response: finalize(
         NextResponse.json(
-          { success: false, error: err.message, code: err.code, platform },
+          { success: false, error: err.message, errorAr: err.messageAr, code: err.code, platform },
           { status: 401 }
         )
       ),
@@ -136,4 +147,3 @@ export class GateError extends Error {
     this.platform = platform;
   }
 }
-

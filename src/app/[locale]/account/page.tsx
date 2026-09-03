@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 import {
   CreditCard,
   Download,
@@ -16,6 +17,7 @@ import {
   FileBarChart,
   Link2,
   Unlink,
+  LogOut,
 } from "lucide-react";
 
 import { PLATFORMS } from "@/lib/platforms";
@@ -103,6 +105,7 @@ const T: Record<string, any> = {
     connect: "Connect",
     reconnect: "Reconnect",
     disconnect: "Disconnect",
+    logout: "Sign out",
   },
   ar: {
     title: "حسابي",
@@ -142,6 +145,7 @@ const T: Record<string, any> = {
     connect: "ربط",
     reconnect: "إعادة الربط",
     disconnect: "إلغاء الربط",
+    logout: "تسجيل الخروج",
   },
 };
 
@@ -157,6 +161,7 @@ export default function AccountPage({ params }: PageProps) {
   const locale = params?.locale === "ar" ? "ar" : "en";
   const dir = locale === "ar" ? "rtl" : "ltr";
   const t = T[locale];
+  const { data: session, status } = useSession();
 
   const [customer, setCustomer] = useState<{ name: string; email: string } | null>(null);
   const [subscription, setSubscription] = useState<Subscription | null>(null);
@@ -171,6 +176,10 @@ export default function AccountPage({ params }: PageProps) {
   const [connecting, setConnecting] = useState<string | null>(null);
   const [disconnecting, setDisconnecting] = useState<string | null>(null);
   const [connectionsLoaded, setConnectionsLoaded] = useState(false);
+
+  const handleLogout = useCallback(() => {
+    void signOut({ callbackUrl: `/${locale}` });
+  }, [locale]);
 
   const loadConnections = useCallback(async () => {
     try {
@@ -405,6 +414,16 @@ export default function AccountPage({ params }: PageProps) {
                   <Zap className="w-4 h-4" />
                   {isPaidActive ? t.renew : t.subscribe}
                 </Link>
+                {status === "authenticated" && session?.user && (
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="inline-flex items-center gap-2 rounded-lg border border-rose-500/30 px-4 py-2.5 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/10"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {t.logout}
+                  </button>
+                )}
                 {message && <p className="text-xs text-rose-300">{message}</p>}
               </div>
             </div>

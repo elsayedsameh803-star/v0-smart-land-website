@@ -368,13 +368,7 @@ export async function performRealSocialAnalysis(
 
   if (!response.ok) {
     callbacks?.onStageError?.("fetching");
-    let errorMsg = `Server returned HTTP ${response.status}`;
-    try {
-      const errBody = await response.json();
-      if (locale === "ar" && errBody.errorAr) errorMsg = errBody.errorAr;
-      else if (errBody.error) errorMsg = errBody.error;
-    } catch { /* ignore parse errors */ }
-    throw new Error(errorMsg);
+    await handleApiError(response, locale, platform);
   }
 
   let json: any;

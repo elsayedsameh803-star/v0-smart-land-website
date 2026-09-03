@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { Menu, X, Globe, Sparkles, Gift, ShieldCheck } from "lucide-react";
+import { Menu, X, Globe, Sparkles, Gift, ShieldCheck, LogOut } from "lucide-react";
 
 interface HeaderProps {
   locale: string;
@@ -19,6 +20,7 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [showAnnouncement, setShowAnnouncement] = useState(false);
   const pathname = usePathname();
+  const { data: session, status } = useSession();
 
   // Show the announcement bar ONCE per visitor. After the visitor sees it
   // (or dismisses it) the flag is persisted in localStorage, independent of
@@ -161,6 +163,16 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
 
           {/* Desktop Actions */}
           <div className="hidden lg:flex items-center gap-3">
+            {status === "authenticated" && session?.user && (
+              <button
+                type="button"
+                onClick={() => signOut({ callbackUrl: `/${locale}` })}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-red-300 hover:text-red-200 transition-all duration-200 border border-red-500/20 hover:border-red-500/40 hover:bg-red-500/10"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>{locale === "ar" ? "تسجيل الخروج" : "Sign out"}</span>
+              </button>
+            )}
             <Link
               href="/admin"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-dark-950 bg-gradient-to-r from-gold-500 to-gold-400 hover:from-gold-400 hover:to-gold-300 shadow-lg shadow-gold-500/20 hover:shadow-gold-500/40 transition-all duration-200"
@@ -208,6 +220,19 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
                   </Link>
                 );
               })}
+              {status === "authenticated" && session?.user && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    void signOut({ callbackUrl: `/${locale}` });
+                  }}
+                  className="flex w-full items-center gap-2 px-4 py-3.5 rounded-xl text-sm text-red-300 hover:text-red-200 hover:bg-red-500/10 transition-all duration-200 border border-red-500/20 text-start"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>{locale === "ar" ? "تسجيل الخروج" : "Sign out"}</span>
+                </button>
+              )}
               <Link 
                 href={localePath} 
                 className="flex items-center gap-2 px-4 py-3.5 rounded-xl text-sm text-dark-300 hover:text-gold-400 hover:bg-gold-500/5 transition-all duration-200 border border-transparent"
