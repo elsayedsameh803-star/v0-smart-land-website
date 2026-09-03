@@ -182,10 +182,11 @@ export default function AccountPage({ params }: PageProps) {
   }, [locale]);
 
   useEffect(() => {
-    if (status === "authenticated" && session?.user?.email) {
+    const user = session?.user;
+    if (status === "authenticated" && user?.email) {
       setCustomer((current) => current || {
-        email: session.user.email || "",
-        name: session.user.name || session.user.email || "",
+        email: user.email,
+        name: user.name || user.email,
       });
     }
   }, [session, status]);
