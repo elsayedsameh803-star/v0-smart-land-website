@@ -181,6 +181,15 @@ export default function AccountPage({ params }: PageProps) {
     void signOut({ callbackUrl: `/${locale}` });
   }, [locale]);
 
+  useEffect(() => {
+    if (status === "authenticated" && session?.user?.email) {
+      setCustomer((current) => current || {
+        email: session.user.email || "",
+        name: session.user.name || session.user.email || "",
+      });
+    }
+  }, [session, status]);
+
   const loadConnections = useCallback(async () => {
     try {
       const res = await fetch("/api/connections");
@@ -336,7 +345,7 @@ export default function AccountPage({ params }: PageProps) {
             <Loader2 className="w-8 h-8 animate-spin text-gold-400 mx-auto mb-3" />
             <p className="text-sm text-dark-400">{t.loading}</p>
           </div>
-        ) : !customer ? (
+        ) : status === "unauthenticated" ? (
           <div className="rounded-2xl bg-dark-900 border border-gold-500/10 p-10 text-center space-y-4">
             <AlertTriangle className="w-10 h-10 mx-auto text-gold-400" />
             <h2 className="text-lg font-semibold text-white">{t.signIn}</h2>
