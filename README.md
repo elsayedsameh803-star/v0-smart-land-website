@@ -22,6 +22,26 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Social integrations
+
+The analysis page fetches live public website data and account data through the
+official APIs. Keep credentials server-side; never use `NEXT_PUBLIC_` for these
+values. Configure the following variables in `.env.local` and in the Vercel
+project settings:
+
+```bash
+YOUTUBE_API_KEY=
+TIKTOK_ACCESS_TOKEN=
+META_ACCESS_TOKEN=
+META_INSTAGRAM_ACCOUNT_ID=
+META_FACEBOOK_PAGE_ID=
+```
+
+YouTube requires a Data API v3 key. TikTok requires a valid OAuth access token
+with the User Info scope. Meta requires a token with the Instagram Business
+Account/Page permissions and the corresponding account IDs. Missing credentials
+produce an explicit configuration error instead of fabricated metrics.
+
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
 ## Learn More
