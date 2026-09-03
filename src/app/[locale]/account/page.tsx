@@ -328,6 +328,10 @@ export default function AccountPage({ params }: PageProps) {
   const num = (n: number | undefined) => (n === -1 || n === undefined ? t.unlimited : String(n));
 
   const isPaidActive = !!subscription && subscription.status === "active";
+  const accountCustomer = customer || {
+    name: session?.user?.name || "",
+    email: session?.user?.email || "",
+  };
 
   return (
     <div dir={dir} className="min-h-screen bg-dark-950 text-gold-100 pt-32 pb-20 px-4">
@@ -370,8 +374,8 @@ export default function AccountPage({ params }: PageProps) {
                   <CreditCard className="w-5 h-5 text-gold-400" />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="font-bold text-dark-950">{customer.name || customer.email}</h2>
-                  <p className="text-xs text-dark-900/80">{customer.email}</p>
+                  <h2 className="font-bold text-dark-950">{accountCustomer.name || accountCustomer.email}</h2>
+                  <p className="text-xs text-dark-900/80">{accountCustomer.email}</p>
                 </div>
                 {isPaidActive && (
                   <span className={`ms-auto text-xs px-3 py-1 rounded-full border ${STATUS_STYLES.active}`}>{statusLabel}</span>
