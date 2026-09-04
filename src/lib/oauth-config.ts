@@ -17,6 +17,7 @@
 import type { PlatformId } from "./connections";
 import { getMetaConfig } from "./meta-graph";
 import { getTikTokClientKey, getTikTokClientSecret } from "./tiktok-api";
+import { getSiteUrl } from "./site-config";
 
 export function getYouTubeClientId(): string {
   return process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
@@ -99,10 +100,6 @@ export function isPlatformConfigured(platform: PlatformId): boolean {
  * and Vercel preview/production each resolve to the right origin.
  */
 export function getCallbackUrl(path: string): string {
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : "http://localhost:3000");
+  const base = getSiteUrl();
   return `${base.replace(/\/+$/, "")}${path}`;
 }
