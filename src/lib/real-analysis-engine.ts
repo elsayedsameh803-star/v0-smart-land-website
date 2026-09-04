@@ -449,6 +449,8 @@ export async function performRealSocialAnalysis(
       dataAvailability: data.metadata?.dataAvailability,
     },
     socialData: data,
+    premiumLocked: data.premiumLocked === true,
+    upgradeUrl: data.upgradeUrl,
   };
 
   callbacks?.onStageComplete?.("preparing");

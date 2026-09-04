@@ -70,6 +70,8 @@ export interface AnalysisResult {
    * Never contains tokens or secrets.
    */
   socialData?: Record<string, any>;
+  premiumLocked?: boolean;
+  upgradeUrl?: string;
 }
 
 export interface CategoryScores {

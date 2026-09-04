@@ -48,6 +48,12 @@ export async function checkAnalysisAccess(
   request: NextRequest,
   platform: string
 ): Promise<{ ok: true; session: AnySession; connection: any } | { ok: false; response: NextResponse }> {
+  // YouTube public analysis uses only public channel/video data. OAuth remains
+  // optional for users who want private YouTube Analytics data.
+  if (platform === "youtube") {
+    return { ok: true, session: {}, connection: null };
+  }
+
   // --- 1. Authentication -----------------------------------------------------
   let session: AnySession | null = null;
   try {

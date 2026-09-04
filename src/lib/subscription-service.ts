@@ -146,13 +146,16 @@ export const FREE_USAGE_COOKIE = "smartland_free_usage";
 const FREE_USAGE_MAX_AGE = 60 * 60 * 24 * 30; // 30 days
 
 export function getFreeAnalysesLimit(): number {
-  // Smart Land is fully open — every visitor gets unlimited analysis with no
-  // quota. The legacy FREE_ANALYSES_LIMIT env var is intentionally not read.
-  return -1;
+  return 10;
+}
+
+function usageMonth(): string {
+  const now = new Date();
+  return `${now.getUTCFullYear()}-${now.getUTCMonth() + 1}`;
 }
 
 function signUsageToken(count: number): string {
-  const payload = b64url(JSON.stringify({ count }));
+  const payload = b64url(JSON.stringify({ count, month: usageMonth() }));
   const hmac = createHmac("sha256", cookieSecret())
     .update(payload)
     .digest("base64url");
@@ -172,9 +175,9 @@ export function readAnonymousUsage(request: NextRequest): number {
   const b = Buffer.from(expected);
   if (a.length !== b.length || !timingSafeEqual(a, b)) return 0;
   try {
-    const parsed = JSON.parse(b64urlDecode(payload)) as { count?: number };
+    const parsed = JSON.parse(b64urlDecode(payload)) as { count?: number; month?: string };
     const n = Number(parsed?.count);
-    return Number.isFinite(n) && n >= 0 ? n : 0;
+    return parsed.month === usageMonth() && Number.isFinite(n) && n >= 0 ? n : 0;
   } catch {
     return 0;
   }

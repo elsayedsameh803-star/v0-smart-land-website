@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { buildSocialAnalysisResponse, normalizeProfileData } from "@/lib/social-analysis-helper";
 import { safeFetch } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
-import { enforceSubscription } from "@/lib/subscription-shield";
 import { checkAnalysisAccess } from "@/lib/analysis-gate";
 import { getYouTubeApiKey } from "@/lib/oauth-config";
+import {
+  getAccessDecision,
+  getCustomerFromRequest,
+  getFreeAnalysesLimit,
+  readAnonymousUsage,
+  buildFreeUsageCookieValue,
+} from "@/lib/subscription-service";
 
 export const dynamic = "force-dynamic";
 
@@ -16,8 +22,24 @@ export async function POST(request: NextRequest) {
     const gate = await checkAnalysisAccess(request, "youtube");
     if (!gate.ok) return gate.response;
 
-    const blocked = enforceSubscription(request);
-    if (blocked) return blocked;
+    const customer = getCustomerFromRequest(request);
+    const access = getAccessDecision(customer?.email);
+    const freeLimit = getFreeAnalysesLimit();
+    const freeUsed = access.hasSubscription ? 0 : readAnonymousUsage(request);
+    if (!access.hasSubscription && freeUsed >= freeLimit) {
+      return NextResponse.json(
+        {
+          success: false,
+          code: "subscription_required",
+          error: "Your free monthly analyses are finished. Subscribe to unlock more analyses.",
+          errorAr: "انتهت تحليلاتك المجانية لهذا الشهر. اشترك لفتح تحليلات إضافية.",
+          subscribeUrl: "/checkout?plan=pro",
+          freeLimit,
+          freeUsed,
+        },
+        { status: 402 }
+      );
+    }
     if (!url) {
       return NextResponse.json({ error: "URL required" }, { status: 400 });
     }
@@ -136,8 +158,7 @@ export async function POST(request: NextRequest) {
     if (getYouTubeApiKey()) dataSources.push("youtube-data-api");
 
     recordAnalysis("youtube", true);
-    return NextResponse.json(
-      await buildSocialAnalysisResponse({
+    const analysis = await buildSocialAnalysisResponse({
         platform: "youtube",
         username: (profileData.channelName || videoId).toLowerCase().replace(/[^a-z0-9]/g, "") || videoId,
         url: normalizedUrl,
@@ -164,8 +185,20 @@ export async function POST(request: NextRequest) {
         dataSources,
         sourceConfidence,
         startTime,
-      })
-    );
+      });
+    const premiumLocked = !access.hasSubscription;
+    if (premiumLocked) {
+      analysis.data.findings = [];
+      analysis.data.criticalIssues = [];
+      analysis.data.weaknesses = [];
+      analysis.data.premiumLocked = true;
+      analysis.data.upgradeUrl = "/checkout?plan=pro";
+    }
+    const response = NextResponse.json(analysis);
+    if (!access.hasSubscription) {
+      response.headers.set("Set-Cookie", buildFreeUsageCookieValue(freeUsed + 1));
+    }
+    return response;
   } catch (error: any) {
     recordAnalysis("youtube", false);
     return NextResponse.json({ 

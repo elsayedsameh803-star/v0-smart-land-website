@@ -81,7 +81,7 @@ export function ConnectionGate({ locale, selectedPlatform, onConnectionVerified 
   const platformName = meta ? (isAr ? meta.nameAr : meta.name) : selectedPlatform;
 
   const checkConnections = useCallback(async () => {
-    if (!session?.user || !isSocialPlatform) {
+    if (selectedPlatform === "youtube" || !session?.user || !isSocialPlatform) {
       onConnectionVerified?.(true);
       return;
     }
@@ -128,7 +128,9 @@ export function ConnectionGate({ locale, selectedPlatform, onConnectionVerified 
   }, [session, selectedPlatform, isSocialPlatform, onConnectionVerified]);
 
   useEffect(() => {
-    checkConnections();
+    if (selectedPlatform !== "youtube") {
+      checkConnections();
+    }
   }, [checkConnections]);
 
   // Surface THIS platform's own OAuth return flag (snapchat_oauth /
@@ -170,7 +172,7 @@ export function ConnectionGate({ locale, selectedPlatform, onConnectionVerified 
     window.location.href = `/${locale}/login?callbackUrl=${encodeURIComponent(callbackUrl)}`;
   }, [locale]);
 
-  if (!isSocialPlatform) return null;
+  if (selectedPlatform === "youtube" || !isSocialPlatform) return null;
 
   if (checking || sessionStatus === "loading") {
     return (

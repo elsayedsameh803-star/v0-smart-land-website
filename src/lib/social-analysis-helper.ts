@@ -98,6 +98,8 @@ export async function buildSocialAnalysisResponse(params: {
       findings,
       strengths,
       weaknesses,
+      premiumLocked: false,
+      upgradeUrl: "",
       profileSummary,
       unavailableMetrics: breakdown.unavailableMetrics,
       hasLiveData: breakdown.hasLiveData,

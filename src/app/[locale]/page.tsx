@@ -238,6 +238,25 @@ export default function HomePage({ params }: PageProps) {
 
             <ScoreBreakdown overallScore={analysisResult.overallScore} scores={analysisResult.scores} locale={locale} />
 
+            {analysisResult.premiumLocked && (
+              <div className="rounded-xl p-6 bg-gold-500/10 border border-gold-500/30 text-center">
+                <h3 className="text-xl font-semibold text-gold-300">
+                  {locale === "ar" ? "التفاصيل المتقدمة متاحة بالاشتراك" : "Advanced details require a subscription"}
+                </h3>
+                <p className="text-dark-300 mt-2">
+                  {locale === "ar"
+                    ? "تم عرض التحليل العام. اشترك لعرض العيوب والأدلة وخطة الإصلاح."
+                    : "Your public overview is ready. Subscribe to unlock findings, evidence, and fixes."}
+                </p>
+                <a
+                  href={analysisResult.upgradeUrl || "/checkout?plan=pro"}
+                  className="inline-block mt-4 px-5 py-2 rounded-lg bg-gold-500 text-dark-950 font-bold"
+                >
+                  {locale === "ar" ? "اشترك الآن" : "Subscribe now"}
+                </a>
+              </div>
+            )}
+
             {/* Linking gate: public analysis stays open; private/hidden pages
                 get a one-click connect prompt that returns here instantly */}
             <SocialLinkPrompt platform={platform} result={analysisResult} locale={locale} />
@@ -277,7 +296,7 @@ export default function HomePage({ params }: PageProps) {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {!analysisResult.premiumLocked && <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="rounded-xl p-6 bg-dark-800/60 border border-gold-500/10">
                 <h3 className="text-lg font-semibold text-gold-400 mb-4">{locale === "ar" ? "نقاط القوة" : "Strengths"}</h3>
                 <ul className="space-y-2">
@@ -304,9 +323,9 @@ export default function HomePage({ params }: PageProps) {
                   )}
                 </ul>
               </div>
-            </div>
+            </div>}
 
-            {analysisResult.criticalIssues.length > 0 && (
+            {!analysisResult.premiumLocked && analysisResult.criticalIssues.length > 0 && (
               <div className="rounded-xl p-6 bg-red-500/5 border border-red-500/20">
                 <h3 className="text-lg font-semibold text-red-400 mb-4">{locale === "ar" ? "المشكلات الحرجة" : "Critical Issues"}</h3>
                 <div className="space-y-4">
@@ -317,22 +336,22 @@ export default function HomePage({ params }: PageProps) {
               </div>
             )}
 
-            <div>
+            {!analysisResult.premiumLocked && <div>
               <h3 className="text-xl font-semibold text-white mb-6">{locale === "ar" ? "جميع النتائج والأدلة" : "All Findings & Evidence"}</h3>
               <div className="space-y-4">
                 {analysisResult.findings.map((finding) => (
                   <EvidenceCard key={finding.id} finding={finding} locale={locale} onHelpFix={() => handleHelpFix(finding)} />
                 ))}
               </div>
-            </div>
+            </div>}
 
-            <CompetitorComparison primaryResult={analysisResult} locale={locale} />
+            {!analysisResult.premiumLocked && <CompetitorComparison primaryResult={analysisResult} locale={locale} />}
 
             {history.length > 0 && (
               <AnalysisHistory history={history} locale={locale} onReAnalyze={handleReAnalyze} currentResult={analysisResult} />
             )}
 
-            <PdfReport result={analysisResult} locale={locale} />
+            {!analysisResult.premiumLocked && <PdfReport result={analysisResult} locale={locale} />}
           </div>
         </div>
       )}
