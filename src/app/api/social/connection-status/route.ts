@@ -45,6 +45,19 @@ export async function GET(request: NextRequest) {
       const isConnected = health.usable;
       const isExpired = health.needsReconnect;
 
+      // Public YouTube analysis remains available even when its optional OAuth
+      // connection expires, so do not report a reconnect requirement here.
+      if (platform === "youtube" && !isConnected) {
+        statuses.push({
+          platform,
+          connected: false,
+          requiresConnection: false,
+          message: "YouTube public analysis available",
+          messageAr: "التحليل العام ليوتيوب متاح",
+        });
+        continue;
+      }
+
       let message = "";
       let messageAr = "";
 
@@ -133,6 +146,21 @@ export async function POST(request: NextRequest) {
 
     const isConnected = health.usable;
     const isExpired = health.needsReconnect;
+ 
+    // Public YouTube analysis remains available even when its optional OAuth
+    // connection expires, so do not report a reconnect requirement here.
+    if (platform === "youtube" && !isConnected) {
+      return NextResponse.json({
+        success: true,
+        platform,
+        connected: false,
+        expired: false,
+        requiresConnection: false,
+        message: `${platformName.en} public analysis available`,
+        messageAr: `التحليل العام لـ${platformName.ar} متاح`,
+        code: "public_analysis",
+      });
+    }
 
     let message = "";
     let messageAr = "";

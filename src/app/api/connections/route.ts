@@ -83,6 +83,19 @@ export async function GET(request: NextRequest) {
         return baseStatus(platform, false);
       }
 
+      // YouTube analysis uses public video/channel data and must not be
+      // blocked by an optional OAuth token that expired or was replaced.
+      if (platform === "youtube" && !health.usable) {
+        return {
+          ...baseStatus(platform, false),
+          displayName: health.connection.displayName,
+          accountId: health.connection.accountId,
+          connectedAt: health.connection.connectedAt,
+          scope: health.connection.token.scope ?? "",
+          canRefresh: health.canRefresh,
+        };
+      }
+
       return {
         ...baseStatus(platform, health.connected),
         displayName: health.connection.displayName,
@@ -102,5 +115,4 @@ export async function GET(request: NextRequest) {
   }
   return resp;
 }
-
 
