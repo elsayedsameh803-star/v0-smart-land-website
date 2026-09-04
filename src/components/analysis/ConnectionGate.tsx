@@ -131,7 +131,7 @@ export function ConnectionGate({ locale, selectedPlatform, onConnectionVerified 
     if (selectedPlatform !== "youtube") {
       checkConnections();
     }
-  }, [checkConnections]);
+  }, [checkConnections, selectedPlatform]);
 
   // Surface THIS platform's own OAuth return flag (snapchat_oauth /
   // youtube_oauth / meta_oauth / tiktok_oauth / linkedin_oauth). Success needs
