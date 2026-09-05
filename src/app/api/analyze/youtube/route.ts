@@ -338,13 +338,60 @@ function formatCount(n: number): string {
 }
 
 function extractVideoId(url: string): string | null {
-  const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
-    /^([a-zA-Z0-9_-]{11})$/,
-  ];
-  for (const p of patterns) {
-    const m = url.match(p);
-    if (m) return m[1];
+  if (!url || typeof url !== "string") return null;
+
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+
+  const bareVideoId = trimmed.match(/^([a-zA-Z0-9_-]{11})$/)?.[1];
+  if (bareVideoId) return bareVideoId;
+
+  const normalizedUrl = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+
+  try {
+    const parsed = new URL(normalizedUrl);
+    const hostname = parsed.hostname.toLowerCase().replace(/^www\./, "");
+    const isYouTubeHost = hostname === "youtube.com" || hostname === "m.youtube.com" || hostname === "youtu.be";
+    if (!isYouTubeHost) return null;
+
+    const videoIdFromQuery = parsed.searchParams.get("v");
+    if (videoIdFromQuery && /^[a-zA-Z0-9_-]{11}$/.test(videoIdFromQuery)) {
+      return videoIdFromQuery;
+    }
+
+    const segments = parsed.pathname.split("/").filter(Boolean);
+    for (const segment of segments) {
+      if (["shorts", "embed", "live", "v"].includes(segment)) {
+        const next = segments[segments.indexOf(segment) + 1];
+        if (next && /^[a-zA-Z0-9_-]{11}$/.test(next)) {
+          return next;
+        }
+      }
+    }
+
+    const directMatch = parsed.pathname.match(/\/([a-zA-Z0-9_-]{11})(?:[/?#]|$)/);
+    if (directMatch) return directMatch[1];
+
+    if (hostname === "youtu.be") {
+      const shortId = parsed.pathname.replace(/^\//, "").split(/[/?#]/)[0];
+      if (/^[a-zA-Z0-9_-]{11}$/.test(shortId)) {
+        return shortId;
+      }
+    }
+  } catch {
+    // fall through to regex fallback below
   }
+
+  const regexPatterns = [
+    /(?:?:youtube\.com|m\.youtube\.com|www\.youtube\.com)\/(?:watch\?v=|shorts\/|embed\/|live\/|v\/)([a-zA-Z0-9_-]{11})/i,
+    /youtu\.be\/([a-zA-Z0-9_-]{11})/i,
+    /[?&]v=([a-zA-Z0-9_-]{11})/i,
+  ];
+
+  for (const pattern of regexPatterns) {
+    const match = trimmed.match(pattern);
+    if (match) return match[1];
+  }
+
   return null;
 }
