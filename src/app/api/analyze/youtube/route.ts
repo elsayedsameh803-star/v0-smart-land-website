@@ -4,6 +4,7 @@ import { safeFetch } from "@/lib/security";
 import { recordAnalysis } from "@/lib/admin-stats";
 import { checkAnalysisAccess } from "@/lib/analysis-gate";
 import { getYouTubeApiKey } from "@/lib/oauth-config";
+import { getSiteUrl } from "@/lib/site-config";
 import {
   getAccessDecision,
   getCustomerFromRequest,
@@ -220,13 +221,22 @@ interface YouTubeApiResult {
   profile: Record<string, any>;
 }
 
+function youtubeApiRequestInit(): RequestInit {
+  return {
+    headers: {
+      Accept: "application/json",
+      Referer: `${getSiteUrl()}/`,
+    },
+  };
+}
+
 async function fetchYouTubeChannelApiData(
   channelId: string,
   apiKey: string
 ): Promise<YouTubeApiResult | null> {
   const response = await safeFetch(
     `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${encodeURIComponent(channelId)}&key=${apiKey}`,
-    { headers: { Accept: "application/json" } },
+    youtubeApiRequestInit(),
     15000
   );
   if (!response.ok) return null;
@@ -279,7 +289,7 @@ async function fetchYouTubeApiData(
 ): Promise<YouTubeApiResult | null> {
   const videoRes = await safeFetch(
     `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${apiKey}`,
-    { headers: { Accept: "application/json" } },
+    youtubeApiRequestInit(),
     15000
   );
   if (!videoRes.ok) {
@@ -327,7 +337,7 @@ async function fetchYouTubeApiData(
     try {
       const chRes = await safeFetch(
         `https://www.googleapis.com/youtube/v3/channels?part=statistics,snippet&id=${channelId}&key=${apiKey}`,
-        { headers: { Accept: "application/json" } },
+        youtubeApiRequestInit(),
         15000
       );
       if (chRes.ok) {

@@ -1,4 +1,5 @@
 import { getYouTubeApiKey } from "@/lib/oauth-config";
+import { getSiteUrl } from "@/lib/site-config";
 
 export interface TestResult {
   platform: string;
@@ -32,7 +33,10 @@ export async function testYouTubeAPI(): Promise<TestResult> {
     const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics&id=${testVideoId}&key=${apiKey}`;
     
     const res = await fetch(url, {
-      headers: { Accept: "application/json" },
+      headers: {
+        Accept: "application/json",
+        Referer: `${getSiteUrl()}/`,
+      },
       signal: AbortSignal.timeout(15000),
     });
 
