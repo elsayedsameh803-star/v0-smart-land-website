@@ -44,17 +44,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "URL required" }, { status: 400 });
     }
 
-    const videoId = extractVideoId(url);
-    if (!videoId) {
+    const target = extractYouTubeTarget(url);
+    if (!target) {
       return NextResponse.json({ error: "Invalid YouTube URL" }, { status: 400 });
     }
+    const { videoId, channelId } = target;
 
     const startTime = Date.now();
     let profileData: Record<string, any> = {};
 
     // Fetch YouTube page publicly - real data extraction
     try {
-      const res = await safeFetch(`https://www.youtube.com/watch?v=${videoId}`, {
+      const publicUrl = videoId
+        ? `https://www.youtube.com/watch?v=${videoId}`
+        : `https://www.youtube.com/channel/${channelId}`;
+      const res = await safeFetch(publicUrl, {
         headers: { 
           "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           "Accept-Language": "en-US,en;q=0.9",
@@ -108,8 +112,8 @@ export async function POST(request: NextRequest) {
         }
 
         profileData = {
-          username: channelName || videoId,
-          displayName: channelName || videoId,
+          username: channelName || channelId || videoId,
+          displayName: channelName || channelId || videoId,
           title,
           description,
           views,
@@ -124,7 +128,7 @@ export async function POST(request: NextRequest) {
           tags,
           hashtags,
           engagementRate,
-          fullName: channelName || videoId,
+          fullName: channelName || channelId || videoId,
           bio: description || "",
           bioHashtags: hashtags,
           followers: subscribers,
@@ -140,7 +144,9 @@ export async function POST(request: NextRequest) {
     const apiKey = getYouTubeApiKey();
     if (apiKey) {
       try {
-        const apiResult = await fetchYouTubeApiData(videoId, apiKey);
+        const apiResult = videoId
+          ? await fetchYouTubeApiData(videoId, apiKey)
+          : await fetchYouTubeChannelApiData(channelId!, apiKey);
         if (apiResult) {
           // Overlay real API metrics onto any scraped data (never hard-fail)
           profileData = { ...profileData, ...apiResult.profile };
@@ -151,7 +157,9 @@ export async function POST(request: NextRequest) {
     }
 
     const normalizedData = normalizeProfileData("youtube", profileData);
-    const normalizedUrl = `https://youtube.com/watch?v=${videoId}`;
+    const normalizedUrl = videoId
+      ? `https://youtube.com/watch?v=${videoId}`
+      : `https://youtube.com/channel/${channelId}`;
     const hasSourceData = Object.values(profileData).some((value) => value !== undefined && value !== null && value !== "");
     const sourceConfidence = hasSourceData ? "high" : "low";
     const dataSources = ["youtube-page-scrape"];
@@ -160,7 +168,7 @@ export async function POST(request: NextRequest) {
     recordAnalysis("youtube", true);
     const analysis = await buildSocialAnalysisResponse({
         platform: "youtube",
-        username: (profileData.channelName || videoId).toLowerCase().replace(/[^a-z0-9]/g, "") || videoId,
+        username: (profileData.channelName || channelId || videoId).toLowerCase().replace(/[^a-z0-9]/g, "") || channelId || videoId!,
         url: normalizedUrl,
         locale,
         profileData: {
@@ -168,7 +176,7 @@ export async function POST(request: NextRequest) {
           ...normalizedData,
         },
         extraData: {
-          videoId,
+          videoId: videoId || null,
           videoTitle: profileData.title || null,
           views: profileData.views || 0,
           likes: profileData.likes || 0,
@@ -210,6 +218,54 @@ export async function POST(request: NextRequest) {
 
 interface YouTubeApiResult {
   profile: Record<string, any>;
+}
+
+async function fetchYouTubeChannelApiData(
+  channelId: string,
+  apiKey: string
+): Promise<YouTubeApiResult | null> {
+  const response = await safeFetch(
+    `https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id=${encodeURIComponent(channelId)}&key=${apiKey}`,
+    { headers: { Accept: "application/json" } },
+    15000
+  );
+  if (!response.ok) return null;
+
+  const item = (await response.json())?.items?.[0];
+  if (!item) return null;
+
+  const snippet = item.snippet || {};
+  const statistics = item.statistics || {};
+  const subscribers = parseInt(statistics.subscriberCount || "0", 10) || 0;
+  const videoCount = parseInt(statistics.videoCount || "0", 10) || 0;
+  const channelViews = parseInt(statistics.viewCount || "0", 10) || 0;
+  const description = snippet.description || "";
+  const hashtags = description.match(/#[a-zA-Z0-9_]+/g) || [];
+
+  return {
+    profile: {
+      username: snippet.customUrl || channelId,
+      displayName: snippet.title || channelId,
+      fullName: snippet.title || channelId,
+      channelName: snippet.title || channelId,
+      channelId,
+      title: snippet.title || null,
+      description: description || null,
+      bio: description,
+      subscribers: subscribers || undefined,
+      subscribersText: subscribers ? formatCount(subscribers) : undefined,
+      followers: subscribers || undefined,
+      postsCount: videoCount || undefined,
+      channelVideoCount: videoCount || undefined,
+      channelViewCount: channelViews || undefined,
+      hashtags: hashtags.map((hashtag: string) => hashtag.replace("#", "")),
+      avatarUrl:
+        snippet.thumbnails?.high?.url ||
+        snippet.thumbnails?.default?.url ||
+        null,
+      dataSource: "youtube-data-api",
+    },
+  };
 }
 
 /**
@@ -337,14 +393,19 @@ function formatCount(n: number): string {
   return String(n);
 }
 
-function extractVideoId(url: string): string | null {
+interface YouTubeTarget {
+  videoId?: string;
+  channelId?: string;
+}
+
+function extractYouTubeTarget(url: string): YouTubeTarget | null {
   if (!url || typeof url !== "string") return null;
 
   const trimmed = url.trim();
   if (!trimmed) return null;
 
   const bareVideoId = trimmed.match(/^([a-zA-Z0-9_-]{11})$/)?.[1];
-  if (bareVideoId) return bareVideoId;
+  if (bareVideoId) return { videoId: bareVideoId };
 
   const normalizedUrl = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
 
@@ -356,26 +417,35 @@ function extractVideoId(url: string): string | null {
 
     const videoIdFromQuery = parsed.searchParams.get("v");
     if (videoIdFromQuery && /^[a-zA-Z0-9_-]{11}$/.test(videoIdFromQuery)) {
-      return videoIdFromQuery;
+      return { videoId: videoIdFromQuery };
     }
 
     const segments = parsed.pathname.split("/").filter(Boolean);
+    const channelSegmentIndex = segments.findIndex((segment) =>
+      ["channel", "user"].includes(segment.toLowerCase())
+    );
+    if (channelSegmentIndex >= 0) {
+      const candidate = segments[channelSegmentIndex + 1];
+      if (candidate && /^(UC[a-zA-Z0-9_-]{22})$/.test(candidate)) {
+        return { channelId: candidate };
+      }
+    }
     for (const segment of segments) {
       if (["shorts", "embed", "live", "v"].includes(segment)) {
         const next = segments[segments.indexOf(segment) + 1];
         if (next && /^[a-zA-Z0-9_-]{11}$/.test(next)) {
-          return next;
+          return { videoId: next };
         }
       }
     }
 
     const directMatch = parsed.pathname.match(/\/([a-zA-Z0-9_-]{11})(?:[/?#]|$)/);
-    if (directMatch) return directMatch[1];
+    if (directMatch) return { videoId: directMatch[1] };
 
     if (hostname === "youtu.be") {
       const shortId = parsed.pathname.replace(/^\//, "").split(/[/?#]/)[0];
       if (/^[a-zA-Z0-9_-]{11}$/.test(shortId)) {
-        return shortId;
+        return { videoId: shortId };
       }
     }
   } catch {
@@ -390,7 +460,7 @@ function extractVideoId(url: string): string | null {
 
   for (const pattern of regexPatterns) {
     const match = trimmed.match(pattern);
-    if (match) return match[1];
+    if (match) return { videoId: match[1] };
   }
 
   return null;
