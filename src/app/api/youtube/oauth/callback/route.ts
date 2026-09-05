@@ -15,7 +15,11 @@ import {
   getCallbackUrl,
   YOUTUBE_OAUTH_SCOPES,
 } from "@/lib/oauth-config";
-import { buildOAuthRedirect, safeReturnPath } from "@/lib/oauth-utils";
+import {
+  buildOAuthErrorRedirect,
+  buildOAuthRedirect,
+  safeReturnPath,
+} from "@/lib/oauth-utils";
 import { writeConnection } from "@/lib/connections";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +35,8 @@ export async function GET(request: NextRequest) {
   const error = request.nextUrl.searchParams.get("error");
   const expected = request.cookies.get(STATE_COOKIE)?.value;
 
-  const fail = () => buildOAuthRedirect(returnPath, "youtube_oauth=failed");
+  const fail = (message = "YouTube authorization failed. Please try connecting again.") =>
+    buildOAuthErrorRedirect(returnPath, "youtube", message);
 
   if (error) return fail();
   if (!code) return fail();
@@ -57,9 +62,13 @@ export async function GET(request: NextRequest) {
       }).toString(),
       signal: AbortSignal.timeout(15000),
     });
-    if (!tokenRes.ok) return fail();
+    if (!tokenRes.ok) {
+      const tokenError: any = await tokenRes.json().catch(() => ({}));
+      const reason = tokenError?.error_description || tokenError?.error;
+      return fail(reason ? `Google authorization failed: ${reason}` : undefined);
+    }
     const tokenData: any = await tokenRes.json();
-    if (!tokenData?.access_token) return fail();
+    if (!tokenData?.access_token) return fail("Google did not return an access token.");
 
     const now = Date.now();
 

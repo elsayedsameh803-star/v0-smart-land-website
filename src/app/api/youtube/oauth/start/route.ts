@@ -18,6 +18,7 @@ import {
   YOUTUBE_OAUTH_SCOPES,
 } from "@/lib/oauth-config";
 import { newStateToken, safeReturnPath, stateCookieOptions, buildOAuthErrorRedirect } from "@/lib/oauth-utils";
+import { clearConnection } from "@/lib/connections";
 
 export const dynamic = "force-dynamic";
 
@@ -47,6 +48,10 @@ export async function GET(request: NextRequest) {
 
   const res = NextResponse.redirect(
     `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
+  );
+  clearConnection(
+    (name, value, options) => res.cookies.set(name, value, options),
+    "youtube"
   );
   res.cookies.set(STATE_COOKIE, state, stateCookieOptions());
   res.cookies.set(RETURN_COOKIE, returnPath, stateCookieOptions());

@@ -87,12 +87,13 @@ export async function GET(request: NextRequest) {
       // blocked by an optional OAuth token that expired or was replaced.
       if (platform === "youtube" && !health.usable) {
         return {
-          ...baseStatus(platform, false),
+          ...baseStatus(platform, true),
           displayName: health.connection.displayName,
           accountId: health.connection.accountId,
           connectedAt: health.connection.connectedAt,
           scope: health.connection.token.scope ?? "",
           canRefresh: health.canRefresh,
+          needsReconnect: false,
         };
       }
 
@@ -115,4 +116,3 @@ export async function GET(request: NextRequest) {
   }
   return resp;
 }
-
