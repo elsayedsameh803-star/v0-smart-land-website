@@ -69,7 +69,7 @@ export const YOUTUBE_OAUTH_SCOPES =
   "https://www.googleapis.com/auth/youtube.readonly openid email profile";
 
 export const META_OAUTH_SCOPES =
-  "email,public_profile,pages_show_list,pages_read_engagement,instagram_basic,instagram_manage_insights";
+  "email,public_profile";
 
 export const LINKEDIN_OAUTH_SCOPES = "openid profile email offline_access";
 

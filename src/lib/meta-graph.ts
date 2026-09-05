@@ -14,10 +14,6 @@ const GRAPH_VERSION = "v20.0";
 export const FACEBOOK_SCOPES = [
   "email",
   "public_profile",
-  "pages_show_list",
-  "pages_read_engagement",
-  "instagram_basic",
-  "instagram_manage_insights",
 ].join(",");
 
 export interface MetaConfig {
@@ -104,7 +100,11 @@ export interface FacebookPage {
   instagram_business_account?: { id: string };
 }
 
-/** Pages the user manages (requires pages_show_list + pages_read_engagement). */
+/**
+ * Pages the user manages when the Meta app has the required approved
+ * permissions. The basic login flow intentionally does not request them,
+ * because unavailable permissions make Meta reject the entire OAuth request.
+ */
 export async function fetchUserPages(
   accessToken: string
 ): Promise<FacebookPage[]> {

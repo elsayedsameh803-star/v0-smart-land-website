@@ -2,9 +2,8 @@
 // Smart Land - Meta (Facebook + Instagram) OAuth start
 // =============================================================================
 // GET /api/meta/oauth/start?return=<relative path>
-//   Redirects the user to Facebook's consent dialog with the analytics scopes
-//   (pages_show_list, pages_read_engagement, instagram_basic,
-//   instagram_manage_insights...). The `state` value is stored in an HttpOnly
+//   Redirects the user to Facebook's consent dialog with the basic scopes
+//   (email, public_profile). The `state` value is stored in an HttpOnly
 //   cookie for CSRF protection and verified on callback. The `return` path is
 //   stored in a second HttpOnly cookie so the user lands exactly where they
 //   left off (open-redirect safe).
