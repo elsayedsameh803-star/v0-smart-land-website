@@ -116,6 +116,13 @@ export async function POST(request: NextRequest) {
     const normalizedData = normalizeProfileData("facebook", profileData);
     const normalizedUrl = `https://www.facebook.com/${pageId}/`;
 
+    let linkedAccessToken: string | undefined;
+    if (!hasSourceData) {
+      const gate = await checkAnalysisAccess(request, "facebook");
+      if (!gate.ok) return gate.response;
+      linkedAccessToken = gate.connection?.token?.accessToken;
+    }
+
     // ===== 1b. Optional: Meta Graph API enrichment (REAL official source) =====
     // When the site owner's Meta App credentials are configured on the server
     // (FACEBOOK_APP_ID / FACEBOOK_APP_SECRET, or META_APP_ID / META_APP_SECRET),
@@ -125,11 +132,16 @@ export async function POST(request: NextRequest) {
     // public HTML extraction result untouched — no metric is ever invented.
     let enrichedViaGraph = false;
     const metaCfg = getMetaConfig();
-    if (metaCfg.appId && metaCfg.appSecret) {
+    const graphAccessToken =
+      linkedAccessToken ||
+      (metaCfg.appId && metaCfg.appSecret
+        ? `${metaCfg.appId}|${metaCfg.appSecret}`
+        : "");
+    if (graphAccessToken) {
       try {
         const graphParams = new URLSearchParams({
           fields: "name,about,link,website,fan_count,category,picture.type(large)",
-          access_token: `${metaCfg.appId}|${metaCfg.appSecret}`,
+          access_token: graphAccessToken,
         });
         const graphRes = await safeFetch(
           `https://graph.facebook.com/v20.0/${encodeURIComponent(pageId)}?${graphParams.toString()}`,
@@ -208,7 +220,7 @@ export async function POST(request: NextRequest) {
     // If linking is required, verify the user has an active Facebook connection
     // (this gates Pages/Groups that need OAuth while allowing public profiles)
     let linkError = false;
-    if (requiresLinking) {
+    if (requiresLinking && !linkedAccessToken) {
       const gate = await checkAnalysisAccess(request, "facebook");
       if (!gate.ok) {
         linkError = true;
@@ -369,14 +381,16 @@ function extractFacebookPageId(inputUrl: string): string | null {
   if (segments.length === 0) return null;
 
   // ---- profile.php?id=... (id may appear anywhere in the query string) ----
-  if (segments[0] === "profile.php") {
+  const route = segments[0].toLowerCase();
+
+  if (route === "profile.php") {
     const searchId = parsed.searchParams.get("id");
     if (searchId && /^\d+$/.test(searchId.trim())) return searchId.trim();
     return null;
   }
 
   // ---- people/{Name}/{id}/...  (skip trailing sub-paths like /about /posts) ----
-  if (segments[0] === "people") {
+  if (route === "people") {
     for (let i = segments.length - 1; i >= 1; i--) {
       const candidate = segments[i];
       if (/^\d+$/.test(candidate)) return candidate; // numeric page id
@@ -388,7 +402,7 @@ function extractFacebookPageId(inputUrl: string): string | null {
   }
 
   // ---- pages/{slug}/{id}/...  or  pages/{id} ----
-  if (segments[0] === "pages") {
+  if (route === "pages") {
     for (let i = segments.length - 1; i >= 1; i--) {
       const candidate = segments[i];
       if (/^\d+$/.test(candidate)) return candidate;
@@ -407,7 +421,7 @@ function extractFacebookPageId(inputUrl: string): string | null {
     "video.php", "story.php", "marketplace", "settings", "help",
     "messages", "notifications", "saved", "pages", "people", "timeline",
   ]);
-  if (nonPageRoutes.has(segments[0].toLowerCase())) return null;
+  if (nonPageRoutes.has(route)) return null;
 
   // ---- Generic username/page slug: first path segment ----
   let id = segments[0];
