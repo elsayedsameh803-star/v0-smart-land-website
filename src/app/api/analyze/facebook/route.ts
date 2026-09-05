@@ -117,7 +117,13 @@ export async function POST(request: NextRequest) {
     const normalizedUrl = `https://www.facebook.com/${pageId}/`;
 
     let linkedAccessToken: string | undefined;
-    if (!hasSourceData) {
+    const hasPublicSourceData =
+      ((profileData.followers || 0) > 0) ||
+      profileData.hasAbout === true ||
+      Boolean(profileData.metaImage) ||
+      profileData.verified === true ||
+      ((profileData.visiblePosts || 0) > 0);
+    if (!hasPublicSourceData) {
       const gate = await checkAnalysisAccess(request, "facebook");
       if (!gate.ok) return gate.response;
       linkedAccessToken = gate.connection?.token?.accessToken;
