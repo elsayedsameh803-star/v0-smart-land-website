@@ -383,8 +383,8 @@ function extractVideoId(url: string): string | null {
   }
 
   const regexPatterns = [
-    /(?:?:youtube\.com|m\.youtube\.com|www\.youtube\.com)\/(?:watch\?v=|shorts\/|embed\/|live\/|v\/)([a-zA-Z0-9_-]{11})/i,
-    /youtu\.be\/([a-zA-Z0-9_-]{11})/i,
+    /(?:https?:\/\/)?(?:www\.|m\.)?youtube\.com\/(?:watch\?v=|shorts\/|embed\/|live\/|v\/)([a-zA-Z0-9_-]{11})/i,
+    /(?:https?:\/\/)?youtu\.be\/([a-zA-Z0-9_-]{11})/i,
     /[?&]v=([a-zA-Z0-9_-]{11})/i,
   ];
 
