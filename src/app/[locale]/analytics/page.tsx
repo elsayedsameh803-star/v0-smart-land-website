@@ -147,6 +147,15 @@ function AnalyticsDashboard({ locale }: { locale: string }) {
 
   // "Linked, fetching…" toast when returning from a completed OAuth flow.
   useEffect(() => {
+    if (window.opener && window.opener !== window) {
+      window.opener.postMessage(
+        { type: "smart-land-oauth-complete" },
+        window.location.origin
+      );
+      window.close();
+      return;
+    }
+
     const flag =
       searchParams.get("meta_oauth") ||
       searchParams.get("youtube_oauth") ||

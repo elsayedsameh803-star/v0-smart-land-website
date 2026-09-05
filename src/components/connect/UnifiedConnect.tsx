@@ -217,6 +217,17 @@ export function UnifiedConnect({
     loadConnections();
   }, [loadConnections]);
 
+  useEffect(() => {
+    const onOAuthComplete = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || event.data?.type !== "smart-land-oauth-complete") {
+        return;
+      }
+      void loadConnections();
+    };
+    window.addEventListener("message", onOAuthComplete);
+    return () => window.removeEventListener("message", onOAuthComplete);
+  }, [loadConnections, onConnectionsChanged]);
+
   const doStart = useCallback(
     async (platform: PlatformId) => {
       if (sessionStatus === "loading") return;
@@ -232,7 +243,14 @@ export function UnifiedConnect({
         const path = getStartPath(platform);
         const returnTarget =
           returnPath || `${window.location.pathname}${window.location.search}`;
-        window.location.href = `${path}?return=${encodeURIComponent(returnTarget)}`;
+        const popup = window.open(
+          `${path}?return=${encodeURIComponent(returnTarget)}`,
+          `smart-land-${platform}-oauth`,
+          "width=520,height=720,menubar=no,toolbar=no,location=yes,resizable=yes,scrollbars=yes"
+        );
+        if (!popup) {
+          window.location.href = `${path}?return=${encodeURIComponent(returnTarget)}`;
+        }
       } catch {
         setError(
           isAr
