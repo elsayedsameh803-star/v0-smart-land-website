@@ -19,11 +19,13 @@ import { getMetaConfig } from "./meta-graph";
 import { getTikTokClientKey, getTikTokClientSecret } from "./tiktok-api";
 import { getSiteUrl } from "./site-config";
 
+const cleanEnv = (value: string | undefined): string => (value || "").trim();
+
 export function getYouTubeClientId(): string {
-  return process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
+  return cleanEnv(process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID);
 }
 export function getYouTubeClientSecret(): string {
-  return process.env.GOOGLE_CLIENT_SECRET || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET || "";
+  return cleanEnv(process.env.GOOGLE_CLIENT_SECRET || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_SECRET);
 }
 
 /**
@@ -34,9 +36,9 @@ export function getYouTubeClientSecret(): string {
  */
 export function getYouTubeApiKey(): string {
   return (
-    process.env.GOOGLE_API_KEY ||
-    process.env.YOUTUBE_API_KEY ||
-    process.env.YOUTUBE_DATA_API_KEY ||
+    cleanEnv(process.env.GOOGLE_API_KEY) ||
+    cleanEnv(process.env.YOUTUBE_API_KEY) ||
+    cleanEnv(process.env.YOUTUBE_DATA_API_KEY) ||
     ""
   );
 }

@@ -12,21 +12,23 @@
 // closed (no one can log in) instead of falling back to a password.
 // =============================================================================
 
+import { getSiteUrl } from "./site-config";
+
+const cleanEnv = (value: string | undefined): string => (value || "").trim();
+
 export function isGoogleOAuthConfigured(): boolean {
   return Boolean(
-    process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    cleanEnv(process.env.GOOGLE_CLIENT_ID) &&
+      cleanEnv(process.env.GOOGLE_CLIENT_SECRET)
   );
 }
 
 export function getGoogleRedirectUri(): string {
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  return `${base.replace(/\/+$/, "")}/api/auth/google/callback`;
+  return `${getSiteUrl()}/api/auth/google/callback`;
 }
 
 export function buildGoogleAuthUrl(): string {
-  const clientId = process.env.GOOGLE_CLIENT_ID as string;
+  const clientId = cleanEnv(process.env.GOOGLE_CLIENT_ID);
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: getGoogleRedirectUri(),
@@ -59,8 +61,8 @@ export async function exchangeCodeForToken(
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         code,
-        client_id: process.env.GOOGLE_CLIENT_ID as string,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET as string,
+        client_id: cleanEnv(process.env.GOOGLE_CLIENT_ID),
+        client_secret: cleanEnv(process.env.GOOGLE_CLIENT_SECRET),
         redirect_uri: getGoogleRedirectUri(),
         grant_type: "authorization_code",
       }).toString(),

@@ -8,12 +8,11 @@ import {
   SESSION_COOKIE_NAME,
   SESSION_MAX_AGE,
 } from "@/lib/admin-auth";
+import { getSiteUrl } from "@/lib/site-config";
 
 export const dynamic = "force-dynamic";
 
-const SITE_BASE =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+const SITE_BASE = getSiteUrl();
 
 /** Google OAuth callback for admin. On success issues a signed admin session. */
 export async function GET(request: NextRequest) {
