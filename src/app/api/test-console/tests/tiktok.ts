@@ -79,14 +79,58 @@ export async function testTikTokAPI(): Promise<TestResult> {
     const tokenData = await tokenRes.json().catch(() => null);
 
     if (tokenData?.data?.access_token) {
+      // ---- REAL data probe: query a known public account via Research API ----
+      // Token issuance alone does not prove data access — the project must be
+      // Research-approved. Probing user/info for the official @tiktok account
+      // verifies the full pipeline end-to-end (no secrets are ever returned).
+      const probe: Record<string, any> = { attempted: true };
+      try {
+        const probeRes = await fetch(
+          "https://open.tiktokapis.com/v2/research/user/info/?fields=" +
+            encodeURIComponent("display_name,follower_count,likes_count,video_count,is_verified"),
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${tokenData.data.access_token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ username: "tiktok" }),
+            signal: AbortSignal.timeout(15000),
+          }
+        );
+        const probeData: any = await probeRes.json().catch(() => null);
+        if (probeRes.ok && probeData?.data && typeof probeData.data.follower_count !== "undefined") {
+          probe.ok = true;
+          probe.displayName = probeData.data.display_name;
+          probe.followerCount = probeData.data.follower_count;
+          probe.likesCount = probeData.data.likes_count;
+          probe.videoCount = probeData.data.video_count;
+          probe.verified = probeData.data.is_verified;
+        } else {
+          probe.ok = false;
+          probe.httpStatus = probeRes.status;
+          probe.errorCode = probeData?.error?.code || "";
+          probe.errorMessage = probeData?.error?.message || "";
+        }
+      } catch (e: any) {
+        probe.ok = false;
+        probe.exception = e?.message || "research probe failed";
+      }
+
+      const realDataOk = probe.ok === true;
       return {
         platform: "TikTok",
         status: "success",
-        message: "TikTok Research API connected (client credentials valid)",
-        messageAr: "تم الاتصال بـ TikTok Research API (بيانات الاعتماد صالحة)",
+        message: realDataOk
+          ? "TikTok Research API connected AND returning REAL account data (user/info verified)"
+          : "TikTok client credentials valid, but Research API data access failed (project may not be Research-approved)",
+        messageAr: realDataOk
+          ? "TikTok Research API متصل ويعيد بيانات حساب حقيقية (تم التحقق عبر user/info)"
+          : "بيانات اعتماد TikTok صالحة، لكن الوصول لبيانات Research API فشل (قد لا يكون المشروع معتمداً كـ Research)",
         data: {
           hasAccessToken: true,
           tokenType: tokenData.data.token_type,
+          researchProbe: probe,
         },
         responseTime: Date.now() - start,
       };
