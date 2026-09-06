@@ -86,6 +86,10 @@ fetch_summary.txt
 env_list_raw.json
 sl_apply_env.mjs
 sl_fetch_env.mjs
+sl_merge_vercel_env.mjs
+sl_test_research.mjs
+merge_summary.txt
+research_test_summary.txt
 sl*.txt
 envpull.txt
 envls.txt

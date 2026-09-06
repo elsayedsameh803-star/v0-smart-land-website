@@ -42,13 +42,7 @@ function extractHandleFromAuthorUrl(authorUrl: string | null): string | null {
 }
 
 function pickHashtags(video: any): string[] {
-  // Research-style: hashtag_info = [{ tag_name }]
-  if (Array.isArray(video?.hashtag_info)) {
-    return video.hashtag_info
-      .map((h: any) => (typeof h === "string" ? h : h?.tag_name))
-      .filter(Boolean);
-  }
-  // Display-style: hashtag_names = [...]
+  // Research API and Display API both return hashtag_names for videos.
   if (Array.isArray(video?.hashtag_names)) {
     return video.hashtag_names.filter((h: any) => typeof h === "string");
   }
@@ -79,12 +73,19 @@ export async function analyzeTikTokVideo(params: {
     : `https://www.tiktok.com/video/${videoId}`;
 
   const oembed = await fetchTikTokOEmbed(canonicalUrl);
-  const username = handle || extractHandleFromAuthorUrl(oembed.authorUrl) || videoId;
 
   // ---- Research API first (client credentials, no user consent needed) ----
   let video: any = null;
   let via: "research" | "display" | "oembed-only" = "oembed-only";
   const research = await queryResearchVideoById(videoId);
+  // The Research payload carries the author's real username — use it when the
+  // visitor only pasted a short/ID link without the @handle.
+  const researchUsername =
+    typeof research?.username === "string" && research.username
+      ? research.username
+      : null;
+  const username =
+    handle || researchUsername || extractHandleFromAuthorUrl(oembed.authorUrl) || videoId;
   if (research && !research.__httpError && !research.__empty) {
     video = research;
     via = "research";
@@ -118,7 +119,9 @@ export async function analyzeTikTokVideo(params: {
     const likes = toPositiveInt(video.like_count);
     const comments = toPositiveInt(video.comment_count);
     const shares = toPositiveInt(video.share_count);
-    const duration = toPositiveInt(video.duration);
+    // Research API returns video_duration; Display API returns duration.
+    const duration = toPositiveInt(video.duration ?? video.video_duration);
+    const favorites = toPositiveInt(video.favorites_count);
 
     if (views) {
       profileData.views = views;
@@ -134,6 +137,7 @@ export async function analyzeTikTokVideo(params: {
       profileData.duration = duration;
       extraData.duration = duration;
     }
+    if (favorites) extraData.favorites = favorites;
 
     if (views && (likes || comments || shares)) {
       profileData.engagementRate =
@@ -213,6 +217,7 @@ export async function analyzeTikTokProfile(params: {
     profileData.displayName =
       researchUser.display_name || profileData.displayName || cleanHandle;
     if (researchUser.bio_description) profileData.bio = researchUser.bio_description;
+    if (researchUser.bio_url) profileData.website = researchUser.bio_url;
     const followers = toPositiveInt(researchUser.follower_count);
     const following = toPositiveInt(researchUser.following_count);
     const likes = toPositiveInt(researchUser.likes_count);

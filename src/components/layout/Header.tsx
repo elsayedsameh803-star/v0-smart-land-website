@@ -85,8 +85,8 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
   return (
     <header className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-      isScrolled 
-        ? 'glass-deep shadow-lg shadow-gold-500/5' 
+      isScrolled || isMenuOpen
+        ? 'glass-deep shadow-lg shadow-gold-500/5'
         : 'bg-transparent'
     )}>
       {/* Top Announcement Bar — shown ONE time per visitor (see above) */}
@@ -200,7 +200,7 @@ const Header = ({ locale, dictionary }: HeaderProps) => {
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div aria-label={locale === "ar" ? "قائمة الجوال" : "Mobile menu"} className="lg:hidden py-4 border-t border-gold-500/10 animate-slide-down">
+          <div aria-label={locale === "ar" ? "قائمة الجوال" : "Mobile menu"} className="lg:hidden mt-2 py-4 px-2 rounded-2xl border border-gold-500/20 bg-dark-950/95 backdrop-blur-xl shadow-2xl shadow-black/50 animate-slide-down">
             <div className="flex flex-col gap-1">
               {navLinks.map((link) => {
                 const isActive = pathname === link.href;

@@ -1,3 +1,5 @@
+import { getTikTokClientKey, getTikTokClientSecret } from "@/lib/tiktok-api";
+
 export interface TestResult {
   platform: string;
   status: "success" | "error" | "warning" | "skipped";
@@ -13,8 +15,10 @@ export interface TestResult {
  */
 export async function testTikTokAPI(): Promise<TestResult> {
   const start = Date.now();
-  const clientKey = process.env.TIKTOK_CLIENT_KEY;
-  const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+  // Resolve credentials exactly like the analyzer does (canonical + legacy
+  // Vercel names), so this test reflects what production actually uses.
+  const clientKey = getTikTokClientKey();
+  const clientSecret = getTikTokClientSecret();
 
   // Test oEmbed first (public, no credentials)
   try {
