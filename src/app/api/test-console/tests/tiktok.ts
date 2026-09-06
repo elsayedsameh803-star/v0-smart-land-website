@@ -76,7 +76,7 @@ export async function testTikTokAPI(): Promise<TestResult> {
       signal: AbortSignal.timeout(15000),
     });
 
-    const tokenData = await tokenRes.json().catch(() => null);
+    const tokenData: any = await tokenRes.json().catch(() => null);
 
     if (tokenData?.data?.access_token) {
       // ---- REAL data probe: query a known public account via Research API ----
@@ -136,12 +136,28 @@ export async function testTikTokAPI(): Promise<TestResult> {
       };
     }
 
+    // Surface exactly WHY TikTok rejected the exchange so misconfigured
+    // credentials can be fixed quickly (e.g. invalid_client). TikTok does not
+    // echo secrets back in error bodies — only error codes/descriptions.
+    const errBits = [
+      `HTTP ${tokenRes.status}`,
+      tokenData?.error ? String(tokenData.error) : "",
+      tokenData?.error_description ? String(tokenData.error_description) : "",
+      tokenData?.error?.code ? String(tokenData.error.code) : "",
+      tokenData?.error?.message ? String(tokenData.error.message) : "",
+      !tokenData ? "non-JSON response from TikTok" : "",
+    ].filter(Boolean);
+
     return {
       platform: "TikTok",
       status: "warning",
       message: "TikTok credentials configured but token exchange failed",
       messageAr: "بيانات الاعتماد مُكوّنة لكن فشل الحصول على التوكن",
-      error: tokenData?.error?.message || "Token exchange failed",
+      error: errBits.join(" | ") || "Token exchange failed",
+      data: {
+        hasClientKey: !!clientKey,
+        hasClientSecret: !!clientSecret,
+      },
       responseTime: Date.now() - start,
     };
   } catch (error: any) {
