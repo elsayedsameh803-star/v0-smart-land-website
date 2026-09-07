@@ -20,6 +20,7 @@
 // =============================================================================
 
 import { logTikTok } from "./tiktok-log";
+import { getSiteUrl } from "./site-config";
 
 export const TIKTOK_API_BASE = "https://open.tiktokapis.com/v2";
 export const TIKTOK_OAUTH_BASE = "https://www.tiktok.com/v2/auth/authorize";
@@ -43,10 +44,11 @@ export function getTikTokClientSecret(): string {
 }
 
 export function getTikTokRedirectUri(): string {
-  const base =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-  return `${base.replace(/\/+$/, "")}/api/tiktok/oauth/callback`;
+  // Single source of truth (site-config): resolves NEXT_PUBLIC_SITE_URL, the
+  // canonical production domain in production, VERCEL_URL only for previews,
+  // and the default locally. Using this keeps the redirect_uri STABLE across
+  // deployments — it must match the URI registered in the TikTok app exactly.
+  return `${getSiteUrl().replace(/\/+$/, "")}/api/tiktok/oauth/callback`;
 }
 
 // ---------------------------------------------------------------------------
