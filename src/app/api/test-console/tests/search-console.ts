@@ -26,7 +26,7 @@ export async function testSearchConsole(): Promise<TestResult> {
   }
 
   try {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://smart-land.vercel.app";
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://smart-land-theta.vercel.app";
     
     return {
       platform: "Search Console",
