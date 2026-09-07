@@ -149,6 +149,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/|tiktok-site-verification.txt).*)"],
+  matcher: ["/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/|tiktok-site-verification.txt|tiktokIZPLj9v7G05ZTxZThd7WW1DKAkC6BzCn.txt).*)"],
 };
 
