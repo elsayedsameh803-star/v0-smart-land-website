@@ -112,6 +112,8 @@ export async function middleware(request: NextRequest) {
       pathname === "/sw.js" ||
       pathname.startsWith("/icons/") ||
       pathname.startsWith("/screenshots/") ||
+      pathname === "/tiktok-site-verification.txt" ||
+      pathname.endsWith(".txt") ||
       pathname.endsWith(".svg") ||
       pathname.endsWith(".png") ||
       pathname.endsWith(".jpg") ||
@@ -147,6 +149,6 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/).*)"],
+  matcher: ["/((?!_next/|_vercel|favicon.ico|robots.txt|sitemap.xml|manifest.json|sw.js|icons/|screenshots/|tiktok-site-verification.txt).*)"],
 };
 
