@@ -42,7 +42,7 @@ export function buildDefaultPlans(): Plan[] {
       billing: "one_time",
       features: ["Unlimited analyses", "All platforms (7+)", "Advanced insights & recommendations", "PDF report"],
       limits: {
-        analysesPerMonth: -1,
+        analysesPerMonth: 3,
         platforms: ["*"],
         sitesLimit: -1,
         pagesLimit: -1,
@@ -61,7 +61,7 @@ export function buildDefaultPlans(): Plan[] {
       nameAr: "الاحترافية",
       description: "Unlock everything with a monthly subscription.",
       descriptionAr: "افتح كل المزايا باشتراك شهري.",
-      priceCents: 500, // $5.00 USD / month
+      priceCents: 499, // $4.99 USD / month
       currency: "USD",
       durationMonths: 1,
       billing: "monthly",
@@ -95,7 +95,7 @@ export function buildDefaultPlans(): Plan[] {
       nameAr: "الاحترافية سنوياً",
       description: "Best value — save 2 months compared to monthly billing.",
       descriptionAr: "أفضل قيمة — وفّر شهرين مقارنة بالفوترة الشهرية.",
-      priceCents: 5000, // $50.00 USD / year
+      priceCents: 1900, // $19.00 USD / year
       currency: "USD",
       durationMonths: 12,
       billing: "yearly",
