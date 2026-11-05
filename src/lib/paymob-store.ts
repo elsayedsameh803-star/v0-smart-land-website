@@ -95,7 +95,7 @@ export function buildDefaultPlans(): Plan[] {
       nameAr: "الاحترافية سنوياً",
       description: "Best value — save 2 months compared to monthly billing.",
       descriptionAr: "أفضل قيمة — وفّر شهرين مقارنة بالفوترة الشهرية.",
-      priceCents: 1900, // $19.00 USD / year
+      priceCents: 1999, // $19.99 USD / year
       currency: "USD",
       durationMonths: 12,
       billing: "yearly",
