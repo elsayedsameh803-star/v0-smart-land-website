@@ -7,6 +7,8 @@
 
 import { createHmac, timingSafeEqual } from "crypto";
 import type { NextRequest } from "next/server";
+import { isAllowedAdminEmail } from "@/lib/google-auth";
+import { isAllowedAdminEmail } from "@/lib/google-auth";
 import type { CustomerIdentity, Subscription, UsageQuota } from "./paymob-types";
 import {
   getPlanById,
@@ -92,6 +94,9 @@ export interface AccessDecision {
 export function getAccessDecision(customerEmail?: string | null): AccessDecision {
   applyExpiredSubscriptions();
   const email = customerEmail?.trim().toLowerCase();
+  if (isAllowedAdminEmail(email)) {
+    return { allowed: true, hasSubscription: true, subscription: null, messageAr: "", messageEn: "" };
+  }
   if (!email) {
     // No identity -> treat as anonymous free (platform stays usable)
     return { allowed: true, hasSubscription: false, subscription: null, messageAr: "", messageEn: "" };
@@ -245,7 +250,20 @@ export function activateSubscription(params: {
 export function getUsageQuota(customerEmail?: string | null): UsageQuota {
   applyExpiredSubscriptions();
   const email = customerEmail?.trim().toLowerCase();
-  const sub = email ? getSubscriptionByEmail(email) : null;
+  if (isAllowedAdminEmail(email)) {
+    return {
+      planId: "admin",
+      planName: "Admin",
+      planNameAr: "مدير",
+      isPaid: true,
+      analysesPerMonth: -1,
+      sitesLimit: -1,
+      pagesLimit: -1,
+      platforms: ["*"],
+      expiresAt: null,
+      subscriptionStatus: "active",
+    };
+  }
 
   // Active paid subscription -> quota comes straight from the plan's limits.
   if (sub && sub.status === "active") {

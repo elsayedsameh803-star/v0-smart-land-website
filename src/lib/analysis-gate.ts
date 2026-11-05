@@ -22,6 +22,7 @@ import type { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { resolveConnectionHealth, PlatformId } from "@/lib/connections";
+import { isAllowedAdminEmail } from "@/lib/google-auth";
 
 export type AccessError =
   | { code: "auth_required"; message: string; messageAr: string }
@@ -84,7 +85,10 @@ export async function checkAnalysisAccess(
     return { ok: true, session, connection: null };
   }
 
-  // Collect any refreshed-token cookies written during the health check and
+// Admin (site owner) bypasses platform connection requirement.
+  if (isAllowedAdminEmail(session?.user?.email)) {
+    return { ok: true, session, connection: null };
+  }
   // attach them to WHICHEVER response we end up returning, so the rotation
   // survives and the user is never asked to re-link needlessly.
   const cookieJar: Array<{ name: string; value: string; options?: unknown }> = [];
