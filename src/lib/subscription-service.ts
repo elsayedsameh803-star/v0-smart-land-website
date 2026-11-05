@@ -8,7 +8,6 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import type { NextRequest } from "next/server";
 import { isAllowedAdminEmail } from "@/lib/google-auth";
-import { isAllowedAdminEmail } from "@/lib/google-auth";
 import type { CustomerIdentity, Subscription, UsageQuota } from "./paymob-types";
 import {
   getPlanById,
@@ -250,6 +249,7 @@ export function activateSubscription(params: {
 export function getUsageQuota(customerEmail?: string | null): UsageQuota {
   applyExpiredSubscriptions();
   const email = customerEmail?.trim().toLowerCase();
+  const sub = email ? getSubscriptionByEmail(email) : null;
   if (isAllowedAdminEmail(email)) {
     return {
       planId: "admin",
